@@ -274,12 +274,15 @@ export default function DataIngestion() {
 
         json.forEach((row, index) => {
           // ENSURING COLUMNS MATCH THE REQUESTED SCHEMA:
-          // planificacion_produccion: producto, nombre_color, cantidad, modulos
+          // planificacion_produccion: sku, semana, producto, color, nombre_color, modulo, cantidad
           const parsedRow = {
-            producto: row.Producto || row.producto,
-            nombre_color: row.Nombre_Color || row.nombre_color || row.Color || row.color,
+            sku: row.SKU || row.sku || '',
+            semana: row.Semana || row.semana || '',
+            producto: row.Producto || row.producto || '',
+            color: row.Color || row.color || '',
+            nombre_color: row.Nombre_Color || row.nombre_color || row.NombreColor || '',
+            modulo: row.Modulo || row.modulo || row.Modulos || row.modulos || '',
             cantidad: parseInt(row.Cantidad || row.cantidad, 10),
-            modulos: row.Modulo || row.modulo || row.Modulos || row.modulos,
           };
 
           if (parsedRow.producto && parsedRow.nombre_color && !isNaN(parsedRow.cantidad)) {
@@ -412,8 +415,10 @@ export default function DataIngestion() {
             <Table>
               <thead>
                 <tr>
+                  <Th>SKU</Th>
+                  <Th>Semana</Th>
                   <Th>Producto</Th>
-                  <Th>Nombre Color</Th>
+                  <Th>Color / Nombre</Th>
                   <Th>Módulo</Th>
                   <Th css={{ textAlign: 'right', paddingRight: '$12' }}>Cantidad</Th>
                 </tr>
@@ -421,9 +426,11 @@ export default function DataIngestion() {
               <tbody>
                 {dataToUpload.map((row, i) => (
                   <Tr key={`valid-${i}`}>
+                    <Td css={{ color: '$gray500' }}>{row.sku || '-'}</Td>
+                    <Td css={{ color: '$gray500' }}>{row.semana || '-'}</Td>
                     <Td css={{ fontWeight: '500', color: '$primary' }}>{row.producto}</Td>
-                    <Td css={{ color: '$gray500' }}>{row.nombre_color}</Td>
-                    <Td css={{ color: '$gray500' }}>{row.modulos || 'N/A'}</Td>
+                    <Td css={{ color: '$gray500' }}>{row.color} - {row.nombre_color}</Td>
+                    <Td css={{ color: '$gray500' }}>{row.modulo || 'N/A'}</Td>
                     <Td css={{ fontWeight: '700', color: '$primary', textAlign: 'right', paddingRight: '$12' }}>
                       {row.cantidad}
                     </Td>
@@ -431,9 +438,11 @@ export default function DataIngestion() {
                 ))}
                 {errorRows.map((row, i) => (
                   <Tr key={`error-${i}`} error>
+                    <Td css={{ color: '$red600' }}>{row.sku || '-'}</Td>
+                    <Td css={{ color: '$red600' }}>{row.semana || '-'}</Td>
                     <Td css={{ fontWeight: '500', color: '$red700' }}>{row.producto || 'Missing'}</Td>
                     <Td css={{ color: '$red600' }}>{row.nombre_color || 'Missing'}</Td>
-                    <Td css={{ color: '$red600' }}>{row.modulos || 'N/A'}</Td>
+                    <Td css={{ color: '$red600' }}>{row.modulo || 'N/A'}</Td>
                     <Td css={{ fontWeight: '700', color: '$red700', textAlign: 'right', paddingRight: '$12' }}>
                       {row.cantidad || 0}
                     </Td>

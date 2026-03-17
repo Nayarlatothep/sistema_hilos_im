@@ -76,7 +76,7 @@ export default function Dashboard() {
 
     // Map plans by station
     planificacion.forEach(p => {
-      const station = p.modulos || 'Sin Asignar';
+      const station = p.modulo || 'Sin Asignar';
       if (!stations[station]) {
         stations[station] = {
           planned: 0,
