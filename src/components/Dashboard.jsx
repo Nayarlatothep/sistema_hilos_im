@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
-import { styled } from '../../lib/stitches.config';
-import { useStore } from '../../store/useStore';
+import { styled } from '../lib/stitches.config';
+import { useStore } from '../store/useStore';
 import { Layers } from 'lucide-react';
 
 const Card = styled('div', {
