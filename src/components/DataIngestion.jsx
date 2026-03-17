@@ -323,7 +323,9 @@ export default function DataIngestion() {
       setSuccessMsg('Datos cargados exitosamente en Supabase.');
       setErrorMsg(null);
     } else {
-      setErrorMsg('Error al cargar datos en Supabase. Verifique RLS o conexión.');
+      // Access error from the store
+      const dbError = useStore.getState().error;
+      setErrorMsg(`Error de base de datos: ${dbError || 'Verifique conexión y RLS'}`);
       setSuccessMsg(null);
     }
   };
