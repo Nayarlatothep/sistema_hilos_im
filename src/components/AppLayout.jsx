@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled } from '../../lib/stitches.config';
+import { styled } from '../lib/stitches.config';
 
 const LayoutContainer = styled('div', {
   minHeight: '100vh',

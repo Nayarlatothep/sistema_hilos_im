@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
-import { styled } from '../../lib/stitches.config';
-import { useStore } from '../../store/useStore';
+import { styled } from '../lib/stitches.config';
+import { useStore } from '../store/useStore';
 import { UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
 
 const UploadSection = styled('section', {
