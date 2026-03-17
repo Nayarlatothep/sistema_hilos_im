@@ -59,5 +59,23 @@ export const useStore = create((set, get) => ({
       set({ transferencias: [...get().transferencias, ...data], loading: false });
       return data;
     }
+  },
+
+  clearPlanificacion: async () => {
+    set({ loading: true, error: null });
+    // In Supabase, to delete all, we usually use a filter that matches all or a direct SQL call.
+    // Here we assume RLS allows deleting based on presence of ID.
+    const { error } = await supabase
+      .from('planificacion_produccion')
+      .delete()
+      .neq('id', 0); // This is a common way to target all records if ID > 0
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return false;
+    } else {
+      set({ planificacion: [], loading: false });
+      return true;
+    }
   }
 }));

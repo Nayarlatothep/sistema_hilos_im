@@ -249,7 +249,7 @@ export default function DataIngestion() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   
-  const { uploadPlanificacion, loading } = useStore();
+  const { uploadPlanificacion, clearPlanificacion, loading } = useStore();
 
   const onDrop = useCallback((acceptedFiles) => {
     setErrorMsg(null);
@@ -273,12 +273,13 @@ export default function DataIngestion() {
         const invalidData = [];
 
         json.forEach((row, index) => {
+          // ENSURING COLUMNS MATCH THE REQUESTED SCHEMA:
+          // planificacion_produccion: producto, nombre_color, cantidad, modulos
           const parsedRow = {
-            sku: row.SKU || row.sku || `SKU-${index}`,
             producto: row.Producto || row.producto,
-            nombre_color: row.Color || row.nombre_color,
+            nombre_color: row.Nombre_Color || row.nombre_color || row.Color || row.color,
             cantidad: parseInt(row.Cantidad || row.cantidad, 10),
-            modulos: row.Modulos || row.Módulos || row.modulos || row.Modulo || row.modulo,
+            modulos: row.Modulo || row.modulo || row.Modulos || row.modulos,
           };
 
           if (parsedRow.producto && parsedRow.nombre_color && !isNaN(parsedRow.cantidad)) {
@@ -289,10 +290,10 @@ export default function DataIngestion() {
         });
 
         if (validData.length === 0) {
-          setErrorMsg('No se encontraron registros válidos en el archivo.');
+          setErrorMsg('No se encontraron registros válidos. Revise las columnas: Producto, Nombre_Color, Cantidad, Modulo.');
         } else {
           setDataToUpload(validData);
-          setSuccessMsg(`Validation successful. ${validData.length} records found.`);
+          setSuccessMsg(`Validación exitosa. ${validData.length} registros listos.`);
         }
         
         setErrorRows(invalidData);
@@ -319,15 +320,26 @@ export default function DataIngestion() {
     if (res) {
       setDataToUpload([]);
       setErrorRows([]);
-      setSuccessMsg('Registros procesados y guardados exitosamente.');
+      setSuccessMsg('Datos cargados exitosamente en Supabase.');
       setErrorMsg(null);
     } else {
-      setErrorMsg('Error al procesar y guardar en base de datos.');
+      setErrorMsg('Error al cargar datos en Supabase. Verifique RLS o conexión.');
       setSuccessMsg(null);
     }
   };
 
-  const handleClear = () => {
+  const handleClearTable = async () => {
+    if (window.confirm('¿Está seguro de que desea BORRAR TODA la planificación de la base de datos?')) {
+      const success = await clearPlanificacion();
+      if (success) {
+        setSuccessMsg('Tabla de planificación limpiada exitosamente.');
+      } else {
+        setErrorMsg('Error al limpiar la tabla.');
+      }
+    }
+  };
+
+  const handleClearPreview = () => {
     setDataToUpload([]);
     setErrorRows([]);
     setErrorMsg(null);
@@ -343,6 +355,16 @@ export default function DataIngestion() {
           <h1>Import Inventory Data</h1>
           <p>Please upload your weekly inventory files to sync with the central database.</p>
         </SectionHeader>
+
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'flex-end' }}>
+          <ProcessButton 
+            onClick={handleClearTable} 
+            css={{ backgroundColor: '$error', '&:hover': { backgroundColor: '$red700' } }}
+            disabled={loading}
+          >
+            Borrar Tabla (DB)
+          </ProcessButton>
+        </div>
 
         <DropZoneContainer {...getRootProps()} active={isDragActive}>
           <IconWrapper>
@@ -377,9 +399,9 @@ export default function DataIngestion() {
           <PreviewHeader>
             <h3>Data Preview</h3>
             <ActionRow>
-              <ClearButton onClick={handleClear}>Clear Data</ClearButton>
+              <ClearButton onClick={handleClearPreview}>Limpiar Vista</ClearButton>
               <ProcessButton onClick={handleProcessAll} disabled={loading || dataToUpload.length === 0}>
-                {loading ? 'Processing...' : 'Process All Records'}
+                {loading ? 'Cargando...' : 'Cargar a Supabase'}
               </ProcessButton>
             </ActionRow>
           </PreviewHeader>
@@ -388,9 +410,8 @@ export default function DataIngestion() {
             <Table>
               <thead>
                 <tr>
-                  <Th>SKU</Th>
                   <Th>Producto</Th>
-                  <Th>Color / Nombre</Th>
+                  <Th>Nombre Color</Th>
                   <Th>Módulo</Th>
                   <Th css={{ textAlign: 'right', paddingRight: '$12' }}>Cantidad</Th>
                 </tr>
@@ -398,8 +419,7 @@ export default function DataIngestion() {
               <tbody>
                 {dataToUpload.map((row, i) => (
                   <Tr key={`valid-${i}`}>
-                    <Td css={{ fontWeight: '500', color: '$primary' }}>{row.sku}</Td>
-                    <Td css={{ color: '$gray500' }}>{row.producto}</Td>
+                    <Td css={{ fontWeight: '500', color: '$primary' }}>{row.producto}</Td>
                     <Td css={{ color: '$gray500' }}>{row.nombre_color}</Td>
                     <Td css={{ color: '$gray500' }}>{row.modulos || 'N/A'}</Td>
                     <Td css={{ fontWeight: '700', color: '$primary', textAlign: 'right', paddingRight: '$12' }}>
@@ -409,8 +429,7 @@ export default function DataIngestion() {
                 ))}
                 {errorRows.map((row, i) => (
                   <Tr key={`error-${i}`} error>
-                    <Td css={{ fontWeight: '500', color: '$red700' }}>{row.sku || 'ERR'}</Td>
-                    <Td css={{ color: '$red600' }}>{row.producto || 'Missing'}</Td>
+                    <Td css={{ fontWeight: '500', color: '$red700' }}>{row.producto || 'Missing'}</Td>
                     <Td css={{ color: '$red600' }}>{row.nombre_color || 'Missing'}</Td>
                     <Td css={{ color: '$red600' }}>{row.modulos || 'N/A'}</Td>
                     <Td css={{ fontWeight: '700', color: '$red700', textAlign: 'right', paddingRight: '$12' }}>
