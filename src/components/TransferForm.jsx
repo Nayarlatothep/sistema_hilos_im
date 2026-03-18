@@ -276,6 +276,7 @@ export default function TransferForm() {
     cantidad: ''
   });
 
+  const [localTransferencias, setLocalTransferencias] = useState([]);
   const [msg, setMsg] = useState(null);
 
   // Group and calculate remaining quantities
@@ -326,24 +327,29 @@ export default function TransferForm() {
       return;
     }
 
-    const payload = {
-      sku: formData.sku,
+    // Custom logic requested by the user:
+    // SKU = Producto (del selectedItem) + Codigo color (del selectedItem)
+    // Fecha = Actual now()
+    // Producto = solo el producto sin el nombre_color
+    // Color = solo el codigo hexadecimal (color)
+    // Nombre Color = solo el nombre_color sin el producto
+    
+    const nuevoRegistro = {
+      id: Date.now(),
+      sku: `${selectedItem.producto}${selectedItem.color}`,
+      fecha_transferencia: new Date().toISOString(),
       producto: selectedItem.producto,
       color: selectedItem.color,
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
-      cantidad: qty,
-      fecha_transferencia: new Date().toISOString()
+      cantidad: qty
     };
 
-    const res = await addTransferencia(payload);
-    if (res) {
-      setMsg({ type: 'success', text: `Transferencia de ${qty} completada.` });
-      setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
-      setTimeout(() => setMsg(null), 3000);
-    } else {
-      alert('Error al registrar transferencia.');
-    }
+    // Add to local list instead of Supabase
+    setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
+    setMsg({ type: 'success', text: `Transferencia de ${qty} registrada localmente.` });
+    setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
+    setTimeout(() => setMsg(null), 3000);
   };
 
   const handleRefresh = () => {
@@ -473,14 +479,14 @@ export default function TransferForm() {
                 </tr>
               </thead>
               <tbody>
-                {transferencias.length === 0 ? (
+                {localTransferencias.length === 0 ? (
                   <tr>
                     <Td colSpan="7" style={{ textAlign: 'center', color: '#7a7a7a', padding: '2rem' }}>
-                      No hay registros encontrados.
+                      No hay registros encontrados en esta sesión.
                     </Td>
                   </tr>
                 ) : (
-                  transferencias.map(t => (
+                  localTransferencias.map(t => (
                     <tr key={t.id} style={{ transition: 'background-color 0.2s' }}>
                       <Td>{t.sku || '-'}</Td>
                       <Td style={{ color: '#7a7a7a' }}>{t.fecha_transferencia?.split('T')[0]}</Td>
