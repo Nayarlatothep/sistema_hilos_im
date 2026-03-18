@@ -56,8 +56,8 @@ export const {
       inputHeight: '48px',
     },
     fonts: {
-      body: 'Inter, system-ui, sans-serif',
-      heading: 'Inter, system-ui, sans-serif',
+      body: "'Public Sans', Inter, system-ui, sans-serif",
+      heading: "'Public Sans', Inter, system-ui, sans-serif",
     },
     fontSizes: {
       xs: '0.75rem',

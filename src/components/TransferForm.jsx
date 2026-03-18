@@ -187,9 +187,14 @@ const SubmitButton = styled('button', {
   display: 'flex',
   alignItems: 'center',
   gap: '$2',
-  transition: 'all 0.2s',
-  '&:hover': { backgroundColor: '#1d3557', opacity: 0.9 },
-  '&:disabled': { opacity: 0.5, cursor: 'not-allowed' }
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': { 
+    backgroundColor: '#1d4ed8', 
+    transform: 'translateY(-1px)',
+    boxShadow: '0 12px 20px -5px rgba(30, 64, 175, 0.3)',
+  },
+  '&:active': { transform: 'translateY(0)' },
+  '&:disabled': { opacity: 0.5, cursor: 'not-allowed', transform: 'none' }
 });
 
 const TableSection = styled('div', {
