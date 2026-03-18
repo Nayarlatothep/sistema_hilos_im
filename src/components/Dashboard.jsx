@@ -102,10 +102,36 @@ export default function Dashboard() {
       return { ...p, totalTransferred, totalPlanned, percent };
     });
 
-    if (!searchQuery) return baseData;
+    // Custom Sorting Logic
+    const colorPriority = {
+      'negro': 1,
+      'navy 2025': 2,
+      'blanco': 3,
+      'princeton': 4,
+      'princenton': 4, // Handle typo
+      'lucerne blue': 5,
+      'navy #3': 6
+    };
+
+    const sortedData = baseData.sort((a, b) => {
+      // 1. Sort by Producto (Texture)
+      if (a.producto < b.producto) return -1;
+      if (a.producto > b.producto) return 1;
+
+      // 2. Sort by Color Priority
+      const pA = colorPriority[a.nombre_color.toLowerCase().trim()] || 99;
+      const pB = colorPriority[b.nombre_color.toLowerCase().trim()] || 99;
+
+      if (pA !== pB) return pA - pB;
+
+      // 3. Fallback: Alphabetical by color name
+      return a.nombre_color.localeCompare(b.nombre_color);
+    });
+
+    if (!searchQuery) return sortedData;
 
     const term = searchQuery.toLowerCase();
-    return baseData.filter(p => 
+    return sortedData.filter(p => 
       p.producto.toLowerCase().includes(term) || 
       p.nombre_color.toLowerCase().includes(term)
     );
