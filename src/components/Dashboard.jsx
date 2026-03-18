@@ -21,17 +21,19 @@ export default function Dashboard() {
       return null;
     };
 
+    const getDivisor = (p) => (p?.includes('60 08 180') || p?.includes('60 08 0180') ? 1225 : 3000);
+
     planificacion.forEach(p => {
       const key = normalizeModule(p.modulo);
       if (key && stations[key]) {
-        stations[key].planned += parseInt(p.cantidad || 0, 10);
+        stations[key].planned += (parseInt(p.cantidad || 0, 10) / getDivisor(p.producto));
       }
     });
 
     transferencias.forEach(t => {
       const key = normalizeModule(t.modulo);
       if (key && stations[key]) {
-        stations[key].transferred += parseInt(t.cantidad || 0, 10);
+        stations[key].transferred += (parseInt(t.cantidad || 0, 10) / getDivisor(t.producto));
       }
     });
 
@@ -43,8 +45,8 @@ export default function Dashboard() {
 
       return {
         name,
-        planned: data.planned,
-        transferred: data.transferred,
+        planned: Math.round(data.planned),
+        transferred: Math.round(data.transferred),
         percent,
         statusColor
       };
@@ -152,7 +154,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
-              <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
+              <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Cones</span>
             </div>
             <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
               <div 
@@ -224,10 +226,18 @@ export default function Dashboard() {
                     <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
                   </td>
                   <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
-                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod1_transferred.toLocaleString()} / {row.mod1_planned.toLocaleString()}</td>
-                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod2_transferred.toLocaleString()} / {row.mod2_planned.toLocaleString()}</td>
-                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod3_transferred.toLocaleString()} / {row.mod3_planned.toLocaleString()}</td>
-                  <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">{row.totalTransferred.toLocaleString()}</td>
+                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                    {Math.round(row.mod1_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod1_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                  </td>
+                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                    {Math.round(row.mod2_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod2_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                  </td>
+                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                    {Math.round(row.mod3_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod3_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                  </td>
+                  <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
+                    {Math.round(row.totalTransferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                  </td>
                   <td className="py-6 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <span className="text-xs font-black text-secondary tabular-nums">{Math.round(row.percent)}%</span>
