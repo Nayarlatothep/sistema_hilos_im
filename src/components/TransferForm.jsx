@@ -329,7 +329,9 @@ export default function TransferForm() {
     const payload = {
       sku: formData.sku,
       producto: selectedItem.producto,
+      color: selectedItem.color,
       nombre_color: selectedItem.nombre_color,
+      modulo: formData.modulo,
       cantidad: qty,
       fecha_transferencia: new Date().toISOString()
     };
@@ -372,7 +374,7 @@ export default function TransferForm() {
             <InputGroup>
               <Label>
                 <span className="material-symbols-outlined">texture</span>
-                Hilo-Textura
+                Hilo-Color
               </Label>
               <StyledSelect 
                 value={formData.sku}
@@ -391,10 +393,10 @@ export default function TransferForm() {
             <InputGroup>
               <Label>
                 <span className="material-symbols-outlined">palette</span>
-                Nombre Color
+                Codigo de color
               </Label>
               <StyledInput 
-                value={selectedItem?.nombre_color || ''} 
+                value={selectedItem?.color || ''} 
                 readOnly 
                 placeholder="Seleccione un producto"
               />
@@ -403,7 +405,7 @@ export default function TransferForm() {
             <InputGroup>
               <Label>
                 <span className="material-symbols-outlined">grid_view</span>
-                Modulo
+                modulo
               </Label>
               <StyledSelect 
                 value={formData.modulo}
@@ -411,16 +413,16 @@ export default function TransferForm() {
                 required
               >
                 <option value="" disabled>Seleccione módulo</option>
-                <option value="A">Módulo A</option>
-                <option value="B">Módulo B</option>
-                <option value="C">Módulo C</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
               </StyledSelect>
             </InputGroup>
 
             <InputGroup>
               <Label>
                 <span className="material-symbols-outlined">circle</span>
-                Cant. Conos
+                Conos
               </Label>
               <InputControl>
                 <StyledInput 
@@ -481,8 +483,8 @@ export default function TransferForm() {
                       <Td style={{ fontWeight: '600' }}>{t.producto}</Td>
                       <Td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <StatusDot style={{ backgroundColor: '#001C4D' }} />
-                          <span>#001C4D</span>
+                          <StatusDot style={{ backgroundColor: t.color || '#cccccc' }} />
+                          <span>{t.color || 'N/A'}</span>
                         </div>
                       </Td>
                       <Td>{t.nombre_color}</Td>
