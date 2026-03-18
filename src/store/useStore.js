@@ -92,5 +92,21 @@ export const useStore = create((set, get) => ({
       set({ planificacion: [], loading: false });
       return true;
     }
+  },
+
+  clearTransferencias: async () => {
+    set({ loading: true, error: null });
+    const { error } = await supabase
+      .from('transferencias_realizadas')
+      .delete()
+      .neq('id', 0);
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return false;
+    } else {
+      set({ transferencias: [], loading: false });
+      return true;
+    }
   }
 }));

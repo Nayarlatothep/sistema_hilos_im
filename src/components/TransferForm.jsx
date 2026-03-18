@@ -272,7 +272,7 @@ const StatusDot = styled('div', {
 });
 
 export default function TransferForm() {
-  const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, loading } = useStore();
+  const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, clearTransferencias, loading } = useStore();
   
   const [formData, setFormData] = useState({
     sku: '',
@@ -395,6 +395,19 @@ export default function TransferForm() {
     }
   };
 
+  const handleClearTrans = async () => {
+    const confirmed = window.confirm("¿Está seguro de que desea borrar TODA la tabla de transferencias en Supabase? Esta acción no se puede deshacer.");
+    if (!confirmed) return;
+
+    const res = await clearTransferencias();
+    if (res) {
+      alert("Tabla borrada exitosamente.");
+      fetchTransferencias();
+    } else {
+      alert("Error al borrar la tabla.");
+    }
+  };
+
   return (
     <Container>
       <PageHeader>
@@ -497,10 +510,16 @@ export default function TransferForm() {
       <TableSection>
         <TableHeader>
           <h3>Materiales Registrados</h3>
-          <RefreshButton onClick={handleUpload} disabled={loading || localTransferencias.length === 0}>
-            <span className="material-symbols-outlined">cloud_upload</span>
-            Subir Información
-          </RefreshButton>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <RefreshButton onClick={handleClearTrans} disabled={loading} style={{ color: '#dc2626', borderColor: 'rgba(220, 38, 38, 0.2)' }}>
+              <span className="material-symbols-outlined">delete_forever</span>
+              Borrar Tabla
+            </RefreshButton>
+            <RefreshButton onClick={handleUpload} disabled={loading || localTransferencias.length === 0}>
+              <span className="material-symbols-outlined">cloud_upload</span>
+              Subir Información
+            </RefreshButton>
+          </div>
         </TableHeader>
 
         <TableCard>
