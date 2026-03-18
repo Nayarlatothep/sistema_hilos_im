@@ -21,19 +21,17 @@ export default function Dashboard() {
       return null;
     };
 
-    const getDivisor = (p) => (p?.includes('60 08 180') || p?.includes('60 08 0180') ? 1225 : 3000);
-
     planificacion.forEach(p => {
       const key = normalizeModule(p.modulo);
       if (key && stations[key]) {
-        stations[key].planned += (parseInt(p.cantidad || 0, 10) / getDivisor(p.producto));
+        stations[key].planned += parseInt(p.cantidad || 0, 10);
       }
     });
 
     transferencias.forEach(t => {
       const key = normalizeModule(t.modulo);
       if (key && stations[key]) {
-        stations[key].transferred += (parseInt(t.cantidad || 0, 10) / getDivisor(t.producto));
+        stations[key].transferred += parseInt(t.cantidad || 0, 10);
       }
     });
 
@@ -45,8 +43,8 @@ export default function Dashboard() {
 
       return {
         name,
-        planned: Math.round(data.planned),
-        transferred: Math.round(data.transferred),
+        planned: data.planned,
+        transferred: data.transferred,
         percent,
         statusColor
       };
@@ -154,7 +152,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
-              <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Cones</span>
+              <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
             </div>
             <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
               <div 
