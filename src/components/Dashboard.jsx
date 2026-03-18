@@ -220,11 +220,8 @@ export default function Dashboard() {
                     <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors">{row.producto}</p>
                     <p className="text-[10px] text-slate-400">Production Line Active | ID: {idx + 101}</p>
                   </td>
-                  <td className="py-6 px-4">
-                    <div 
-                      className="w-6 h-6 rounded-full mx-auto border-2 border-white shadow-sm ring-1 ring-slate-100" 
-                      style={{ backgroundColor: row.color }}
-                    ></div>
+                  <td className="py-6 px-4 text-center">
+                    <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
                   </td>
                   <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
                   <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod1_transferred.toLocaleString()} / {row.mod1_planned.toLocaleString()}</td>
