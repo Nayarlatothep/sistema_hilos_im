@@ -198,15 +198,26 @@ export default function Dashboard() {
         </KPIContainer>
       </Card>
 
-      {/* NEW SECTION: Production Monitor */}
-      <section className="bg-white p-8 shadow-sm border border-slate-100">
+
+      {/* Production Monitor - Advanced Implementation */}
+      <section className="bg-white p-8 shadow-sm border border-slate-100" style={{ borderRadius: '0.125rem' }}>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+          .font-headline { font-family: 'Manrope', sans-serif !important; }
+          .font-body { font-family: 'Inter', sans-serif !important; }
+          .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+          .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        `}} />
+
         <div className="mb-12">
-          <p className="text-sm font-bold text-[#a53c00] uppercase tracking-[0.2em] mb-2">Real-Time Performance</p>
+          <p className="text-sm font-bold text-[#a53c00] uppercase tracking-[0.2em] mb-2 font-headline">Real-Time Performance</p>
           <div className="flex justify-between items-end">
-            <h2 className="text-5xl font-black text-[#001731] tracking-tighter" style={{ fontFamily: 'Manrope, sans-serif' }}>Production Monitor</h2>
+            <h2 className="text-5xl font-black text-[#001731] tracking-tighter font-headline">Production Monitor</h2>
             <div className="text-right">
-              <p className="text-slate-500 text-xs font-medium uppercase">Last Update</p>
-              <p className="font-bold text-[#001731]">{timestamp}</p>
+              <p className="text-slate-500 text-[10px] font-bold uppercase font-headline">Last Update</p>
+              <p className="font-bold text-[#001731] font-body">{timestamp}</p>
             </div>
           </div>
         </div>
@@ -233,10 +244,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[600px] border border-slate-100">
-          <table className="w-full border-collapse">
-            <thead className="sticky top-0 bg-white z-10">
-              <tr className="text-left text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] border-b border-slate-100">
+        <div className="overflow-y-auto custom-scrollbar max-h-[600px] border border-slate-100">
+          <table className="w-full border-collapse sticky-header">
+            <thead className="sticky top-0 bg-white z-10 shadow-sm">
+              <tr className="text-left text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] border-b border-slate-100 font-headline">
                 <th className="py-4 px-4 bg-white">Producto</th>
                 <th className="py-4 px-4 text-center bg-white">Color</th>
                 <th className="py-4 px-4 bg-white">Nombre Color</th>
@@ -249,10 +260,10 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {productionData.map((row, idx) => (
-                <tr key={idx} className="group hover:bg-slate-50 transition-colors">
+                <tr key={idx} className="group hover:bg-slate-50 transition-colors font-body">
                   <td className="py-6 px-4">
-                    <p className="text-sm font-black text-[#001731]">{row.producto}</p>
-                    <p className="text-[10px] text-slate-400">Production Line Active</p>
+                    <p className="text-sm font-black text-[#001731] font-headline">{row.producto}</p>
+                    <p className="text-[10px] text-slate-400 font-body">Line Active | Production ID: {idx + 101}</p>
                   </td>
                   <td className="py-6 px-4">
                     <div 
@@ -277,8 +288,8 @@ export default function Dashboard() {
           </table>
         </div>
         
-        <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-6">
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Production Overview | {productionData.length} active items</p>
+        <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-6 font-headline">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Production Overview | {productionData.length} lines active</p>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
