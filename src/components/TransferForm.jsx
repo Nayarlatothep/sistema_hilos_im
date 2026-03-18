@@ -272,7 +272,7 @@ const StatusDot = styled('div', {
 });
 
 export default function TransferForm() {
-  const { planificacion, transferencias, addTransferencia, fetchTransferencias, loading } = useStore();
+  const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, loading } = useStore();
   
   const [formData, setFormData] = useState({
     sku: '',
@@ -358,8 +358,41 @@ export default function TransferForm() {
     setTimeout(() => setMsg(null), 3000);
   };
 
-  const handleRefresh = () => {
-    fetchTransferencias();
+  const handleUpload = async () => {
+    if (localTransferencias.length === 0) {
+      alert("No hay información para subir.");
+      return;
+    }
+
+    const confirmUpload = window.confirm(`¿Desea subir ${localTransferencias.length} registros a la base de datos?`);
+    if (!confirmUpload) return;
+
+    // Mapping according to user rules:
+    // SKU = sku
+    // FECHA = fecha_transferencia
+    // PRODUCTO = producto
+    // COLOR = color
+    // NOMBRE COLOR = nombre_color
+    // Modulo = modulo
+    // CANT.YARDAS = cantidad (yardas calculated field)
+    const recordsToUpload = localTransferencias.map(t => ({
+      sku: t.sku,
+      fecha_transferencia: t.fecha_transferencia,
+      producto: t.producto,
+      color: t.color,
+      nombre_color: t.nombre_color,
+      modulo: t.modulo,
+      cantidad: t.yardas // user said CANT.YARDAS = cantidad (the yardas field from my logic)
+    }));
+
+    const res = await addMultipleTransferencias(recordsToUpload);
+    if (res) {
+      alert("Información subida exitosamente.");
+      setLocalTransferencias([]); // Clear local list after successful upload
+      fetchTransferencias(); // Refresh store data
+    } else {
+      alert("Error al subir la información.");
+    }
   };
 
   return (
@@ -464,9 +497,9 @@ export default function TransferForm() {
       <TableSection>
         <TableHeader>
           <h3>Materiales Registrados</h3>
-          <RefreshButton onClick={handleRefresh} disabled={loading}>
-            <span className="material-symbols-outlined">upload_file</span>
-            Cargar información a la tabla
+          <RefreshButton onClick={handleUpload} disabled={loading || localTransferencias.length === 0}>
+            <span className="material-symbols-outlined">cloud_upload</span>
+            Subir Información
           </RefreshButton>
         </TableHeader>
 

@@ -61,6 +61,21 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  addMultipleTransferencias: async (records) => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('transferencias_realizadas')
+      .insert(records)
+      .select();
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      set({ transferencias: [...get().transferencias, ...data], loading: false });
+      return data;
+    }
+  },
+
   clearPlanificacion: async () => {
     set({ loading: true, error: null });
     // In Supabase, to delete all, we usually use a filter that matches all or a direct SQL call.
