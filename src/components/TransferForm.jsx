@@ -1,275 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { styled } from '../lib/stitches.config';
 import { useStore } from '../store/useStore';
-import { RefreshCw, Plus } from 'lucide-react'; // Removing non-existent icons causing crash
-
-const Container = styled('div', {
-  maxWidth: '1024px',
-  margin: '0 auto',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '$8',
-});
-
-const PageHeader = styled('div', {
-  h2: {
-    fontSize: '$2xl',
-    fontWeight: '700',
-    color: '$primary',
-    '@md': { fontSize: '1.875rem' },
-  },
-  p: {
-    color: '$gray500',
-    marginTop: '$2',
-  }
-});
-
-const FormCard = styled('div', {
-  backgroundColor: 'white',
-  borderRadius: '$3',
-  boxShadow: '$sm',
-  border: '1px solid $border',
-  overflow: 'hidden',
-});
-
-const Banner = styled('div', {
-  height: '12rem',
-  width: '100%',
-  background: 'linear-gradient(to right, rgba(30, 64, 175, 0.1), rgba(30, 64, 175, 0.05))',
-  position: 'relative',
-  borderBottom: '1px solid $gray100',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '0 $8',
-  zIndex: 1,
-});
-
-const BannerIconBox = styled('div', {
-  backgroundColor: '#1e40af',
-  padding: '$3',
-  borderRadius: '$2',
-  color: 'white',
-  boxShadow: '0 10px 15px -3px rgba(30, 64, 175, 0.2)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginRight: '$4',
-});
-
-const BannerText = styled('div', {
-  h3: {
-    fontSize: '$xl',
-    fontWeight: '700',
-    color: '$text',
-  },
-  p: {
-    color: '$gray500',
-    fontSize: '$sm',
-  }
-});
-
-const AbstractOverlay = styled('div', {
-  position: 'absolute',
-  right: 0,
-  top: 0,
-  height: '100%',
-  width: '33%',
-  opacity: 0.1,
-  background: 'radial-gradient(circle at center, #1e40af, transparent)',
-  zIndex: -1,
-});
-
-const FormContent = styled('form', {
-  padding: '$8',
-});
-
-const FormGrid = styled('div', {
-  display: 'grid',
-  gridTemplateColumns: '1fr',
-  gap: '$6',
-  '@md': {
-    gridTemplateColumns: '1fr 1fr',
-  }
-});
-
-const InputGroup = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '$2',
-});
-
-const Label = styled('label', {
-  fontSize: '$sm',
-  fontWeight: '600',
-  color: '$gray500',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '$2',
-  span: { color: '#1e40af', fontSize: '1.1rem' }
-});
-
-const InputControl = styled('div', {
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-});
-
-const StyledInput = styled('input', {
-  width: '100%',
-  borderRadius: '$2',
-  border: '1px solid $gray200',
-  backgroundColor: '$gray50',
-  padding: '$3',
-  fontSize: '$sm',
-  transition: 'all 0.2s',
-  '&:focus': {
-    borderColor: '#1e40af',
-    boxShadow: '0 0 0 2px rgba(30, 64, 175, 0.1)',
-    outline: 'none',
-  }
-});
-
-const StyledSelect = styled('select', {
-  width: '100%',
-  borderRadius: '$2',
-  border: '1px solid $gray200',
-  backgroundColor: '$gray50',
-  padding: '$3',
-  fontSize: '$sm',
-  appearance: 'none',
-  transition: 'all 0.2s',
-  '&:focus': {
-    borderColor: '#1e40af',
-    boxShadow: '0 0 0 2px rgba(30, 64, 175, 0.1)',
-    outline: 'none',
-  }
-});
-
-const UnitLabel = styled('span', {
-  position: 'absolute',
-  right: '$3',
-  fontSize: '$xs',
-  fontWeight: '700',
-  color: '$gray500',
-});
-
-const FooterActions = styled('div', {
-  marginTop: '$10',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-  gap: '$4',
-  borderTop: '1px solid $gray100',
-  paddingTop: '$8',
-});
-
-const CancelButton = styled('button', {
-  padding: '$3 $6',
-  borderRadius: '$2',
-  fontWeight: '500',
-  color: '$gray500',
-  border: 'none',
-  background: 'none',
-  cursor: 'pointer',
-  transition: 'background-color 0.2s',
-  '&:hover': { backgroundColor: '$gray100' }
-});
-
-const SubmitButton = styled('button', {
-  padding: '$3 $10',
-  borderRadius: '$2',
-  backgroundColor: '#1e40af',
-  color: 'white',
-  fontWeight: '700',
-  border: 'none',
-  boxShadow: '0 10px 15px -3px rgba(30, 64, 175, 0.2)',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '$2',
-  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-  '&:hover': { 
-    backgroundColor: '#1d4ed8', 
-    transform: 'translateY(-1px)',
-    boxShadow: '0 12px 20px -5px rgba(30, 64, 175, 0.3)',
-  },
-  '&:active': { transform: 'translateY(0)' },
-  '&:disabled': { opacity: 0.5, cursor: 'not-allowed', transform: 'none' }
-});
-
-const TableSection = styled('div', {
-  marginTop: '$8',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '$4',
-});
-
-const TableHeader = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  gap: '$4',
-  '@sm': { flexDirection: 'row', alignItems: 'center' },
-  h3: { fontSize: '$xl', fontWeight: '700', color: '$text' }
-});
-
-const RefreshButton = styled('button', {
-  padding: '$2 $6',
-  borderRadius: '$2',
-  backgroundColor: 'white',
-  color: '#1e40af',
-  border: '1px solid rgba(30, 64, 175, 0.2)',
-  fontWeight: '600',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '$2',
-  cursor: 'pointer',
-  boxShadow: '$sm',
-  transition: 'all 0.2s',
-  '&:hover': { backgroundColor: '$gray50' }
-});
-
-const TableCard = styled('div', {
-  backgroundColor: 'white',
-  borderRadius: '$3',
-  boxShadow: '$sm',
-  border: '1px solid $border',
-  overflow: 'hidden',
-});
-
-const TableWrapper = styled('div', {
-  overflowX: 'auto',
-});
-
-const Table = styled('table', {
-  width: '100%',
-  borderCollapse: 'collapse',
-  textAlign: 'left',
-});
-
-const Th = styled('th', {
-  padding: '$4 $6',
-  fontSize: '$xs',
-  fontWeight: '700',
-  textTransform: 'uppercase',
-  color: '$gray500',
-  backgroundColor: '$gray50',
-  borderBottom: '1px solid $gray100',
-});
-
-const Td = styled('td', {
-  padding: '$4 $6',
-  fontSize: '$sm',
-  color: '$text',
-  borderBottom: '1px solid $gray100',
-});
-
-const StatusDot = styled('div', {
-  width: '16px',
-  height: '16px',
-  borderRadius: '$round',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-});
 
 export default function TransferForm() {
   const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, clearTransferencias, loading } = useStore();
@@ -284,7 +14,6 @@ export default function TransferForm() {
   const [localTransferencias, setLocalTransferencias] = useState([]);
   const [msg, setMsg] = useState(null);
 
-  // Group and calculate remaining quantities
   const inventoryData = useMemo(() => {
     const dataMap = {};
     planificacion.forEach(p => {
@@ -316,8 +45,6 @@ export default function TransferForm() {
     return inventoryData.find(item => item.sku === formData.sku);
   }, [inventoryData, formData.sku]);
 
-  const maxAllowed = selectedItem ? Math.max(0, selectedItem.planned - selectedItem.transferred) : 0;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg(null);
@@ -332,13 +59,6 @@ export default function TransferForm() {
       return;
     }
 
-    // Custom logic requested by the user:
-    // SKU = Producto (del selectedItem) + Codigo color (del selectedItem)
-    // Fecha = Actual now()
-    // Producto = solo el producto sin el nombre_color
-    // Color = solo el codigo hexadecimal (color)
-    // Nombre Color = solo el nombre_color sin el producto
-    
     const nuevoRegistro = {
       id: Date.now(),
       sku: `${selectedItem.producto}${selectedItem.color}`,
@@ -351,30 +71,16 @@ export default function TransferForm() {
       yardas: selectedItem.producto === '60 08 180' ? qty * 1125 : qty * 3000
     };
 
-    // Add to local list instead of Supabase
     setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
-    setMsg({ type: 'success', text: `Transferencia de ${qty} registrada localmente.` });
+    setMsg({ type: 'success', text: `Registered locally.` });
     setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
     setTimeout(() => setMsg(null), 3000);
   };
 
   const handleUpload = async () => {
-    if (localTransferencias.length === 0) {
-      alert("No hay información para subir.");
-      return;
-    }
+    if (localTransferencias.length === 0) return;
+    if (!window.confirm(`Subir ${localTransferencias.length} registros?`)) return;
 
-    const confirmUpload = window.confirm(`¿Desea subir ${localTransferencias.length} registros a la base de datos?`);
-    if (!confirmUpload) return;
-
-    // Mapping according to user rules:
-    // SKU = sku
-    // FECHA = fecha_transferencia
-    // PRODUCTO = producto
-    // COLOR = color
-    // NOMBRE COLOR = nombre_color
-    // Modulo = modulo
-    // CANT.YARDAS = cantidad (yardas calculated field)
     const recordsToUpload = localTransferencias.map(t => ({
       sku: t.sku,
       fecha_transferencia: t.fecha_transferencia,
@@ -382,192 +88,193 @@ export default function TransferForm() {
       color: t.color,
       nombre_color: t.nombre_color,
       modulo: t.modulo,
-      cantidad: t.yardas // user said CANT.YARDAS = cantidad (the yardas field from my logic)
+      cantidad: t.yardas
     }));
 
     const res = await addMultipleTransferencias(recordsToUpload);
     if (res) {
-      alert("Información subida exitosamente.");
-      setLocalTransferencias([]); // Clear local list after successful upload
-      fetchTransferencias(); // Refresh store data
-    } else {
-      alert("Error al subir la información.");
+      setLocalTransferencias([]);
+      fetchTransferencias();
+      alert("Success!");
     }
   };
 
   const handleClearTrans = async () => {
-    const confirmed = window.confirm("¿Está seguro de que desea borrar TODA la tabla de transferencias en Supabase? Esta acción no se puede deshacer.");
-    if (!confirmed) return;
-
-    const res = await clearTransferencias();
-    if (res) {
-      alert("Tabla borrada exitosamente.");
-      fetchTransferencias();
-    } else {
-      alert("Error al borrar la tabla.");
+    if (window.confirm("Borrar tabla permanente?")) {
+      const res = await clearTransferencias();
+      if (res) fetchTransferencias();
     }
   };
 
   return (
-    <Container>
-      <PageHeader>
-        <h2>Registro de Material</h2>
-        <p>Ingrese los detalles del hilo para el control de inventario de Intermoda.</p>
-      </PageHeader>
+    <div className="flex flex-col gap-10 max-w-5xl mx-auto">
+      <section className="font-headline">
+        <h2 className="text-4xl font-black text-primary tracking-tighter">Material Registration</h2>
+        <p className="text-on-surface-variant font-medium mt-2">Log production transfers and yardage calculations.</p>
+      </section>
 
-      <FormCard>
-        <Banner>
-          <BannerIconBox>
-            <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>inventory_2</span>
-          </BannerIconBox>
-          <BannerText>
-            <h3>Detalles de Producción</h3>
-            <p>Complete todos los campos requeridos para el ingreso.</p>
-          </BannerText>
-          <AbstractOverlay />
-        </Banner>
+      <section className="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/10 overflow-hidden">
+        <div className="h-32 bg-gradient-to-r from-primary-container/20 to-primary-container/5 px-10 flex items-center gap-6 border-b border-outline-variant/10">
+          <div className="bg-primary p-4 rounded-xl text-white shadow-xl shadow-primary/20">
+            <span className="material-symbols-outlined text-3xl">inventory_2</span>
+          </div>
+          <div>
+            <h3 className="text-xl font-black text-primary font-headline">Production Details</h3>
+            <p className="text-on-surface-variant text-sm font-medium">Capture real-time site data.</p>
+          </div>
+        </div>
 
-        <FormContent onSubmit={handleSubmit}>
-          <FormGrid>
-            <InputGroup>
-              <Label>
-                <span className="material-symbols-outlined">texture</span>
-                Hilo-Color
-              </Label>
-              <StyledSelect 
+        <form onSubmit={handleSubmit} className="p-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">texture</span> Hilo-Color
+              </label>
+              <select 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
                 value={formData.sku}
                 onChange={(e) => setFormData({...formData, sku: e.target.value})}
                 required
               >
-                <option value="" disabled>Seleccione producto (SKU)</option>
+                <option value="" disabled>Seleccione SKU</option>
                 {inventoryData.map(item => (
                   <option key={`${item.producto}_${item.nombre_color}`} value={item.sku}>
                     {item.producto} - {item.nombre_color}
                   </option>
                 ))}
-              </StyledSelect>
-            </InputGroup>
+              </select>
+            </div>
 
-            <InputGroup>
-              <Label>
-                <span className="material-symbols-outlined">palette</span>
-                Codigo de color
-              </Label>
-              <StyledInput 
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">palette</span> Color Code
+              </label>
+              <input 
+                className="w-full bg-surface-container-low/50 border-none border-b-2 border-outline-variant text-sm py-4 px-4 rounded-t-lg font-body text-slate-400"
                 value={selectedItem?.color || ''} 
                 readOnly 
-                placeholder="Seleccione un producto"
+                placeholder="Auto-detected"
               />
-            </InputGroup>
+            </div>
 
-            <InputGroup>
-              <Label>
-                <span className="material-symbols-outlined">grid_view</span>
-                modulo
-              </Label>
-              <StyledSelect 
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">grid_view</span> Module
+              </label>
+              <select 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
                 value={formData.modulo}
                 onChange={(e) => setFormData({...formData, modulo: e.target.value})}
                 required
               >
-                <option value="" disabled>Seleccione módulo</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </StyledSelect>
-            </InputGroup>
+                <option value="" disabled>Select Module</option>
+                <option value="1">Modulo 1</option>
+                <option value="2">Modulo 2</option>
+                <option value="3">Modulo 3</option>
+              </select>
+            </div>
 
-            <InputGroup>
-              <Label>
-                <span className="material-symbols-outlined">circle</span>
-                Conos
-              </Label>
-              <InputControl>
-                <StyledInput 
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">circle</span> Quantity (Units)
+              </label>
+              <div className="relative">
+                <input 
                   type="number" 
-                  placeholder="0" 
+                  className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
+                  placeholder="0"
                   value={formData.cantidad}
                   onChange={(e) => setFormData({...formData, cantidad: e.target.value})}
                   required
                 />
-                <UnitLabel>UNS</UnitLabel>
-              </InputControl>
-            </InputGroup>
-          </FormGrid>
-
-          <FooterActions>
-            <CancelButton type="button" onClick={() => setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' })}>
-              Cancelar
-            </CancelButton>
-            <SubmitButton type="submit" disabled={loading || !selectedItem}>
-              <span className="material-symbols-outlined">add</span>
-              {loading ? 'Agregando...' : 'Agregar'}
-            </SubmitButton>
-          </FooterActions>
-        </FormContent>
-      </FormCard>
-
-      <TableSection>
-        <TableHeader>
-          <h3>Materiales Registrados</h3>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <RefreshButton onClick={handleClearTrans} disabled={loading} style={{ color: '#dc2626', borderColor: 'rgba(220, 38, 38, 0.2)' }}>
-              <span className="material-symbols-outlined">delete_forever</span>
-              Borrar Tabla
-            </RefreshButton>
-            <RefreshButton onClick={handleUpload} disabled={loading || localTransferencias.length === 0}>
-              <span className="material-symbols-outlined">cloud_upload</span>
-              Subir Información
-            </RefreshButton>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">UNS</span>
+              </div>
+            </div>
           </div>
-        </TableHeader>
 
-        <TableCard>
-          <TableWrapper>
-            <Table>
-              <thead>
+          <div className="flex justify-end gap-4 border-t border-slate-100 pt-8">
+            <button 
+              type="button" 
+              onClick={() => setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' })}
+              className="px-6 py-2 text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors uppercase tracking-widest"
+            >
+              Reset
+            </button>
+            <button 
+              type="submit" 
+              disabled={loading || !selectedItem}
+              className="px-10 py-3 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-xl shadow-primary/20 hover:bg-[#0a1a2e] active:scale-95 transition-all flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">add</span> Add entry
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+        <div className="bg-surface-container-low/50 px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
+          <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">Session Log</h3>
+          <div className="flex gap-4">
+            <button 
+              onClick={handleClearTrans}
+              disabled={loading}
+              className="px-4 py-2 bg-rose-500/10 text-rose-600 text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all rounded-lg"
+            >
+              Clear DB
+            </button>
+            <button 
+              onClick={handleUpload}
+              disabled={loading || localTransferencias.length === 0}
+              className="px-8 py-2 bg-secondary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-lg shadow-secondary/30 hover:bg-[#8f3400] active:scale-95 transition-all"
+            >
+              Sync Records
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto min-h-[200px]">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-surface-container-low/30 border-b border-outline-variant/20 font-headline font-headline">
+                <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Date</th>
+                <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Product</th>
+                <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Color</th>
+                <th className="px-8 py-4 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Mod</th>
+                <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Yardage</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-body">
+              {localTransferencias.length === 0 ? (
                 <tr>
-                  <Th>SKU</Th>
-                  <Th>Fecha</Th>
-                  <Th>Producto</Th>
-                  <Th>Color</Th>
-                  <Th>Nombre Color</Th>
-                  <Th style={{ textAlign: 'center' }}>Módulo</Th>
-                  <Th style={{ textAlign: 'center' }}>Cantidad</Th>
-                  <Th style={{ textAlign: 'right' }}>Cant.Yardas</Th>
+                  <td colSpan="5" className="px-8 py-20 text-center text-slate-300 italic text-sm">No session records found.</td>
                 </tr>
-              </thead>
-              <tbody>
-                {localTransferencias.length === 0 ? (
-                  <tr>
-                    <Td colSpan="8" style={{ textAlign: 'center', color: '#7a7a7a', padding: '2rem' }}>
-                      No hay registros encontrados en esta sesión.
-                    </Td>
+              ) : (
+                localTransferencias.map(t => (
+                  <tr key={t.id} className="hover:bg-primary-fixed/5 transition-colors">
+                    <td className="px-8 py-4 text-xs font-medium text-slate-400 tabular-nums">{t.fecha_transferencia?.split('T')[0]}</td>
+                    <td className="px-8 py-4">
+                      <p className="text-sm font-black text-primary font-headline">{t.producto}</p>
+                      <p className="text-[10px] text-slate-400">SKU: {t.sku}</p>
+                    </td>
+                    <td className="px-8 py-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full shadow-sm ring-1 ring-slate-100" style={{ backgroundColor: t.color }}></div>
+                        <span className="text-xs font-semibold text-slate-600">{t.nombre_color}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-4 text-center text-sm font-black text-primary">{t.modulo}</td>
+                    <td className="px-8 py-4 text-right">
+                      <p className="text-sm font-black text-secondary tabular-nums">{t.yardas?.toLocaleString()} YDS</p>
+                      <p className="text-[10px] text-slate-400 font-bold">{t.cantidad} Units</p>
+                    </td>
                   </tr>
-                ) : (
-                  localTransferencias.map(t => (
-                    <tr key={t.id} style={{ transition: 'background-color 0.2s' }}>
-                      <Td>{t.sku || '-'}</Td>
-                      <Td style={{ color: '#7a7a7a' }}>{t.fecha_transferencia?.split('T')[0]}</Td>
-                      <Td style={{ fontWeight: '600' }}>{t.producto}</Td>
-                      <Td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <StatusDot style={{ backgroundColor: t.color || '#cccccc' }} />
-                          <span>{t.color || 'N/A'}</span>
-                        </div>
-                      </Td>
-                      <Td>{t.nombre_color}</Td>
-                      <Td style={{ textAlign: 'center' }}>{t.modulo || '-'}</Td>
-                      <Td style={{ textAlign: 'center', fontWeight: '700' }}>{t.cantidad} UNS</Td>
-                      <Td style={{ textAlign: 'right', fontWeight: '700', color: '#1e40af' }}>{t.yardas?.toLocaleString()} YDS</Td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </Table>
-          </TableWrapper>
-        </TableCard>
-      </TableSection>
-    </Container>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   );
 }
+

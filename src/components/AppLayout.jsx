@@ -1,205 +1,109 @@
 import React from 'react';
-import { styled } from '../lib/stitches.config';
-
-const LayoutContainer = styled('div', {
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  backgroundColor: '$gray50',
-});
-
-const Header = styled('header', {
-  backgroundColor: 'white',
-  borderBottom: '1px solid $border',
-  boxShadow: '$sm',
-});
-
-const HeaderContent = styled('div', {
-  maxWidth: '$maxContent',
-  margin: '0 auto',
-  padding: '0 $6',
-  height: '5rem',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-});
-
-const NavWrapper = styled('div', {
-  display: 'flex',
-  alignItems: 'center',
-});
-
-const Logo = styled('img', {
-  height: '3rem',
-  width: 'auto',
-  marginRight: '$8',
-});
-
-const NavLinks = styled('nav', {
-  display: 'none',
-  gap: '$8',
-  '@md': {
-    display: 'flex',
-  },
-  a: {
-    textDecoration: 'none',
-    color: '$gray500',
-    padding: '$1',
-    fontWeight: '500',
-    transition: 'color 0.2s',
-    '&:hover': {
-      color: '$primary',
-    },
-    '&.active': {
-      color: '$primary',
-      borderBottom: '2px solid $accent',
-    }
-  }
-});
-
-const UserProfile = styled('div', {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '$4',
-});
-
-const UserText = styled('div', {
-  display: 'none',
-  textAlign: 'right',
-  '@sm': {
-    display: 'block',
-  },
-});
-
-const UserName = styled('p', {
-  fontSize: '$sm',
-  fontWeight: '500',
-  color: '$primary',
-});
-
-const UserRole = styled('p', {
-  fontSize: '$xs',
-  color: '$gray500',
-});
-
-const Avatar = styled('div', {
-  height: '2.5rem',
-  width: '2.5rem',
-  borderRadius: '$round',
-  backgroundColor: '$primary',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'white',
-  fontWeight: '700',
-});
-
-const Main = styled('main', {
-  flexGrow: 1,
-  width: '100%',
-  maxWidth: '$maxContent',
-  margin: '0 auto',
-  padding: '$8 $6',
-});
-
-const Footer = styled('footer', {
-  backgroundColor: '$primary',
-  color: 'white',
-  padding: '$6 0',
-  marginTop: '$12',
-});
-
-const FooterContent = styled('div', {
-  maxWidth: '$maxContent',
-  margin: '0 auto',
-  padding: '0 $6',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  '@md': {
-    flexDirection: 'row',
-  }
-});
-
-const FooterText = styled('p', {
-  fontSize: '$sm',
-  opacity: 0.8,
-  marginBottom: '$4',
-  '@md': {
-    marginBottom: 0,
-  }
-});
-
-const FooterLinks = styled('div', {
-  display: 'flex',
-  gap: '$6',
-  fontSize: '$sm',
-  opacity: 0.8,
-  a: {
-    color: 'inherit',
-    textDecoration: 'none',
-    transition: 'color 0.2s',
-    '&:hover': { color: '$accent' }
-  }
-});
 
 export default function AppLayout({ children, currentTab, onTabChange }) {
   return (
-    <LayoutContainer>
-      <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
-      <Header>
-        <HeaderContent>
-          <NavWrapper>
-            <Logo src="https://lh3.googleusercontent.com/aida/ADBb0ujjnX_BfJjQ0SUWgHpqJ1gv1wmTgUCBZCN_ggtke6FlYCk-MZ7J5KkSne154r2BVcQziUDav-AM6IE3DGP0aiioI_UNXbSyDSh2-KbE09X0j44oYU5tQgMgVM733Mt8aLE3wFcipBxlLpig-5novUVMO3RQ_9L-fOoJu-rpNyVjO1FGNeeH51ymkVGl3D33iyPgbLrHeze8a2yVkOBym3Za5xDwQcLiMxKnYyY59gzNFBKz655-TT9siSPxI259Agf9HyXpZBcRUw" alt="Intermoda Logo" />
-            <NavLinks>
-              <a
+    <div className="bg-background font-body text-on-background antialiased min-h-screen flex flex-col">
+      {/* TopAppBar */}
+      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm h-16 flex justify-between items-center px-8 border-b border-slate-100">
+        <div className="flex items-center gap-4">
+          <img 
+            alt="Intermoda Logo" 
+            className="h-8 w-auto" 
+            src="https://lh3.googleusercontent.com/aida/ADBb0ujjnX_BfJjQ0SUWgHpqJ1gv1wmTgUCBZCN_ggtke6FlYCk-MZ7J5KkSne154r2BVcQziUDav-AM6IE3DGP0aiioI_UNXbSyDSh2-KbE09X0j44oYU5tQgMgVM733Mt8aLE3wFcipBxlLpig-5novUVMO3RQ_9L-fOoJu-rpNyVjO1FGNeeH51ymkVGl3D33iyPgbLrHeze8a2yVkOBym3Za5xDwQcLiMxKnYyY59gzNFBKz655-TT9siSPxI259Agf9HyXpZBcRUw"
+          />
+          <h1 className="text-xl font-bold tracking-tighter text-[#001731] font-headline">Intermoda Monitor</h1>
+        </div>
+        
+        <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6">
+            <nav className="flex items-center gap-8">
+              <a 
+                className={`${currentTab === 'dashboard' ? 'text-[#001731] font-semibold' : 'text-slate-500 font-medium'} text-sm font-headline active:scale-95 transition-transform hover:text-[#a53c00]`} 
                 href="#"
-                className={currentTab === 'dashboard' ? 'active' : ''}
                 onClick={(e) => { e.preventDefault(); onTabChange('dashboard'); }}
               >
-                Dashboard KPI
+                Overview
               </a>
-              <a
+              <a 
+                className={`${currentTab === 'upload' ? 'text-[#001731] font-semibold' : 'text-slate-500 font-medium'} text-sm font-headline active:scale-95 transition-transform hover:text-[#a53c00]`} 
                 href="#"
-                className={currentTab === 'upload' ? 'active' : ''}
                 onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
               >
-                Cargar Datos
+                Production Data
               </a>
-              <a
+              <a 
+                className={`${currentTab === 'transfer' ? 'text-[#001731] font-semibold' : 'text-slate-500 font-medium'} text-sm font-headline active:scale-95 transition-transform hover:text-[#a53c00]`} 
                 href="#"
-                className={currentTab === 'transfer' ? 'active' : ''}
                 onClick={(e) => { e.preventDefault(); onTabChange('transfer'); }}
               >
-                Transferencias:
+                Transfers
               </a>
-            </NavLinks>
-          </NavWrapper>
+            </nav>
+          </div>
+          
+          <div className="flex items-center gap-4 ml-4">
+            <button className="text-slate-500 hover:text-[#a53c00] transition-colors">
+              <span className="material-symbols-outlined">notifications</span>
+            </button>
+            <button className="text-slate-500 hover:text-[#a53c00] transition-colors">
+              <span className="material-symbols-outlined">settings</span>
+            </button>
+            <div className="h-8 w-8 rounded-full bg-primary-container overflow-hidden">
+              <img 
+                alt="User profile avatar" 
+                className="h-full w-full object-cover" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7sQibDyUj4dXe069m68Dx7x_CjcvWzq1MZurjQJP637ApxrL2LdPkwrfY6IS1jz6zNpEiGtwquxyumqnwr65DOC62jAbvytzcdBl4vGTvjAy-_wxOAm1zMbruRRon_Jy8fg7gH_5SDn82o1pjzrVREDbw2Hn5OikI9z679xg_dFoZjNgf1_seun0x3xAGZVfD_fFOfFGHJVxDWHNBd--bg7FB8dkFlFm2oDp4uwVZj4ay3MxtXjl0LykvGfrA-x0ljeQAJ3qVZD0"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
 
-          <UserProfile>
-            <UserText>
-              <UserName>V. Rojas</UserName>
-              <UserRole>Warehouse Manager</UserRole>
-            </UserText>
-            <Avatar>VR</Avatar>
-          </UserProfile>
-        </HeaderContent>
-      </Header>
+      {/* Main Content Canvas */}
+      <main className="pt-24 min-h-screen max-w-7xl mx-auto px-8 pb-12 w-full flex-grow">
+        {children}
+      </main>
 
-      <Main>{children}</Main>
+      {/* BottomNavBar (Mobile Only) */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl md:hidden flex justify-around items-center border-t border-slate-100 z-50">
+        <div 
+          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard' ? 'text-primary' : 'text-slate-400'}`}
+          onClick={() => onTabChange('dashboard')}
+        >
+          <span className="material-symbols-outlined text-2xl">dashboard</span>
+          <span className="text-[10px] font-bold uppercase">Overview</span>
+        </div>
+        <div 
+          className={`flex flex-col items-center gap-1 ${currentTab === 'upload' ? 'text-primary' : 'text-slate-400'}`}
+          onClick={() => onTabChange('upload')}
+        >
+          <span className="material-symbols-outlined text-2xl">factory</span>
+          <span className="text-[10px] font-bold uppercase">Data</span>
+        </div>
+        <div 
+          className={`flex flex-col items-center gap-1 ${currentTab === 'transfer' ? 'text-primary' : 'text-slate-400'}`}
+          onClick={() => onTabChange('transfer')}
+        >
+          <span className="material-symbols-outlined text-2xl">inventory_2</span>
+          <span className="text-[10px] font-bold uppercase">Transf</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 text-slate-400">
+          <span className="material-symbols-outlined text-2xl">monitoring</span>
+          <span className="text-[10px] font-bold uppercase">Stats</span>
+        </div>
+      </nav>
 
-      <Footer>
-        <FooterContent>
-          <FooterText>&copy; 2024 Intermoda S.A. Sistema de Control de Producción v2.4</FooterText>
-          <FooterLinks>
-            <a href="#">System Status</a>
-            <a href="#">Technical Support</a>
-            <a href="#">Privacy Policy</a>
-          </FooterLinks>
-        </FooterContent>
-      </Footer>
-    </LayoutContainer>
+      <footer className="bg-primary text-white py-8 px-8 mt-auto hidden md:block">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center opacity-80">
+          <p className="text-xs">&copy; 2024 Intermoda S.A. Sistema de Control de Producción v3.0</p>
+          <div className="flex gap-6 text-xs mt-4 md:mt-0">
+            <a href="#" className="hover:text-secondary-container">System Status</a>
+            <a href="#" className="hover:text-secondary-container">Technical Support</a>
+            <a href="#" className="hover:text-secondary-container">Privacy Policy</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
+

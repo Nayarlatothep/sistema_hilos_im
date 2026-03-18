@@ -1,76 +1,9 @@
 import React, { useMemo } from 'react';
-import { styled } from '../lib/stitches.config';
 import { useStore } from '../store/useStore';
-import { Layers } from 'lucide-react';
-
-const Card = styled('div', {
-  backgroundColor: '$surface',
-  borderRadius: '$2',
-  padding: '$5',
-  boxShadow: '$1',
-});
-
-const Title = styled('h2', {
-  fontSize: '$4',
-  marginBottom: '$4',
-  color: '$text',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '$2'
-});
-
-const KPIContainer = styled('div', {
-  display: 'grid',
-  gap: '$4',
-  gridTemplateColumns: '1fr',
-  '@sm': {
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-  }
-});
-
-const StationCard = styled('div', {
-  padding: '$4',
-  border: '1px solid $border',
-  borderRadius: '$2',
-  backgroundColor: '$background',
-});
-
-const StationName = styled('h3', {
-  fontSize: '$3',
-  marginBottom: '$2',
-  display: 'flex',
-  justifyContent: 'space-between',
-});
-
-const ProgressText = styled('span', {
-  fontSize: '$2',
-  color: '$textLight',
-});
-
-const ProgressBarContainer = styled('div', {
-  width: '100%',
-  height: '12px',
-  backgroundColor: '$border',
-  borderRadius: '$round',
-  overflow: 'hidden',
-  marginTop: '$2',
-});
-
-const ProgressBarFill = styled('div', {
-  height: '100%',
-  backgroundColor: '$primary',
-  transition: 'width 0.5s ease-in-out',
-  variants: {
-    status: {
-      success: { backgroundColor: '$success' },
-      warning: { backgroundColor: '$warning' },
-      danger: { backgroundColor: '$error' }
-    }
-  }
-});
 
 export default function Dashboard() {
   const { planificacion, transferencias } = useStore();
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   const stationsData = useMemo(() => {
     const stations = {
@@ -79,56 +12,59 @@ export default function Dashboard() {
       '3': { planned: 0, transferred: 0 }
     };
 
-    // Calculate planned by module
+    const normalizeModule = (m) => {
+      if (!m) return null;
+      const str = String(m).toLowerCase();
+      if (str.includes('1')) return '1';
+      if (str.includes('2')) return '2';
+      if (str.includes('3')) return '3';
+      return null;
+    };
+
     planificacion.forEach(p => {
-      const mod = p.modulo;
-      if (stations[mod]) {
-        stations[mod].planned += parseInt(p.cantidad || 0, 10);
+      const key = normalizeModule(p.modulo);
+      if (key && stations[key]) {
+        stations[key].planned += parseInt(p.cantidad || 0, 10);
       }
     });
 
-    // Calculate transferred by module
     transferencias.forEach(t => {
-      const mod = t.modulo;
-      if (stations[mod]) {
-        stations[mod].transferred += parseInt(t.cantidad || 0, 10);
+      const key = normalizeModule(t.modulo);
+      if (key && stations[key]) {
+        stations[key].transferred += parseInt(t.cantidad || 0, 10);
       }
     });
 
     return Object.entries(stations).map(([name, data]) => {
       const percent = data.planned > 0 ? Math.min(100, (data.transferred / data.planned) * 100) : 0;
-      let status = 'danger';
-      if (percent >= 100) status = 'success';
-      else if (percent >= 50) status = 'warning';
+      let statusColor = 'bg-rose-500';
+      if (percent >= 100) statusColor = 'bg-emerald-500';
+      else if (percent >= 50) statusColor = 'bg-amber-500';
 
       return {
         name,
         planned: data.planned,
         transferred: data.transferred,
         percent,
-        status
+        statusColor
       };
     });
   }, [planificacion, transferencias]);
 
-  if (stationsData.length === 0) {
-    return (
-      <Card>
-        <Title>
-          <Layers size={24} color="var(--colors-primary)" />
-          Dashboard KPI - Carga por Modulos
-        </Title>
-        <p style={{ color: 'var(--colors-textLight)' }}>No hay datos disponibles para mostrar el progreso por módulos.</p>
-      </Card>
-    );
-  }
-
   const productionData = useMemo(() => {
     const products = {};
 
-    // First pass: group planned data by product+color
+    const normalizeModule = (m) => {
+      if (!m) return null;
+      const str = String(m).toLowerCase();
+      if (str.includes('1')) return '1';
+      if (str.includes('2')) return '2';
+      if (str.includes('3')) return '3';
+      return null;
+    };
+
     planificacion.forEach(p => {
-      const key = `${p.producto}_${p.color}`;
+      const key = `${p.producto}_${p.color}`.toLowerCase().trim();
       if (!products[key]) {
         products[key] = {
           producto: p.producto,
@@ -142,112 +78,131 @@ export default function Dashboard() {
           mod3_transferred: 0,
         };
       }
-      if (p.modulo === '1') products[key].mod1_planned += parseInt(p.cantidad || 0, 10);
-      if (p.modulo === '2') products[key].mod2_planned += parseInt(p.cantidad || 0, 10);
-      if (p.modulo === '3') products[key].mod3_planned += parseInt(p.cantidad || 0, 10);
+      const modKey = normalizeModule(p.modulo);
+      if (modKey === '1') products[key].mod1_planned += parseInt(p.cantidad || 0, 10);
+      if (modKey === '2') products[key].mod2_planned += parseInt(p.cantidad || 0, 10);
+      if (modKey === '3') products[key].mod3_planned += parseInt(p.cantidad || 0, 10);
     });
 
-    // Second pass: add actual transfer data (yardas calculated mapping)
     transferencias.forEach(t => {
-      const key = `${t.producto}_${t.color}`;
+      const key = `${t.producto}_${t.color}`.toLowerCase().trim();
       if (products[key]) {
+        const modKey = normalizeModule(t.modulo);
         const qty = parseInt(t.cantidad || 0, 10);
-        if (t.modulo === '1') products[key].mod1_transferred += qty;
-        if (t.modulo === '2') products[key].mod2_transferred += qty;
-        if (t.modulo === '3') products[key].mod3_transferred += qty;
+        if (modKey === '1') products[key].mod1_transferred += qty;
+        if (modKey === '2') products[key].mod2_transferred += qty;
+        if (modKey === '3') products[key].mod3_transferred += qty;
       }
     });
 
-    return Object.values(products).map(p => {
+    const baseData = Object.values(products).map(p => {
       const totalTransferred = p.mod1_transferred + p.mod2_transferred + p.mod3_transferred;
       const totalPlanned = p.mod1_planned + p.mod2_planned + p.mod3_planned;
       const percent = totalPlanned > 0 ? Math.min(100, (totalTransferred / totalPlanned) * 100) : 0;
       return { ...p, totalTransferred, totalPlanned, percent };
     });
-  }, [planificacion, transferencias]);
+
+    if (!searchQuery) return baseData;
+
+    const term = searchQuery.toLowerCase();
+    return baseData.filter(p => 
+      p.producto.toLowerCase().includes(term) || 
+      p.nombre_color.toLowerCase().includes(term)
+    );
+  }, [planificacion, transferencias, searchQuery]);
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
 
+  if (stationsData.length === 0) {
+    return (
+      <div className="bg-surface-container-lowest p-8 shadow-sm border border-outline-variant/10">
+        <h2 className="text-2xl font-black font-headline text-primary mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined">layers</span>
+          Dashboard KPI
+        </h2>
+        <p className="text-on-surface-variant font-body">No hay datos disponibles para mostrar el progreso.</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <Card>
-        <Title>
-          <Layers size={24} color="var(--colors-primary)" />
-          Dashboard KPI - Carga por Modulos
-        </Title>
-        
-        <KPIContainer>
-          {stationsData.map(st => (
-            <StationCard key={st.name}>
-              <StationName>
-                Módulo {st.name}
-                <ProgressText>{Math.round(st.percent)}%</ProgressText>
-              </StationName>
-              <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-                <strong>{st.transferred.toLocaleString()}</strong> / {st.planned.toLocaleString()} Transferidos
-              </div>
-              <ProgressBarContainer>
-                <ProgressBarFill 
-                  style={{ width: `${st.percent}%` }} 
-                  status={st.status} 
-                />
-              </ProgressBarContainer>
-            </StationCard>
-          ))}
-        </KPIContainer>
-      </Card>
+    <div className="flex flex-col gap-12">
+      {/* Hero Editorial Header */}
+      <section>
+        <p className="text-sm font-bold text-secondary uppercase tracking-[0.2em] mb-2 font-headline">Real-Time Performance</p>
+        <div className="flex justify-between items-end">
+          <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">Production Monitor</h2>
+          <div className="text-right">
+            <p className="text-on-surface-variant text-[10px] font-bold uppercase font-headline">Last Update</p>
+            <p className="font-bold text-primary font-body">{timestamp}</p>
+          </div>
+        </div>
+      </section>
 
+      {/* KPI Cards Section */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {stationsData.map(st => (
+          <div key={st.name} className="bg-surface-container-lowest p-6 shadow-sm border border-outline-variant/10 group hover:border-primary/20 transition-all">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline">Módulo {st.name}</h3>
+              <span className={`text-xs font-black font-headline ${st.percent >= 100 ? 'text-emerald-500' : st.percent >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                {Math.round(st.percent)}%
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
+              <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
+            </div>
+            <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-1000 ${st.statusColor}`} 
+                style={{ width: `${st.percent}%` }}
+              ></div>
+            </div>
+          </div>
+        ))}
+      </section>
 
-      {/* Production Monitor - Advanced Implementation */}
-      <section className="bg-white p-8 shadow-sm border border-slate-100" style={{ borderRadius: '0.125rem' }}>
+      {/* Data Explorer Section */}
+      <section className="bg-surface-container-lowest p-8 shadow-sm border border-outline-variant/10">
         <style dangerouslySetInnerHTML={{ __html: `
-          @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
-          .font-headline { font-family: 'Manrope', sans-serif !important; }
-          .font-body { font-family: 'Inter', sans-serif !important; }
           .custom-scrollbar::-webkit-scrollbar { width: 6px; }
           .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
           .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
           .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         `}} />
-
-        <div className="mb-12">
-          <p className="text-sm font-bold text-[#a53c00] uppercase tracking-[0.2em] mb-2 font-headline">Real-Time Performance</p>
-          <div className="flex justify-between items-end">
-            <h2 className="text-5xl font-black text-[#001731] tracking-tighter font-headline">Production Monitor</h2>
-            <div className="text-right">
-              <p className="text-slate-500 text-[10px] font-bold uppercase font-headline">Last Update</p>
-              <p className="font-bold text-[#001731] font-body">{timestamp}</p>
-            </div>
-          </div>
-        </div>
-
+        
+        {/* Table Controls */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div className="relative w-full md:w-96">
+          <div className="relative w-full md:w-96 font-body">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
             <input 
-              className="w-full bg-slate-50 border-none border-b-2 border-slate-200 focus:border-[#001731] focus:ring-0 text-sm py-3 pl-10 rounded-t-lg" 
-              placeholder="Search product or module..." 
+              className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 pl-10 rounded-t-lg transition-colors" 
+              placeholder="Search product or color..." 
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex gap-3 w-full md:w-auto">
-            <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-[#001731] text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-colors">
+          <div className="flex gap-3 w-full md:w-auto font-headline">
+            <button className="flex items-center gap-2 px-4 py-2 bg-surface-container text-primary text-xs font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-sm">filter_list</span> Filter
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-[#001731] text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-surface-container text-primary text-xs font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors">
               <span className="material-symbols-outlined text-sm">download</span> Export
             </button>
-            <button className="flex items-center gap-2 px-6 py-2 bg-[#a53c00] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#8f3400] transition-colors">
+            <button className="flex items-center gap-2 px-6 py-2 bg-secondary text-white text-xs font-bold uppercase tracking-widest hover:bg-[#8f3400] transition-transform active:scale-95 shadow-md shadow-secondary/20">
               Run Optimization
             </button>
           </div>
         </div>
 
-        <div className="overflow-y-auto custom-scrollbar max-h-[600px] border border-slate-100">
+        {/* Main Data Table Container */}
+        <div className="overflow-y-auto custom-scrollbar max-h-[600px] border border-outline-variant/10">
           <table className="w-full border-collapse sticky-header">
-            <thead className="sticky top-0 bg-white z-10 shadow-sm">
-              <tr className="text-left text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] border-b border-slate-100 font-headline">
+            <thead className="sticky top-0 bg-white z-10">
+              <tr className="text-left text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] border-b border-outline-variant/20 shadow-[0_1px_0_rgba(0,0,0,0.05)] font-headline">
                 <th className="py-4 px-4 bg-white">Producto</th>
                 <th className="py-4 px-4 text-center bg-white">Color</th>
                 <th className="py-4 px-4 bg-white">Nombre Color</th>
@@ -260,25 +215,25 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {productionData.map((row, idx) => (
-                <tr key={idx} className="group hover:bg-slate-50 transition-colors font-body">
+                <tr key={idx} className={`group hover:bg-surface-container-low transition-colors font-body ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''}`}>
                   <td className="py-6 px-4">
-                    <p className="text-sm font-black text-[#001731] font-headline">{row.producto}</p>
-                    <p className="text-[10px] text-slate-400 font-body">Line Active | Production ID: {idx + 101}</p>
+                    <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors">{row.producto}</p>
+                    <p className="text-[10px] text-slate-400">Production Line Active | ID: {idx + 101}</p>
                   </td>
                   <td className="py-6 px-4">
                     <div 
-                      className="w-6 h-6 rounded-full mx-auto border-2 border-white shadow-sm" 
+                      className="w-6 h-6 rounded-full mx-auto border-2 border-white shadow-sm ring-1 ring-slate-100" 
                       style={{ backgroundColor: row.color }}
                     ></div>
                   </td>
                   <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
-                  <td className="py-6 px-4 text-right text-xs font-medium">{row.mod1_transferred.toLocaleString()} / {row.mod1_planned.toLocaleString()}</td>
-                  <td className="py-6 px-4 text-right text-xs font-medium">{row.mod2_transferred.toLocaleString()} / {row.mod2_planned.toLocaleString()}</td>
-                  <td className="py-6 px-4 text-right text-xs font-medium">{row.mod3_transferred.toLocaleString()} / {row.mod3_planned.toLocaleString()}</td>
-                  <td className="py-6 px-4 text-right text-sm font-bold text-[#001731]">{row.totalTransferred.toLocaleString()}</td>
+                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod1_transferred.toLocaleString()} / {row.mod1_planned.toLocaleString()}</td>
+                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod2_transferred.toLocaleString()} / {row.mod2_planned.toLocaleString()}</td>
+                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">{row.mod3_transferred.toLocaleString()} / {row.mod3_planned.toLocaleString()}</td>
+                  <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">{row.totalTransferred.toLocaleString()}</td>
                   <td className="py-6 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <span className="text-xs font-black text-[#a53c00]">{Math.round(row.percent)}%</span>
+                      <span className="text-xs font-black text-secondary tabular-nums">{Math.round(row.percent)}%</span>
                       <div className={`w-1.5 h-1.5 rounded-full ${row.percent >= 100 ? 'bg-emerald-500' : row.percent >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
                     </div>
                   </td>
@@ -287,10 +242,11 @@ export default function Dashboard() {
             </tbody>
           </table>
         </div>
-        
-        <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-6 font-headline">
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Production Overview | {productionData.length} lines active</p>
-          <div className="flex items-center gap-4">
+
+        {/* Footer info */}
+        <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-6">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest font-headline">Global Production Overview | {productionData.length} Product Lines Active</p>
+          <div className="flex items-center gap-4 font-headline">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
               <span className="text-[10px] font-bold uppercase text-slate-500">Optimal</span>

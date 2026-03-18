@@ -1,247 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
-import { styled } from '../lib/stitches.config';
 import { useStore } from '../store/useStore';
-import { UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
-
-const UploadSection = styled('section', {
-  marginBottom: '$10',
-});
-
-const SectionHeader = styled('div', {
-  marginBottom: '$6',
-  h1: {
-    fontSize: '$2xl',
-    fontWeight: '700',
-    color: '$primary',
-  },
-  p: {
-    color: '$gray500',
-  }
-});
-
-const DropZoneContainer = styled('div', {
-  position: 'relative',
-  border: '2px dashed $gray200',
-  borderRadius: '$xl',
-  backgroundColor: 'white',
-  padding: '$12',
-  textAlign: 'center',
-  transition: 'all 0.2s',
-  '&:hover': {
-    borderColor: '$accent',
-  },
-  variants: {
-    active: {
-      true: {
-        borderColor: '$accent',
-        backgroundColor: 'rgba(243, 112, 33, 0.05)',
-      }
-    }
-  }
-});
-
-const IconWrapper = styled('div', {
-  marginBottom: '$4',
-  padding: '$4',
-  borderRadius: '$round',
-  backgroundColor: '$blue50',
-  color: '$primary',
-  transition: 'all 0.2s',
-  display: 'inline-flex',
-  [`${DropZoneContainer}:hover &`]: {
-    backgroundColor: '$orange50',
-    color: '$accent',
-  }
-});
-
-const Title = styled('h2', {
-  fontSize: '$xl',
-  fontWeight: '600',
-  color: '$primary',
-  marginBottom: '$2',
-});
-
-const SubTitle = styled('p', {
-  color: '$gray500',
-  marginBottom: '$6',
-});
-
-const BrowseButton = styled('label', {
-  cursor: 'pointer',
-  backgroundColor: '$primary',
-  color: 'white',
-  padding: '$2 $6',
-  borderRadius: '$2',
-  fontWeight: '500',
-  boxShadow: '$md',
-  transition: 'all 0.2s',
-  display: 'inline-block',
-  '&:hover': {
-     opacity: 0.9,
-  }
-});
-
-const HiddenInput = styled('input', {
-  display: 'none',
-});
-
-const StatusContainer = styled('div', {
-  marginTop: '$4',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '$3',
-});
-
-const SuccessAlert = styled('div', {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '$4',
-  backgroundColor: '$green50',
-  borderLeft: '4px solid $green500',
-  borderRadius: '0 $2 $2 0',
-  color: '$green800',
-  fontSize: '$sm',
-  fontWeight: '500',
-});
-
-const ErrorAlert = styled('div', {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '$4',
-  backgroundColor: '$red50',
-  borderLeft: '4px solid $red600',
-  borderRadius: '0 $2 $2 0',
-  color: '$red700',
-  fontSize: '$sm',
-  fontWeight: '500',
-});
-
-// PREVIEW TABLE COMPONENTS
-const PreviewSection = styled('section', {
-  backgroundColor: 'white',
-  borderRadius: '$xl',
-  boxShadow: '$sm',
-  border: '1px solid $gray200',
-  overflow: 'hidden',
-  marginBottom: '$10',
-});
-
-const PreviewHeader = styled('div', {
-  padding: '$4 $6',
-  borderBottom: '1px solid $gray100',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '$gray50',
-  h3: {
-    fontWeight: '700',
-    color: '$primary',
-  }
-});
-
-const ActionRow = styled('div', {
-  display: 'flex',
-  gap: '$2',
-});
-
-const ClearButton = styled('button', {
-   fontSize: '$sm',
-   color: '$accent',
-   fontWeight: '500',
-   background: 'none',
-   border: 'none',
-   cursor: 'pointer',
-   '&:hover': { textDecoration: 'underline' }
-});
-
-const ProcessButton = styled('button', {
-   backgroundColor: '$primary',
-   color: 'white',
-   fontSize: '$sm',
-   padding: '$1 $4',
-   borderRadius: '$1',
-   border: 'none',
-   cursor: 'pointer',
-   transition: 'opacity 0.2s',
-   '&:hover': { opacity: 0.9 },
-   '&:disabled': { opacity: 0.5, cursor: 'not-allowed' }
-});
-
-const TableScroll = styled('div', {
-  overflowX: 'auto',
-  '&::-webkit-scrollbar': { width: '6px', height: '6px' },
-  '&::-webkit-scrollbar-track': { background: '#f1f1f1' },
-  '&::-webkit-scrollbar-thumb': { background: '#0f2643', borderRadius: '10px' },
-});
-
-const Table = styled('table', {
-  minWidth: '100%',
-  borderCollapse: 'collapse',
-});
-
-const Th = styled('th', {
-  padding: '$3 $6',
-  textAlign: 'left',
-  fontSize: '$xs',
-  fontWeight: '600',
-  color: '$gray500',
-  textTransform: 'uppercase',
-  tracking: 'wider',
-  backgroundColor: '$gray50',
-});
-
-const Td = styled('td', {
-  padding: '$4 $6',
-  whiteSpace: 'nowrap',
-  fontSize: '$sm',
-  borderBottom: '1px solid $gray100',
-});
-
-const Tr = styled('tr', {
-  backgroundColor: 'white',
-  transition: 'background-color 0.2s',
-  '&:hover': { backgroundColor: '$blue50' },
-  variants: {
-    error: {
-      true: {
-        backgroundColor: '$red50',
-        '&:hover': { backgroundColor: '$red100' }
-      }
-    }
-  }
-});
-
-const TableFooter = styled('div', {
-  padding: '$3 $6',
-  backgroundColor: 'white',
-  borderTop: '1px solid $gray100',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-});
-
-const FooterText = styled('p', {
-  fontSize: '$xs',
-  color: '$gray500',
-});
-
-const PaginationControls = styled('div', {
-  display: 'flex',
-  gap: '$2',
-});
-
-const PageButton = styled('button', {
-  padding: '$1 $3',
-  border: '1px solid $border',
-  borderRadius: '$1',
-  fontSize: '$sm',
-  background: 'white',
-  cursor: 'pointer',
-  '&:hover': { background: '$gray50' },
-  '&:disabled': { opacity: 0.5, cursor: 'not-allowed' }
-});
 
 export default function DataIngestion() {
   const [dataToUpload, setDataToUpload] = useState([]);
@@ -273,8 +33,6 @@ export default function DataIngestion() {
         const invalidData = [];
 
         json.forEach((row, index) => {
-          // ENSURING COLUMNS MATCH THE REQUESTED SCHEMA:
-          // planificacion_produccion: sku, semana, producto, color, nombre_color, modulo, cantidad
           const parsedRow = {
             sku: row.SKU || row.sku || '',
             semana: row.Semana || row.semana || '',
@@ -293,7 +51,7 @@ export default function DataIngestion() {
         });
 
         if (validData.length === 0) {
-          setErrorMsg('No se encontraron registros válidos. Revise las columnas: Producto, Nombre_Color, Cantidad, Modulo.');
+          setErrorMsg('No se encontraron registros válidos. Revise las columnas del Excel.');
         } else {
           setDataToUpload(validData);
           setSuccessMsg(`Validación exitosa. ${validData.length} registros listos.`);
@@ -323,146 +81,132 @@ export default function DataIngestion() {
     if (res) {
       setDataToUpload([]);
       setErrorRows([]);
-      setSuccessMsg('Datos cargados exitosamente en Supabase.');
+      setSuccessMsg('Datos cargados exitosamente.');
       setErrorMsg(null);
     } else {
-      // Access error from the store
-      const dbError = useStore.getState().error;
-      setErrorMsg(`Error de base de datos: ${dbError || 'Verifique conexión y RLS'}`);
-      setSuccessMsg(null);
+      setErrorMsg('Error de base de datos. Verifique conexión y RLS');
     }
   };
 
   const handleClearTable = async () => {
-    if (window.confirm('¿Está seguro de que desea BORRAR TODA la planificación de la base de datos?')) {
+    if (window.confirm('¿Desea BORRAR TODA la planificación de la base de datos?')) {
       const success = await clearPlanificacion();
-      if (success) {
-        setSuccessMsg('Tabla de planificación limpiada exitosamente.');
-      } else {
-        setErrorMsg('Error al limpiar la tabla.');
-      }
+      if (success) setSuccessMsg('Tabla de planificación limpiada.');
     }
-  };
-
-  const handleClearPreview = () => {
-    setDataToUpload([]);
-    setErrorRows([]);
-    setErrorMsg(null);
-    setSuccessMsg(null);
   };
 
   const totalRecords = dataToUpload.length + errorRows.length;
 
   return (
-    <>
-      <UploadSection>
-        <SectionHeader>
-          <h1>Import Inventory Data</h1>
-          <p>Please upload your weekly inventory files to sync with the central database.</p>
-        </SectionHeader>
-
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'flex-end' }}>
-          <ProcessButton 
-            onClick={handleClearTable} 
-            css={{ backgroundColor: '$error', '&:hover': { backgroundColor: '$red700' } }}
-            disabled={loading}
+    <div className="flex flex-col gap-10">
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <div className="font-headline">
+            <h1 className="text-4xl font-black text-primary tracking-tighter">Inventory Ingestion</h1>
+            <p className="text-on-surface-variant font-medium mt-2">Upload your weekly production files to sync data.</p>
+          </div>
+          <button 
+            onClick={handleClearTable}
+            className="px-6 py-2 bg-rose-500/10 text-rose-600 text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all rounded-full shadow-sm"
           >
-            Borrar Tabla (DB)
-          </ProcessButton>
+            Clear Database
+          </button>
         </div>
 
-        <DropZoneContainer {...getRootProps()} active={isDragActive}>
-          <IconWrapper>
-            <UploadCloud size={48} strokeWidth={1.5} />
-          </IconWrapper>
-          <Title>Drag & Drop Files</Title>
-          <SubTitle>Supported formats: .xlsx, .xls, .csv</SubTitle>
-          <BrowseButton>
-            Browse Files
-            <HiddenInput {...getInputProps()} />
-          </BrowseButton>
-        </DropZoneContainer>
+        <div 
+          {...getRootProps()} 
+          className={`relative border-2 border-dashed rounded-xl p-16 text-center transition-all cursor-pointer ${
+            isDragActive ? 'border-secondary bg-secondary-container/10' : 'border-outline-variant/30 bg-surface-container-lowest hover:border-secondary hover:bg-surface-container-low'
+          }`}
+        >
+          <input {...getInputProps()} />
+          <div className="mb-4 inline-flex p-5 rounded-full bg-primary-fixed-dim/20 text-primary">
+            <span className="material-symbols-outlined text-5xl">cloud_upload</span>
+          </div>
+          <h2 className="text-xl font-bold text-primary font-headline">Drag & Drop Production Files</h2>
+          <p className="text-on-surface-variant mt-2 mb-6 font-body">Supported formats: .xlsx, .xls, .csv</p>
+          <div className="inline-block px-8 py-3 bg-primary text-white text-sm font-bold rounded-lg shadow-lg hover:bg-[#0a1a2e] transition-all">
+            Browse Locally
+          </div>
+        </div>
 
-        <StatusContainer>
+        <div className="mt-6 flex flex-col gap-4">
           {successMsg && (
-            <SuccessAlert>
-               <CheckCircle size={20} style={{ marginRight: '12px' }} />
-               {successMsg}
-            </SuccessAlert>
+            <div className="flex items-center gap-3 p-4 bg-emerald-50 text-emerald-700 rounded-lg border-l-4 border-emerald-500 shadow-sm font-medium">
+              <span className="material-symbols-outlined">check_circle</span>
+              {successMsg}
+            </div>
           )}
           {errorMsg && (
-            <ErrorAlert>
-               <AlertCircle size={20} style={{ marginRight: '12px' }} />
-               {errorMsg}
-            </ErrorAlert>
+            <div className="flex items-center gap-3 p-4 bg-rose-50 text-rose-700 rounded-lg border-l-4 border-rose-500 shadow-sm font-medium">
+              <span className="material-symbols-outlined">error</span>
+              {errorMsg}
+            </div>
           )}
-        </StatusContainer>
-      </UploadSection>
+        </div>
+      </section>
 
       {(dataToUpload.length > 0 || errorRows.length > 0) && (
-        <PreviewSection>
-          <PreviewHeader>
-            <h3>Data Preview</h3>
-            <ActionRow>
-              <ClearButton onClick={handleClearPreview}>Limpiar Vista</ClearButton>
-              <ProcessButton onClick={handleProcessAll} disabled={loading || dataToUpload.length === 0}>
-                {loading ? 'Cargando...' : 'Cargar a Supabase'}
-              </ProcessButton>
-            </ActionRow>
-          </PreviewHeader>
+        <section className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+          <div className="bg-surface-container-low/50 px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
+            <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">Data Preview</h3>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => { setDataToUpload([]); setErrorRows([]); }}
+                className="text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors uppercase tracking-widest"
+              >
+                Clear Preview
+              </button>
+              <button 
+                disabled={loading || dataToUpload.length === 0}
+                onClick={handleProcessAll}
+                className="px-8 py-2 bg-secondary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-lg shadow-secondary/30 hover:bg-[#8f3400] active:scale-95 transition-all"
+              >
+                {loading ? 'Processing...' : 'Upload to Supabase'}
+              </button>
+            </div>
+          </div>
 
-          <TableScroll>
-            <Table>
+          <div className="overflow-x-auto min-h-[300px]">
+            <table className="w-full border-collapse">
               <thead>
-                <tr>
-                  <Th>SKU</Th>
-                  <Th>Semana</Th>
-                  <Th>Producto</Th>
-                  <Th>Color / Nombre</Th>
-                  <Th>Módulo</Th>
-                  <Th css={{ textAlign: 'right', paddingRight: '$12' }}>Cantidad</Th>
+                <tr className="bg-surface-container-low/30 border-b border-outline-variant/20 font-headline">
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">SKU</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Product</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Color / Desc</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Module</th>
+                  <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Quantity</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100 font-body">
                 {dataToUpload.map((row, i) => (
-                  <Tr key={`valid-${i}`}>
-                    <Td css={{ color: '$gray500' }}>{row.sku || '-'}</Td>
-                    <Td css={{ color: '$gray500' }}>{row.semana || '-'}</Td>
-                    <Td css={{ fontWeight: '500', color: '$primary' }}>{row.producto}</Td>
-                    <Td css={{ color: '$gray500' }}>{row.color} - {row.nombre_color}</Td>
-                    <Td css={{ color: '$gray500' }}>{row.modulo || 'N/A'}</Td>
-                    <Td css={{ fontWeight: '700', color: '$primary', textAlign: 'right', paddingRight: '$12' }}>
-                      {row.cantidad}
-                    </Td>
-                  </Tr>
+                  <tr key={`valid-${i}`} className="hover:bg-primary-fixed/5 transition-colors">
+                    <td className="px-8 py-4 text-sm font-medium text-slate-400 tabular-nums">{row.sku || '-'}</td>
+                    <td className="px-8 py-4 text-sm font-black text-primary font-headline">{row.producto}</td>
+                    <td className="px-8 py-4 text-sm text-on-surface-variant">{row.color} - {row.nombre_color}</td>
+                    <td className="px-8 py-4 text-sm text-slate-500">{row.modulo || 'N/A'}</td>
+                    <td className="px-8 py-4 text-sm font-black text-primary text-right tabular-nums">{row.cantidad.toLocaleString()}</td>
+                  </tr>
                 ))}
                 {errorRows.map((row, i) => (
-                  <Tr key={`error-${i}`} error>
-                    <Td css={{ color: '$red600' }}>{row.sku || '-'}</Td>
-                    <Td css={{ color: '$red600' }}>{row.semana || '-'}</Td>
-                    <Td css={{ fontWeight: '500', color: '$red700' }}>{row.producto || 'Missing'}</Td>
-                    <Td css={{ color: '$red600' }}>{row.nombre_color || 'Missing'}</Td>
-                    <Td css={{ color: '$red600' }}>{row.modulo || 'N/A'}</Td>
-                    <Td css={{ fontWeight: '700', color: '$red700', textAlign: 'right', paddingRight: '$12' }}>
-                      {row.cantidad || 0}
-                    </Td>
-                  </Tr>
+                  <tr key={`error-${i}`} className="bg-rose-50/50">
+                    <td className="px-8 py-4 text-sm font-medium text-rose-400 italic" colSpan="4">
+                      Invalid record found: {row.producto || 'Missing data'}
+                    </td>
+                    <td className="px-8 py-4 text-sm font-bold text-rose-600 text-right uppercase tracking-widest">Error</td>
+                  </tr>
                 ))}
               </tbody>
-            </Table>
-          </TableScroll>
-
-          <TableFooter>
-            <FooterText>
-              Showing {Math.min(1, totalRecords)} to {totalRecords} of {totalRecords} entries
-            </FooterText>
-            <PaginationControls>
-              <PageButton disabled>Previous</PageButton>
-              <PageButton disabled={totalRecords <= 10}>Next</PageButton>
-            </PaginationControls>
-          </TableFooter>
-        </PreviewSection>
+            </table>
+          </div>
+          
+          <div className="bg-surface-container-low/30 px-8 py-4 flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest font-headline">
+            <span>Scan detected {totalRecords} entries</span>
+            <span className="text-secondary">{dataToUpload.length} ready for upload</span>
+          </div>
+        </section>
       )}
-    </>
+    </div>
   );
 }
+
