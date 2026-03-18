@@ -342,7 +342,8 @@ export default function TransferForm() {
       setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
       setTimeout(() => setMsg(null), 3000);
     } else {
-      alert('Error al registrar transferencia.');
+      const dbError = useStore.getState().error;
+      alert(`Error al registrar transferencia: ${dbError || 'Verifique conexión o RLS'}`);
     }
   };
 
