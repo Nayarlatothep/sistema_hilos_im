@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { styled } from '../lib/stitches.config';
 import { useStore } from '../store/useStore';
-import { RefreshCw, Plus, Inventory, ColorLens, GridView, TripOrigin } from 'lucide-react'; // Fallback to Lucide if needed, but I'll use Material Symbols as string icons
+import { RefreshCw, Plus } from 'lucide-react'; // Removing non-existent icons causing crash
 
 const Container = styled('div', {
   maxWidth: '1024px',
