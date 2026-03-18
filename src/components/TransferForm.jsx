@@ -342,7 +342,8 @@ export default function TransferForm() {
       color: selectedItem.color,
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
-      cantidad: qty
+      cantidad: qty,
+      yardas: selectedItem.producto === '60 08 180' ? qty * 1125 : qty * 3000
     };
 
     // Add to local list instead of Supabase
@@ -476,12 +477,13 @@ export default function TransferForm() {
                   <Th>Nombre Color</Th>
                   <Th style={{ textAlign: 'center' }}>Módulo</Th>
                   <Th style={{ textAlign: 'center' }}>Cantidad</Th>
+                  <Th style={{ textAlign: 'right' }}>Cant.Yardas</Th>
                 </tr>
               </thead>
               <tbody>
                 {localTransferencias.length === 0 ? (
                   <tr>
-                    <Td colSpan="7" style={{ textAlign: 'center', color: '#7a7a7a', padding: '2rem' }}>
+                    <Td colSpan="8" style={{ textAlign: 'center', color: '#7a7a7a', padding: '2rem' }}>
                       No hay registros encontrados en esta sesión.
                     </Td>
                   </tr>
@@ -500,6 +502,7 @@ export default function TransferForm() {
                       <Td>{t.nombre_color}</Td>
                       <Td style={{ textAlign: 'center' }}>{t.modulo || '-'}</Td>
                       <Td style={{ textAlign: 'center', fontWeight: '700' }}>{t.cantidad} UNS</Td>
+                      <Td style={{ textAlign: 'right', fontWeight: '700', color: '#1e40af' }}>{t.yardas?.toLocaleString()} YDS</Td>
                     </tr>
                   ))
                 )}
