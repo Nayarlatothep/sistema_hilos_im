@@ -463,23 +463,27 @@ export default function TransferForm() {
             <Table>
               <thead>
                 <tr>
+                  <Th>SKU</Th>
+                  <Th>Fecha</Th>
                   <Th>Producto</Th>
                   <Th>Color</Th>
                   <Th>Nombre Color</Th>
+                  <Th style={{ textAlign: 'center' }}>Módulo</Th>
                   <Th style={{ textAlign: 'center' }}>Cantidad</Th>
-                  <Th>Fecha Transferencia</Th>
                 </tr>
               </thead>
               <tbody>
                 {transferencias.length === 0 ? (
                   <tr>
-                    <Td colSpan="5" style={{ textAlign: 'center', color: '#7a7a7a', padding: '2rem' }}>
+                    <Td colSpan="7" style={{ textAlign: 'center', color: '#7a7a7a', padding: '2rem' }}>
                       No hay registros encontrados.
                     </Td>
                   </tr>
                 ) : (
                   transferencias.map(t => (
                     <tr key={t.id} style={{ transition: 'background-color 0.2s' }}>
+                      <Td>{t.sku || '-'}</Td>
+                      <Td style={{ color: '#7a7a7a' }}>{t.fecha_transferencia?.split('T')[0]}</Td>
                       <Td style={{ fontWeight: '600' }}>{t.producto}</Td>
                       <Td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -488,8 +492,8 @@ export default function TransferForm() {
                         </div>
                       </Td>
                       <Td>{t.nombre_color}</Td>
+                      <Td style={{ textAlign: 'center' }}>{t.modulo || '-'}</Td>
                       <Td style={{ textAlign: 'center', fontWeight: '700' }}>{t.cantidad} UNS</Td>
-                      <Td style={{ color: '#7a7a7a' }}>{t.fecha_transferencia?.split('T')[0]}</Td>
                     </tr>
                   ))
                 )}
