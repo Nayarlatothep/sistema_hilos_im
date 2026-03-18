@@ -73,34 +73,25 @@ export default function Dashboard() {
   const { planificacion, transferencias } = useStore();
 
   const stationsData = useMemo(() => {
-    const stations = {};
+    const stations = {
+      '1': { planned: 0, transferred: 0 },
+      '2': { planned: 0, transferred: 0 },
+      '3': { planned: 0, transferred: 0 }
+    };
 
-    // Map plans by station
+    // Calculate planned by module
     planificacion.forEach(p => {
-      const station = p.modulo || 'Sin Asignar';
-      if (!stations[station]) {
-        stations[station] = {
-          planned: 0,
-          transferred: 0,
-          items: {}
-        };
+      const mod = p.modulo;
+      if (stations[mod]) {
+        stations[mod].planned += parseInt(p.cantidad || 0, 10);
       }
-      stations[station].planned += parseInt(p.cantidad || 0, 10);
-      
-      const key = `${p.producto}_${p.nombre_color}`;
-      stations[station].items[key] = true;
     });
 
-    // Match transfers to stations
+    // Calculate transferred by module
     transferencias.forEach(t => {
-      const key = `${t.producto}_${t.nombre_color}`;
-      const qty = parseInt(t.cantidad || 0, 10);
-      
-      // Find which station this item belongs to
-      for (const [sName, sData] of Object.entries(stations)) {
-        if (sData.items[key]) {
-          sData.transferred += qty;
-        }
+      const mod = t.modulo;
+      if (stations[mod]) {
+        stations[mod].transferred += parseInt(t.cantidad || 0, 10);
       }
     });
 
@@ -125,9 +116,9 @@ export default function Dashboard() {
       <Card>
         <Title>
           <Layers size={24} color="var(--colors-primary)" />
-          Dashboard KPI - Progreso
+          Dashboard KPI - Carga por Modulos
         </Title>
-        <p style={{ color: 'var(--colors-textLight)' }}>No hay datos de planificación disponibles.</p>
+        <p style={{ color: 'var(--colors-textLight)' }}>No hay datos disponibles para mostrar el progreso por módulos.</p>
       </Card>
     );
   }
@@ -136,18 +127,18 @@ export default function Dashboard() {
     <Card>
       <Title>
         <Layers size={24} color="var(--colors-primary)" />
-        Dashboard KPI - Carga por Estación
+        Dashboard KPI - Carga por Modulos
       </Title>
       
       <KPIContainer>
         {stationsData.map(st => (
           <StationCard key={st.name}>
             <StationName>
-              {st.name}
+              Módulo {st.name}
               <ProgressText>{Math.round(st.percent)}%</ProgressText>
             </StationName>
             <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-              <strong>{st.transferred}</strong> / {st.planned} Transferidos
+              <strong>{st.transferred.toLocaleString()}</strong> / {st.planned.toLocaleString()} Transferidos
             </div>
             <ProgressBarContainer>
               <ProgressBarFill 

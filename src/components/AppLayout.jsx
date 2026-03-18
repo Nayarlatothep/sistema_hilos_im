@@ -159,7 +159,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                 className={currentTab === 'dashboard' ? 'active' : ''}
                 onClick={(e) => { e.preventDefault(); onTabChange('dashboard'); }}
               >
-                Progreso
+                Dashboard KPI
               </a>
               <a
                 href="#"
