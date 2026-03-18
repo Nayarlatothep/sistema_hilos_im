@@ -65,29 +65,29 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
       </main>
 
       {/* BottomNavBar (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-xl md:hidden flex justify-around items-center border-t border-slate-100 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#001731] md:hidden flex justify-around items-center border-t border-white/5 z-50">
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard' ? 'text-primary' : 'text-slate-400'}`}
+          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('dashboard')}
         >
           <span className="material-symbols-outlined text-2xl">dashboard</span>
           <span className="text-[10px] font-bold uppercase">Overview</span>
         </div>
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'upload' ? 'text-primary' : 'text-slate-400'}`}
+          className={`flex flex-col items-center gap-1 ${currentTab === 'upload' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('upload')}
         >
           <span className="material-symbols-outlined text-2xl">factory</span>
           <span className="text-[10px] font-bold uppercase">Data</span>
         </div>
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'transfer' ? 'text-primary' : 'text-slate-400'}`}
+          className={`flex flex-col items-center gap-1 ${currentTab === 'transfer' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('transfer')}
         >
           <span className="material-symbols-outlined text-2xl">inventory_2</span>
           <span className="text-[10px] font-bold uppercase">Transf</span>
         </div>
-        <div className="flex flex-col items-center gap-1 text-slate-400">
+        <div className="flex flex-col items-center gap-1 text-white/20">
           <span className="material-symbols-outlined text-2xl">monitoring</span>
           <span className="text-[10px] font-bold uppercase">Stats</span>
         </div>
