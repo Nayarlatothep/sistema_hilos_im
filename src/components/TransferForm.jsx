@@ -330,6 +330,7 @@ export default function TransferForm() {
       sku: formData.sku,
       producto: selectedItem.producto,
       nombre_color: selectedItem.nombre_color,
+      modulo: formData.modulo,
       cantidad: qty,
       fecha_transferencia: new Date().toISOString()
     };
