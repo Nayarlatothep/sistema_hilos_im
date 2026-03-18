@@ -112,6 +112,7 @@ export default function Dashboard() {
       'princenton': 4, // typo fix
       'lucerne blue': 5,
       'navy #3': 6,
+      'navy # 3': 6,
       'light navy': 7
     };
 
