@@ -108,8 +108,9 @@ export default function Dashboard() {
       'black ae': 1, // fallback for common variants
       'navy 2025': 2,
       'blanco': 3,
+      'princeton orange': 4,
       'princeton': 4,
-      'princenton': 4, // typo fix
+      'princenton': 4,
       'lucerne blue': 5,
       'navy #3': 6,
       'navy # 3': 6,
