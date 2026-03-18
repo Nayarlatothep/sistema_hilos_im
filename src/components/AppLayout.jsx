@@ -4,39 +4,39 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
   return (
     <div className="bg-background font-body text-on-background antialiased min-h-screen flex flex-col">
       {/* TopAppBar */}
-      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm h-16 flex justify-between items-center px-8 border-b border-slate-100">
+      <header className="fixed top-0 w-full z-50 bg-[#001731] shadow-2xl h-16 flex justify-between items-center px-8 border-b border-white/5">
         <div className="flex items-center gap-4">
           <img 
             alt="Intermoda Logo" 
             className="h-8 w-auto" 
             src="https://lh3.googleusercontent.com/aida/ADBb0ujjnX_BfJjQ0SUWgHpqJ1gv1wmTgUCBZCN_ggtke6FlYCk-MZ7J5KkSne154r2BVcQziUDav-AM6IE3DGP0aiioI_UNXbSyDSh2-KbE09X0j44oYU5tQgMgVM733Mt8aLE3wFcipBxlLpig-5novUVMO3RQ_9L-fOoJu-rpNyVjO1FGNeeH51ymkVGl3D33iyPgbLrHeze8a2yVkOBym3Za5xDwQcLiMxKnYyY59gzNFBKz655-TT9siSPxI259Agf9HyXpZBcRUw"
           />
-          <h1 className="text-xl font-bold tracking-tighter text-[#001731] font-headline">Intermoda Monitor</h1>
+          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Intermoda Monitor</h1>
         </div>
         
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-8">
               <a 
-                className={`${currentTab === 'dashboard' ? 'text-[#001731] font-semibold' : 'text-slate-500 font-medium'} text-sm font-headline active:scale-95 transition-transform hover:text-[#a53c00]`} 
+                className={`${currentTab === 'dashboard' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('dashboard'); }}
               >
                 Overview
               </a>
               <a 
-                className={`${currentTab === 'upload' ? 'text-[#001731] font-semibold' : 'text-slate-500 font-medium'} text-sm font-headline active:scale-95 transition-transform hover:text-[#a53c00]`} 
+                className={`${currentTab === 'upload' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
               >
                 Production Data
               </a>
               <a 
-                className={`${currentTab === 'transfer' ? 'text-[#001731] font-semibold' : 'text-slate-500 font-medium'} text-sm font-headline active:scale-95 transition-transform hover:text-[#a53c00]`} 
+                className={`${currentTab === 'transfer' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('transfer'); }}
               >
-                Transfers
+                Execution Log
               </a>
             </nav>
           </div>
