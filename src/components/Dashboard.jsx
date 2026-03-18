@@ -104,7 +104,8 @@ export default function Dashboard() {
 
     // Custom Sorting Logic
     const colorPriorityMap = {
-      'negro': 1,
+      'black a&e': 1,
+      'black ae': 1, // fallback for common variants
       'navy 2025': 2,
       'blanco': 3,
       'princeton': 4,
