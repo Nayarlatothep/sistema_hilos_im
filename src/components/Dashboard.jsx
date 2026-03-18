@@ -103,29 +103,33 @@ export default function Dashboard() {
     });
 
     // Custom Sorting Logic
-    const colorPriority = {
+    const colorPriorityMap = {
       'negro': 1,
       'navy 2025': 2,
       'blanco': 3,
       'princeton': 4,
-      'princenton': 4, // Handle typo
+      'princenton': 4, // typo fix
       'lucerne blue': 5,
-      'navy #3': 6
+      'navy #3': 6,
+      'light navy': 7
     };
 
     const sortedData = baseData.sort((a, b) => {
-      // 1. Sort by Producto (Texture)
+      const nameA = a.nombre_color.toLowerCase().trim();
+      const nameB = b.nombre_color.toLowerCase().trim();
+      const pA = colorPriorityMap[nameA] || 99;
+      const pB = colorPriorityMap[nameB] || 99;
+
+      // 1. Prioritize group (1-7) over others (99)
+      if (pA !== pB) return pA - pB;
+
+      // 2. If both are NOT in priority list OR both are the SAME priority color
+      // then sort by Texture (Producto)
       if (a.producto < b.producto) return -1;
       if (a.producto > b.producto) return 1;
 
-      // 2. Sort by Color Priority
-      const pA = colorPriority[a.nombre_color.toLowerCase().trim()] || 99;
-      const pB = colorPriority[b.nombre_color.toLowerCase().trim()] || 99;
-
-      if (pA !== pB) return pA - pB;
-
       // 3. Fallback: Alphabetical by color name
-      return a.nombre_color.localeCompare(b.nombre_color);
+      return nameA.localeCompare(nameB);
     });
 
     if (!searchQuery) return sortedData;
