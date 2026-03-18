@@ -174,13 +174,6 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
               >
                 Transferencias:
               </a>
-              <a
-                href="#"
-                className={currentTab === 'prueba' ? 'active' : ''}
-                onClick={(e) => { e.preventDefault(); onTabChange('prueba'); }}
-              >
-                Prueba
-              </a>
             </NavLinks>
           </NavWrapper>
 

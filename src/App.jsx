@@ -5,7 +5,6 @@ import { useStore } from './store/useStore';
 
 import Dashboard from './components/Dashboard';
 import TransferForm from './components/TransferForm';
-import Prueba from './components/Prueba';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias } = useStore();
@@ -24,8 +23,6 @@ function App() {
         return <DataIngestion />;
       case 'transfer':
         return <TransferForm />;
-      case 'prueba':
-        return <Prueba />;
       default:
         return <Dashboard />;
     }
