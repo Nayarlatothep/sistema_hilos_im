@@ -329,6 +329,7 @@ export default function TransferForm() {
     const payload = {
       sku: formData.sku,
       producto: selectedItem.producto,
+      color: selectedItem.color,
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
       cantidad: qty,
@@ -482,8 +483,8 @@ export default function TransferForm() {
                       <Td style={{ fontWeight: '600' }}>{t.producto}</Td>
                       <Td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <StatusDot style={{ backgroundColor: '#001C4D' }} />
-                          <span>#001C4D</span>
+                          <StatusDot style={{ backgroundColor: t.color || '#cccccc' }} />
+                          <span>{t.color || 'N/A'}</span>
                         </div>
                       </Td>
                       <Td>{t.nombre_color}</Td>
