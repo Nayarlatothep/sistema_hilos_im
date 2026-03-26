@@ -34,6 +34,13 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                   </a>
                   <a 
                     href="#"
+                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'traslados' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
+                  >
+                    Traslados
+                  </a>
+                  <a 
+                    href="#"
                     className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'dashboard-transfer' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
                     onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
                   >
