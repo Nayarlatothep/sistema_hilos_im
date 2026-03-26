@@ -40,8 +40,35 @@ export default function Traslados() {
       border = 'border-amber-500';
     }
 
-    return { totalStock, totalRequerida, cumplimiento, color, border };
-  }, [filteredTransferencias, planificacion]);
+    // Module stats logic
+    const moduleList = ['1', '2', '3'];
+    const normalizeModule = (m) => {
+      if (!m) return null;
+      const str = String(m).toLowerCase();
+      if (str.includes('1')) return '1';
+      if (str.includes('2')) return '2';
+      if (str.includes('3')) return '3';
+      return null;
+    };
+
+    const moduleStats = moduleList.map(modId => {
+      const toolReq = planificacion
+        .filter(p => normalizeModule(p.modulo) === modId)
+        .reduce((acc, p) => acc + (parseInt(p.cantidad) || 0), 0);
+      const toolTrans = transferencias
+        .filter(t => normalizeModule(t.modulo) === modId)
+        .reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
+      const prc = toolReq > 0 ? (toolTrans / toolReq) * 100 : 0;
+      
+      let badgeColor = 'bg-rose-500';
+      if (prc >= 90) badgeColor = 'bg-emerald-500';
+      else if (prc >= 50) badgeColor = 'bg-amber-500';
+
+      return { modId, req: toolReq, trans: toolTrans, percent: prc, badgeColor };
+    });
+
+    return { totalStock, totalRequerida, cumplimiento, color, border, moduleStats };
+  }, [filteredTransferencias, planificacion, transferencias]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -95,13 +122,26 @@ export default function Traslados() {
           <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Progreso vs Planificación</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
-          <div className="relative z-10">
-            <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Top Material</p>
-            <p className="text-4xl font-extrabold text-primary font-headline">Cotton 40/1</p>
-            <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Current production focus</p>
+          <div className="relative z-10 h-full flex flex-col">
+            <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-4">Progreso por Módulo</p>
+            <div className="flex flex-col gap-3 flex-grow">
+              {stats.moduleStats.map(mod => (
+                <div key={mod.modId} className="flex items-center justify-between group/mod">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase text-primary font-headline tracking-tighter">Mod {mod.modId}</span>
+                    <span className="text-[10px] text-slate-400 font-bold tabular-nums">
+                      {mod.trans.toLocaleString()} / {mod.req.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className={`${mod.badgeColor} text-white px-2 py-0.5 rounded-full text-[9px] font-black shadow-sm transition-transform active:scale-95 cursor-default`}>
+                    {Math.round(mod.percent)}%
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="absolute bottom-0 right-0 opacity-10">
-            <span className="material-symbols-outlined text-8xl -mb-6 -mr-4">texture</span>
+          <div className="absolute bottom-0 right-0 opacity-5 pointer-events-none">
+            <span className="material-symbols-outlined text-8xl -mb-6 -mr-4">monitoring</span>
           </div>
         </div>
       </section>
