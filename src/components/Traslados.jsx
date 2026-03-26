@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Traslados() {
-  const { transferencias } = useStore();
+  const { transferencias, planificacion } = useStore();
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -27,9 +27,9 @@ export default function Traslados() {
 
   const stats = React.useMemo(() => {
     const totalStock = filteredTransferencias.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
-    const criticalItems = filteredTransferencias.filter(t => (parseInt(t.cantidad) || 0) < 50).length;
-    return { totalStock, criticalItems };
-  }, [filteredTransferencias]);
+    const totalRequerida = planificacion.reduce((acc, p) => acc + (parseInt(p.cantidad) || 0), 0);
+    return { totalStock, totalRequerida };
+  }, [filteredTransferencias, planificacion]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -65,11 +65,11 @@ export default function Traslados() {
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div className="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary transition-all">
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Total Stock</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
+          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">CANTIDAD REQUERIDA</p>
+          <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalRequerida.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-2 text-green-600 text-xs font-bold">
             <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span>Live data updated</span>
+            <span>Live data from planning</span>
           </div>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
