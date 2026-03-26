@@ -109,7 +109,7 @@ export default function TransferForm() {
   return (
     <div className="flex flex-col gap-10 max-w-5xl mx-auto">
       <section className="font-headline">
-        <h2 className="text-4xl font-black text-primary tracking-tighter">Material Registration</h2>
+        <h2 className="text-4xl font-black text-primary tracking-tighter">Traslado a Almacen Producción</h2>
         <p className="text-on-surface-variant font-medium mt-2">Log production transfers and yardage calculations.</p>
       </section>
 

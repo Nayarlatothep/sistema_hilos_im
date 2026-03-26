@@ -17,26 +17,36 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex items-center gap-8">
-              <a 
-                className={`${currentTab === 'dashboard' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
-                href="#"
-                onClick={(e) => { e.preventDefault(); onTabChange('dashboard'); }}
-              >
-                Overview
-              </a>
+              <div className="relative group">
+                <button 
+                  className={`${(currentTab === 'dashboard' || currentTab === 'dashboard-monitor' || currentTab === 'dashboard-transfer') ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest flex items-center gap-2`}
+                >
+                  DASHBOARDS
+                  <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-64 bg-[#001731] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] py-2">
+                  <a 
+                    href="#"
+                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'dashboard-monitor' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('dashboard-monitor'); }}
+                  >
+                    KPI Produccion
+                  </a>
+                  <a 
+                    href="#"
+                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'dashboard-transfer' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
+                  >
+                    Traslado a Almacen Producción
+                  </a>
+                </div>
+              </div>
               <a 
                 className={`${currentTab === 'upload' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
               >
                 Production Data
-              </a>
-              <a 
-                className={`${currentTab === 'transfer' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
-                href="#"
-                onClick={(e) => { e.preventDefault(); onTabChange('transfer'); }}
-              >
-                Execution Log
               </a>
             </nav>
           </div>
@@ -67,25 +77,25 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
       {/* BottomNavBar (Mobile Only) */}
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#001731] md:hidden flex justify-around items-center border-t border-white/5 z-50">
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard' ? 'text-secondary' : 'text-white/40'}`}
-          onClick={() => onTabChange('dashboard')}
+          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard-monitor' ? 'text-secondary' : 'text-white/40'}`}
+          onClick={() => onTabChange('dashboard-monitor')}
         >
-          <span className="material-symbols-outlined text-2xl">dashboard</span>
-          <span className="text-[10px] font-bold uppercase">Overview</span>
+          <span className="material-symbols-outlined text-2xl">monitoring</span>
+          <span className="text-[10px] font-bold uppercase text-center">KPI</span>
+        </div>
+        <div 
+          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard-transfer' ? 'text-secondary' : 'text-white/40'}`}
+          onClick={() => onTabChange('dashboard-transfer')}
+        >
+          <span className="material-symbols-outlined text-2xl">local_shipping</span>
+          <span className="text-[10px] font-bold uppercase text-center">Traslado</span>
         </div>
         <div 
           className={`flex flex-col items-center gap-1 ${currentTab === 'upload' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('upload')}
         >
           <span className="material-symbols-outlined text-2xl">factory</span>
-          <span className="text-[10px] font-bold uppercase">Data</span>
-        </div>
-        <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'transfer' ? 'text-secondary' : 'text-white/40'}`}
-          onClick={() => onTabChange('transfer')}
-        >
-          <span className="material-symbols-outlined text-2xl">inventory_2</span>
-          <span className="text-[10px] font-bold uppercase">Transf</span>
+          <span className="text-[10px] font-bold uppercase text-center">Data</span>
         </div>
         <div className="flex flex-col items-center gap-1 text-white/20">
           <span className="material-symbols-outlined text-2xl">monitoring</span>

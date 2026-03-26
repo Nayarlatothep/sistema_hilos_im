@@ -165,7 +165,7 @@ export default function Dashboard() {
       <section>
         <p className="text-sm font-bold text-secondary uppercase tracking-[0.2em] mb-2 font-headline">Real-Time Performance</p>
         <div className="flex justify-between items-end">
-          <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">Production Monitor</h2>
+          <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">KPI Producción</h2>
           <div className="text-right">
             <p className="text-on-surface-variant text-[10px] font-bold uppercase font-headline">Last Update</p>
             <p className="font-bold text-primary font-body">{timestamp}</p>

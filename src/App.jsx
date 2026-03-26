@@ -7,7 +7,7 @@ import TransferForm from './components/TransferForm';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias, loading, error } = useStore();
-  const [currentTab, setCurrentTab] = useState('dashboard');
+  const [currentTab, setCurrentTab] = useState('dashboard-monitor');
 
   useEffect(() => {
     fetchPlanificacion();
@@ -16,9 +16,9 @@ function App() {
 
   const renderContent = () => {
     switch (currentTab) {
-      case 'dashboard': return <Dashboard />;
+      case 'dashboard-monitor': return <Dashboard />;
+      case 'dashboard-transfer': return <TransferForm />;
       case 'upload': return <DataIngestion />;
-      case 'transfer': return <TransferForm />;
       default: return <Dashboard />;
     }
   };
