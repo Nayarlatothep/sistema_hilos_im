@@ -2,13 +2,33 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Traslados() {
-  const { transferencias } = useStore();
+  const [dateFilter, setDateFilter] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const filteredTransferencias = React.useMemo(() => {
+    let data = transferencias;
+    
+    if (dateFilter) {
+      data = data.filter(t => t.fecha_transferencia?.startsWith(dateFilter));
+    }
+    
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      data = data.filter(t => 
+        t.producto?.toLowerCase().includes(q) || 
+        t.nombre_color?.toLowerCase().includes(q) ||
+        t.color?.toLowerCase().includes(q)
+      );
+    }
+    
+    return data;
+  }, [transferencias, dateFilter, searchQuery]);
 
   const stats = React.useMemo(() => {
-    const totalStock = transferencias.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
-    const criticalItems = transferencias.filter(t => (parseInt(t.cantidad) || 0) < 50).length;
+    const totalStock = filteredTransferencias.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
+    const criticalItems = filteredTransferencias.filter(t => (parseInt(t.cantidad) || 0) < 50).length;
     return { totalStock, criticalItems };
-  }, [transferencias]);
+  }, [filteredTransferencias]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -58,8 +78,8 @@ export default function Traslados() {
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Active Transfers</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">{transferencias.length}</p>
-          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Historical records available</p>
+          <p className="text-4xl font-extrabold text-primary font-headline">{filteredTransferencias.length}</p>
+          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Filtered results</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
           <div className="relative z-10">
@@ -75,10 +95,32 @@ export default function Traslados() {
 
       <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
         <div className="p-6 border-b border-surface-container flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <div className="relative w-full md:w-80">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-              <input className="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search by yarn, color or date..." type="text"/>
+              <input 
+                className="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-all font-body" 
+                placeholder="Search by yarn, color or date..." 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="relative w-full md:w-48">
+              <input 
+                className="w-full px-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-all font-body appearance-none" 
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+              {dateFilter && (
+                <button 
+                  onClick={() => setDateFilter('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary"
+                >
+                  <span className="material-symbols-outlined text-sm">close</span>
+                </button>
+              )}
             </div>
             <button className="p-2 bg-surface-container-low rounded-lg text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">filter_list</span>
@@ -102,20 +144,20 @@ export default function Traslados() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container text-sm">
-              {transferencias.length === 0 ? (
+              {filteredTransferencias.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-20 text-center text-on-surface-variant/40 italic">
-                    Sin datos de transferencias registrados en el sistema.
+                  <td colSpan="5" className="py-20 text-center text-on-surface-variant/40 italic font-body">
+                    No se encontraron transferencias con los filtros aplicados.
                   </td>
                 </tr>
               ) : (
-                transferencias.slice(0, 50).map((t, idx) => (
+                filteredTransferencias.slice(0, 50).map((t, idx) => (
                   <tr key={t.id || idx} className="hover:bg-surface-container/30 transition-colors group">
-                    <td className="px-8 py-5 font-semibold text-primary">{formatDate(t.fecha_transferencia)}</td>
+                    <td className="px-8 py-5 font-semibold text-primary font-body">{formatDate(t.fecha_transferencia)}</td>
                     <td className="px-6 py-5">
-                      <div className="flex flex-col">
+                      <div className="flex flex-col font-body">
                         <span className="font-bold">{t.producto}</span>
-                        <span className="text-xs text-on-surface-variant">Material ID: {t.id}</span>
+                        <span className="text-xs text-on-surface-variant font-body">Material ID: {t.id}</span>
                       </div>
                     </td>
                     <td className="px-6 py-5">
@@ -126,9 +168,9 @@ export default function Traslados() {
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase">{t.nombre_color}</span>
+                      <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body">{t.nombre_color}</span>
                     </td>
-                    <td className="px-6 py-5 text-right pr-8">
+                    <td className="px-6 py-5 text-right pr-8 font-body">
                       <span className="text-lg font-extrabold text-primary font-headline">{(parseInt(t.cantidad) || 0).toLocaleString()}</span>
                       <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
                     </td>
@@ -138,10 +180,13 @@ export default function Traslados() {
             </tbody>
           </table>
         </div>
-        <div className="p-6 bg-surface-container-low flex justify-between items-center text-xs text-on-surface-variant font-bold uppercase tracking-widest">
-          <div>Mostrando {Math.min(transferencias.length, 50)} de {transferencias.length} registros</div>
+        <div className="p-6 bg-surface-container-low flex justify-between items-center text-xs text-on-surface-variant font-bold uppercase tracking-widest font-headline">
+          <div>Mostrando {Math.min(filteredTransferencias.length, 50)} de {filteredTransferencias.length} registros</div>
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 rounded border border-outline-variant/30 flex items-center justify-center hover:bg-white transition-all disabled:opacity-50" disabled>
+            <button 
+              className="w-8 h-8 rounded border border-outline-variant/30 flex items-center justify-center hover:bg-white transition-all disabled:opacity-50" 
+              disabled
+            >
               <span className="material-symbols-outlined text-sm">chevron_left</span>
             </button>
             <button className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center">1</button>
