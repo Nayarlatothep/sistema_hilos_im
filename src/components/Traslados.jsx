@@ -85,41 +85,41 @@ export default function Traslados() {
       <header className="mb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <span className="text-secondary font-bold tracking-widest text-[10px] uppercase mb-2 block">Warehouse Logistics</span>
-            <h1 className="text-5xl font-extrabold text-primary tracking-tight font-headline">Textile Inventory</h1>
-            <p className="text-on-surface-variant mt-2 max-w-xl">Real-time status of yarn, thread, and finished textile assets across the Intermoda manufacturing floor.</p>
+            <span className="text-secondary font-bold tracking-widest text-[10px] uppercase mb-2 block">Logística de Almacén</span>
+            <h1 className="text-4xl font-extrabold text-primary tracking-tight font-headline uppercase">REPORTE TRASLADOS DE HILOS ENTRE ALMACEN</h1>
+            <p className="text-on-surface-variant mt-2 max-w-xl">Estado en tiempo real de hilazas, hilos y activos textiles terminados en la planta de manufactura de Intermoda.</p>
           </div>
           <div className="flex items-center gap-3">
             <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-outline-variant/30 text-on-surface font-semibold rounded-xl hover:bg-surface-container transition-all active:scale-95">
               <span className="material-symbols-outlined text-xl">ios_share</span>
-              Export
+              Exportar
             </button>
             <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl hover:shadow-lg transition-all active:scale-95">
               <span className="material-symbols-outlined text-xl">add</span>
-              New Entry
+              Nueva Entrada
             </button>
           </div>
         </div>
       </header>
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-        <div className="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary transition-all">
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">CANTIDAD REQUERIDA</p>
+        <div className="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary transition-all flex flex-col items-center justify-center text-center">
+          <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider mb-2">CANTIDAD REQUERIDA</p>
           <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalRequerida.toLocaleString()}</p>
-          <div className="flex items-center gap-1 mt-2 text-green-600 text-xs font-bold">
+          <div className="flex items-center gap-1 mt-2 text-green-600 text-[10px] font-bold">
             <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span>Live data from planning</span>
+            <span>Desde Planificación</span>
           </div>
         </div>
-        <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">CANTIDAD TRANSFERIDA</p>
+        <div className="bg-surface-container-lowest p-6 rounded-xl transition-all flex flex-col items-center justify-center text-center">
+          <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider mb-2">CANTIDAD TRANSFERIDA</p>
           <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
-          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Volumen total de material</p>
+          <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Volumen total de material</p>
         </div>
-        <div className={`bg-surface-container-lowest p-6 rounded-xl transition-all border-l-4 ${stats.border}`}>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">% CUMPLIMIENTO</p>
+        <div className={`bg-surface-container-lowest p-6 rounded-xl transition-all border-l-4 ${stats.border} flex flex-col items-center justify-center text-center`}>
+          <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider mb-2">% CUMPLIMIENTO</p>
           <p className={`text-4xl font-extrabold font-headline ${stats.color}`}>{Math.round(stats.cumplimiento)}%</p>
-          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Progreso vs Planificación</p>
+          <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Progreso vs Plan Real</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
           <div className="relative z-10 h-full flex flex-col">
