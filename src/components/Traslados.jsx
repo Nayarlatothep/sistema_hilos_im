@@ -28,7 +28,19 @@ export default function Traslados() {
   const stats = React.useMemo(() => {
     const totalStock = filteredTransferencias.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
     const totalRequerida = planificacion.reduce((acc, p) => acc + (parseInt(p.cantidad) || 0), 0);
-    return { totalStock, totalRequerida };
+    const cumplimiento = totalRequerida > 0 ? (totalStock / totalRequerida) * 100 : 0;
+
+    let color = 'text-rose-500'; // Rojo crítico
+    let border = 'border-rose-500';
+    if (cumplimiento >= 90) {
+      color = 'text-emerald-500'; // Verde adecuado
+      border = 'border-emerald-500';
+    } else if (cumplimiento >= 50) {
+      color = 'text-amber-500'; // Amarillo alerta
+      border = 'border-amber-500';
+    }
+
+    return { totalStock, totalRequerida, cumplimiento, color, border };
   }, [filteredTransferencias, planificacion]);
 
   const formatDate = (dateString) => {
@@ -77,10 +89,10 @@ export default function Traslados() {
           <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
           <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Volumen total de material</p>
         </div>
-        <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Active Transfers</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">{filteredTransferencias.length}</p>
-          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Filtered results</p>
+        <div className={`bg-surface-container-lowest p-6 rounded-xl transition-all border-l-4 ${stats.border}`}>
+          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">% CUMPLIMIENTO</p>
+          <p className={`text-4xl font-extrabold font-headline ${stats.color}`}>{Math.round(stats.cumplimiento)}%</p>
+          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Progreso vs Planificación</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
           <div className="relative z-10">
