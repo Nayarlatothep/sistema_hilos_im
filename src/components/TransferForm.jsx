@@ -68,7 +68,7 @@ export default function TransferForm() {
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
       cantidad: qty,
-      yardas: selectedItem.producto === '60 08 180' ? qty * 1125 : qty * 3000
+      yardas: (selectedItem.producto === '60 08 180' || selectedItem.producto === '60 08 0180') ? qty * 1225 : qty * 3000
     };
 
     setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
