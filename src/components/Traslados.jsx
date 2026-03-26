@@ -73,9 +73,9 @@ export default function Traslados() {
           </div>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Critical Low</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">{stats.criticalItems}</p>
-          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Items requiring replenishment</p>
+          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">CANTIDAD TRANSFERIDA</p>
+          <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
+          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Volumen total de material</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Active Transfers</p>
