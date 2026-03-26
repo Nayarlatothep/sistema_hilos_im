@@ -2,6 +2,7 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Traslados() {
+  const { transferencias } = useStore();
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
 
