@@ -1,6 +1,25 @@
 import React from 'react';
+import { useStore } from '../store/useStore';
 
 export default function Traslados() {
+  const { transferencias } = useStore();
+
+  const stats = React.useMemo(() => {
+    const totalStock = transferencias.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
+    const criticalItems = transferencias.filter(t => (parseInt(t.cantidad) || 0) < 50).length;
+    return { totalStock, criticalItems };
+  }, [transferencias]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   return (
     <div key="traslados">
       <header className="mb-12">
@@ -26,21 +45,21 @@ export default function Traslados() {
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div className="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary transition-all">
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Total Stock</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">12,482</p>
+          <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-2 text-green-600 text-xs font-bold">
             <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span>4.2% from last week</span>
+            <span>Live data updated</span>
           </div>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Critical Low</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">18</p>
+          <p className="text-4xl font-extrabold text-primary font-headline">{stats.criticalItems}</p>
           <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Items requiring replenishment</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all">
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Monthly Turnover</p>
-          <p className="text-4xl font-extrabold text-primary font-headline">84%</p>
-          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Average movement rate</p>
+          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-2">Active Transfers</p>
+          <p className="text-4xl font-extrabold text-primary font-headline">{transferencias.length}</p>
+          <p className="text-on-surface-variant/60 text-xs mt-2 font-medium">Historical records available</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
           <div className="relative z-10">
@@ -66,7 +85,7 @@ export default function Traslados() {
             </button>
           </div>
           <div className="flex items-center gap-4 text-sm text-on-surface-variant font-medium">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> High Stock</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> Valid Stock</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Warning</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Critical</span>
           </div>
@@ -83,132 +102,49 @@ export default function Traslados() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container text-sm">
-              <tr className="hover:bg-surface-container/30 transition-colors group">
-                <td className="px-8 py-5 font-semibold text-primary">24 Oct</td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold">Cotton 40/1</span>
-                    <span className="text-xs text-on-surface-variant">Premium Long Staple</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5" style={{ backgroundColor: '#001731' }}></div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium">Navy Blue</span>
-                </td>
-                <td className="px-6 py-5 text-right pr-8">
-                  <span className="text-lg font-extrabold text-primary font-headline">450</span>
-                  <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container/30 transition-colors">
-                <td className="px-8 py-5 font-semibold text-primary">23 Oct</td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold">Polyester High Tenacity</span>
-                    <span className="text-xs text-on-surface-variant">Industrial Grade</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5" style={{ backgroundColor: '#a53c00' }}></div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium">Intermoda Orange</span>
-                </td>
-                <td className="px-6 py-5 text-right pr-8">
-                  <span className="text-lg font-extrabold text-primary font-headline">1,200</span>
-                  <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container/30 transition-colors">
-                <td className="px-8 py-5 font-semibold text-primary">23 Oct</td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold">Merino Wool Blend</span>
-                    <span className="text-xs text-on-surface-variant">Seasonal Collection</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5" style={{ backgroundColor: '#e2e8f0' }}></div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium">Cloud Grey</span>
-                </td>
-                <td className="px-6 py-5 text-right pr-8">
-                  <span className="text-lg font-extrabold text-secondary font-headline">85</span>
-                  <span className="text-[10px] text-secondary block uppercase font-bold tracking-tighter">Low Stock</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container/30 transition-colors">
-                <td className="px-8 py-5 font-semibold text-primary">22 Oct</td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold">Linen 20/2</span>
-                    <span className="text-xs text-on-surface-variant">Sustainable Origin</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5" style={{ backgroundColor: '#2D486A' }}></div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium">Steel Blue</span>
-                </td>
-                <td className="px-6 py-5 text-right pr-8">
-                  <span className="text-lg font-extrabold text-primary font-headline">820</span>
-                  <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container/30 transition-colors">
-                <td className="px-8 py-5 font-semibold text-primary">21 Oct</td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold">Viscose Satin Finish</span>
-                    <span className="text-xs text-on-surface-variant">High Luster</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5" style={{ backgroundColor: '#1a1c1e' }}></div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium">Midnight Black</span>
-                </td>
-                <td className="px-6 py-5 text-right pr-8">
-                  <span className="text-lg font-extrabold text-primary font-headline">2,150</span>
-                  <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container/30 transition-colors">
-                <td className="px-8 py-5 font-semibold text-primary">21 Oct</td>
-                <td className="px-6 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold">Nylon 6,6</span>
-                    <span className="text-xs text-on-surface-variant">Reinforced Fiber</span>
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5" style={{ backgroundColor: '#BA1A1A' }}></div>
-                </td>
-                <td className="px-6 py-5">
-                  <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium">Crimson Alert</span>
-                </td>
-                <td className="px-6 py-5 text-right pr-8">
-                  <span className="text-lg font-extrabold text-error font-headline">12</span>
-                  <span className="text-[10px] text-error block uppercase font-bold tracking-tighter">Critical</span>
-                </td>
-              </tr>
+              {transferencias.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-20 text-center text-on-surface-variant/40 italic">
+                    Sin datos de transferencias registrados en el sistema.
+                  </td>
+                </tr>
+              ) : (
+                transferencias.slice(0, 50).map((t, idx) => (
+                  <tr key={t.id || idx} className="hover:bg-surface-container/30 transition-colors group">
+                    <td className="px-8 py-5 font-semibold text-primary">{formatDate(t.fecha_transferencia)}</td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-col">
+                        <span className="font-bold">{t.producto}</span>
+                        <span className="text-xs text-on-surface-variant">Material ID: {t.id}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5 flex items-center justify-center bg-surface-container text-[10px] font-mono font-bold text-on-surface-variant">
+                          {t.color}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase">{t.nombre_color}</span>
+                    </td>
+                    <td className="px-6 py-5 text-right pr-8">
+                      <span className="text-lg font-extrabold text-primary font-headline">{(parseInt(t.cantidad) || 0).toLocaleString()}</span>
+                      <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
         <div className="p-6 bg-surface-container-low flex justify-between items-center text-xs text-on-surface-variant font-bold uppercase tracking-widest">
-          <div>Showing 6 of 142 items</div>
+          <div>Mostrando {Math.min(transferencias.length, 50)} de {transferencias.length} registros</div>
           <div className="flex items-center gap-2">
             <button className="w-8 h-8 rounded border border-outline-variant/30 flex items-center justify-center hover:bg-white transition-all disabled:opacity-50" disabled>
               <span className="material-symbols-outlined text-sm">chevron_left</span>
             </button>
             <button className="w-8 h-8 rounded bg-primary text-white flex items-center justify-center">1</button>
-            <button className="w-8 h-8 rounded border border-outline-variant/30 flex items-center justify-center hover:bg-white transition-all">2</button>
-            <button className="w-8 h-8 rounded border border-outline-variant/30 flex items-center justify-center hover:bg-white transition-all">3</button>
             <button className="w-8 h-8 rounded border border-outline-variant/30 flex items-center justify-center hover:bg-white transition-all">
               <span className="material-symbols-outlined text-sm">chevron_right</span>
             </button>
