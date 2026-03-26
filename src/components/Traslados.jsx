@@ -113,7 +113,7 @@ export default function Traslados() {
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div className="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary transition-all flex flex-col items-center justify-center text-center">
-          <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider mb-2">CANTIDAD REQUERIDA</p>
+          <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-2 font-headline">CANTIDAD REQUERIDA</p>
           <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalRequerida.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-2 text-green-600 text-[10px] font-bold">
             <span className="material-symbols-outlined text-sm">trending_up</span>
@@ -121,18 +121,18 @@ export default function Traslados() {
           </div>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all flex flex-col items-center justify-center text-center">
-          <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider mb-2">CANTIDAD TRANSFERIDA</p>
+          <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-2 font-headline">CANTIDAD TRANSFERIDA</p>
           <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
           <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Volumen total de material</p>
         </div>
         <div className={`bg-surface-container-lowest p-6 rounded-xl transition-all border-l-4 ${stats.border} flex flex-col items-center justify-center text-center`}>
-          <p className="text-on-surface-variant text-[10px] font-bold uppercase tracking-wider mb-2">% CUMPLIMIENTO</p>
+          <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-2 font-headline">% CUMPLIMIENTO</p>
           <p className={`text-4xl font-extrabold font-headline ${stats.color}`}>{Math.round(stats.cumplimiento)}%</p>
           <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Progreso vs Plan Real</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
           <div className="relative z-10 h-full flex flex-col">
-            <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider mb-4">Progreso por Módulo</p>
+            <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-4 font-headline">Progreso por Módulo</p>
             <div className="flex flex-col gap-3 flex-grow">
               {stats.moduleStats.map(mod => (
                 <div key={mod.modId} className="flex items-center justify-between group/mod">
@@ -162,7 +162,7 @@ export default function Traslados() {
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
               <input 
                 className="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-all font-body" 
-                placeholder="Search by yarn, color or date..." 
+                placeholder="Buscar por hilo, color o fecha..." 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -189,20 +189,20 @@ export default function Traslados() {
             </button>
           </div>
           <div className="flex items-center gap-4 text-sm text-on-surface-variant font-medium">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> Valid Stock</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Warning</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Critical</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> Stock Válido</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Advertencia</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Crítico</span>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-surface-container-low text-on-surface-variant text-[11px] uppercase tracking-[0.15em] font-bold">
-                <th className="px-8 py-4">DIA (Day)</th>
-                <th className="px-6 py-4">HILO (Yarn/Thread)</th>
-                <th className="px-6 py-4">COLOR (Swatch)</th>
-                <th className="px-6 py-4">NOMBRE COLOR</th>
-                <th className="px-6 py-4 text-right pr-8">CANTIDAD CONOS</th>
+              <tr className="bg-surface-container-low text-on-surface-variant text-[12px] uppercase tracking-[0.2em] font-black font-headline">
+                <th className="px-8 py-5">DIA (Día)</th>
+                <th className="px-6 py-5">HILO (Hilaza)</th>
+                <th className="px-6 py-5">COLOR (Swatch)</th>
+                <th className="px-6 py-5">NOMBRE COLOR</th>
+                <th className="px-6 py-5 text-right pr-8">CANTIDAD CONOS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container text-sm">
@@ -219,7 +219,7 @@ export default function Traslados() {
                     <td className="px-6 py-5">
                       <div className="flex flex-col font-body">
                         <span className="font-bold">{t.producto}</span>
-                        <span className="text-xs text-on-surface-variant font-body">Material ID: {t.id}</span>
+                        <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
                       </div>
                     </td>
                     <td className="px-6 py-5">
@@ -234,7 +234,7 @@ export default function Traslados() {
                     </td>
                     <td className="px-6 py-5 text-right pr-8 font-body">
                       <span className="text-lg font-extrabold text-primary font-headline">{adjustQuantity(t.producto, t.cantidad).toLocaleString()}</span>
-                      <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
+                      <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">CONOS</span>
                     </td>
                   </tr>
                 ))
