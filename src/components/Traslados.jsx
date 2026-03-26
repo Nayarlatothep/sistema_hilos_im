@@ -25,9 +25,18 @@ export default function Traslados() {
     return data;
   }, [transferencias, dateFilter, searchQuery]);
 
+  const adjustQuantity = (producto, cantidad) => {
+    const qty = parseInt(cantidad || 0, 10);
+    const prod = String(producto || '').trim();
+    if (prod.includes('60 08 180') || prod.includes('60 08 0180')) {
+      return Math.round(qty / 1225);
+    }
+    return Math.round(qty / 3000);
+  };
+
   const stats = React.useMemo(() => {
-    const totalStock = filteredTransferencias.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
-    const totalRequerida = planificacion.reduce((acc, p) => acc + (parseInt(p.cantidad) || 0), 0);
+    const totalStock = filteredTransferencias.reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
+    const totalRequerida = planificacion.reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
     const cumplimiento = totalRequerida > 0 ? (totalStock / totalRequerida) * 100 : 0;
 
     let color = 'text-rose-500'; // Rojo crítico
@@ -54,10 +63,10 @@ export default function Traslados() {
     const moduleStats = moduleList.map(modId => {
       const toolReq = planificacion
         .filter(p => normalizeModule(p.modulo) === modId)
-        .reduce((acc, p) => acc + (parseInt(p.cantidad) || 0), 0);
+        .reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
       const toolTrans = transferencias
         .filter(t => normalizeModule(t.modulo) === modId)
-        .reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
+        .reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
       const prc = toolReq > 0 ? (toolTrans / toolReq) * 100 : 0;
       
       let badgeColor = 'bg-rose-500';
@@ -224,7 +233,7 @@ export default function Traslados() {
                       <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body">{t.nombre_color}</span>
                     </td>
                     <td className="px-6 py-5 text-right pr-8 font-body">
-                      <span className="text-lg font-extrabold text-primary font-headline">{(parseInt(t.cantidad) || 0).toLocaleString()}</span>
+                      <span className="text-lg font-extrabold text-primary font-headline">{adjustQuantity(t.producto, t.cantidad).toLocaleString()}</span>
                       <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">Units</span>
                     </td>
                   </tr>
