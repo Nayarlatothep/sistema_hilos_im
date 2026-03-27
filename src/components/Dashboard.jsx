@@ -41,9 +41,13 @@ export default function Dashboard() {
       if (percent >= 100) statusColor = 'bg-emerald-500';
       else if (percent >= 50) statusColor = 'bg-amber-500';
 
-      // Encontrar la meta diaria para este módulo
-      const metaModule = meta_diaria.find(m => String(m.modulo).includes(name));
-      const dailyGoal = metaModule ? (metaModule.meta || metaModule.cantidad || 0) : 0;
+      // Encontrar la meta diaria para este módulo de forma más flexible
+      const metaModule = meta_diaria?.find(m => {
+        const mId = String(m.modulo || m.id || '').toLowerCase();
+        return mId.includes(name) || name.includes(mId);
+      });
+      
+      const dailyGoal = metaModule ? (metaModule.meta || metaModule.cantidad || metaModule.valor || 0) : 0;
 
       return {
         name,
