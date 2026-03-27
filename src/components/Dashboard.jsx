@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 export default function Dashboard() {
   const { planificacion, transferencias, meta_diaria } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [moduleFilter, setModuleFilter] = React.useState('all');
 
   const stationsData = useMemo(() => {
     const stations = {
@@ -138,10 +139,26 @@ export default function Dashboard() {
       return { ...p, totalTransferred, totalPlanned, percent };
     });
 
+    // Filtering
+    let filtered = [...baseData];
+    if (moduleFilter !== 'all') {
+      if (moduleFilter === '1') filtered = filtered.filter(p => p.mod1_planned > 0 || p.mod1_transferred > 0);
+      if (moduleFilter === '2') filtered = filtered.filter(p => p.mod2_planned > 0 || p.mod2_transferred > 0);
+      if (moduleFilter === '3') filtered = filtered.filter(p => p.mod3_planned > 0 || p.mod3_transferred > 0);
+    }
+
+    if (searchQuery) {
+      const term = searchQuery.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.producto.toLowerCase().includes(term) || 
+        p.nombre_color.toLowerCase().includes(term)
+      );
+    }
+
     // Custom Sorting Logic
     const colorPriorityMap = {
       'black a&e': 1,
-      'black ae': 1, // fallback for common variants
+      'black ae': 1,
       'navy 2025': 2,
       'blanco': 3,
       'princeton orange': 4,
@@ -153,32 +170,18 @@ export default function Dashboard() {
       'light navy': 7
     };
 
-    const sortedData = baseData.sort((a, b) => {
+    return filtered.sort((a, b) => {
       const nameA = a.nombre_color.toLowerCase().trim();
       const nameB = b.nombre_color.toLowerCase().trim();
       const pA = colorPriorityMap[nameA] || 99;
       const pB = colorPriorityMap[nameB] || 99;
 
-      // 1. Prioritize group (1-7) over others (99)
       if (pA !== pB) return pA - pB;
-
-      // 2. If both are NOT in priority list OR both are the SAME priority color
-      // then sort by Texture (Producto)
       if (a.producto < b.producto) return -1;
       if (a.producto > b.producto) return 1;
-
-      // 3. Fallback: Alphabetical by color name
       return nameA.localeCompare(nameB);
     });
-
-    if (!searchQuery) return sortedData;
-
-    const term = searchQuery.toLowerCase();
-    return sortedData.filter(p => 
-      p.producto.toLowerCase().includes(term) || 
-      p.nombre_color.toLowerCase().includes(term)
-    );
-  }, [planificacion, transferencias, searchQuery]);
+  }, [planificacion, transferencias, searchQuery, moduleFilter]);
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
@@ -300,23 +303,32 @@ export default function Dashboard() {
         
         {/* Table Controls */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div className="relative w-full md:w-96 font-body">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
-            <input 
-              className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 pl-10 rounded-t-lg transition-colors" 
-              placeholder="Search product or color..." 
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-80 font-body">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+              <input 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 pl-10 rounded-t-lg transition-colors" 
+                placeholder="Search product or color..." 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="relative w-full md:w-48 font-body">
+              <select 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 pl-4 rounded-t-lg transition-colors appearance-none font-bold text-primary"
+                value={moduleFilter}
+                onChange={(e) => setModuleFilter(e.target.value)}
+              >
+                <option value="all">TODOS LOS MODULOS</option>
+                <option value="1">MODULO 1</option>
+                <option value="2">MODULO 2</option>
+                <option value="3">MODULO 3</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+            </div>
           </div>
           <div className="flex gap-3 w-full md:w-auto font-headline">
-            <button className="flex items-center gap-2 px-4 py-2 bg-surface-container text-primary text-xs font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors">
-              <span className="material-symbols-outlined text-sm">filter_list</span> Filter
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-surface-container text-primary text-xs font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors">
-              <span className="material-symbols-outlined text-sm">download</span> Export
-            </button>
             <button className="flex items-center gap-2 px-6 py-2 bg-secondary text-white text-xs font-bold uppercase tracking-widest hover:bg-[#8f3400] transition-transform active:scale-95 shadow-md shadow-secondary/20">
               Run Optimization
             </button>
@@ -324,8 +336,8 @@ export default function Dashboard() {
         </div>
 
         {/* Main Data Table Container */}
-        <div className="overflow-y-auto custom-scrollbar max-h-[600px] border border-outline-variant/10">
-          <table className="w-full border-collapse sticky-header">
+        <div className="border border-outline-variant/10">
+          <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-white z-10">
               <tr className="text-left text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] border-b border-outline-variant/20 shadow-[0_1px_0_rgba(0,0,0,0.05)] font-headline">
                 <th className="py-4 px-4 bg-white">Producto</th>
