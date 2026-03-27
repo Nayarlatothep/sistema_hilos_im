@@ -174,27 +174,27 @@ export default function Traslados() {
           <p className="text-6xl font-black text-white font-headline drop-shadow-md">{Math.round(stats.cumplimiento)}%</p>
           <p className="text-white/70 text-xs mt-3 font-extrabold uppercase tracking-tight">Estatus Actual del Plan</p>
         </div>
-        <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
+        <div className="bg-sky-100 p-6 rounded-xl transition-all overflow-hidden relative shadow-sm border border-sky-200">
           <div className="relative z-10 h-full flex flex-col">
-            <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-4 font-headline">Progreso por Módulo</p>
+            <p className="text-blue-900 text-[12px] font-black uppercase tracking-widest mb-4 font-headline whitespace-nowrap">RESUMEN MODULOS</p>
             <div className="flex flex-col gap-3 flex-grow">
               {stats.moduleStats.map(mod => (
                 <div key={mod.modId} className="flex items-center justify-between group/mod">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase text-primary font-headline tracking-tighter">Mod {mod.modId}</span>
-                    <span className="text-[10px] text-slate-400 font-bold tabular-nums">
+                    <span className="text-[11px] font-black uppercase text-slate-900 font-headline tracking-tighter">Módulo {mod.modId}</span>
+                    <span className="text-[10px] text-slate-600 font-black tabular-nums">
                       {mod.trans.toLocaleString()} / {mod.req.toLocaleString()}
                     </span>
                   </div>
-                  <div className={`${mod.badgeColor} text-white px-2 py-0.5 rounded-full text-[9px] font-black shadow-sm transition-transform active:scale-95 cursor-default`}>
+                  <div className={`${mod.badgeColor} text-white px-3 py-1 rounded-lg text-[10px] font-black shadow-sm transition-transform active:scale-95 cursor-default`}>
                     {Math.round(mod.percent)}%
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="absolute bottom-0 right-0 opacity-5 pointer-events-none">
-            <span className="material-symbols-outlined text-8xl -mb-6 -mr-4">monitoring</span>
+          <div className="absolute bottom-0 right-0 opacity-[0.03] pointer-events-none">
+            <span className="material-symbols-outlined text-8xl -mb-6 -mr-4 text-blue-900">monitoring</span>
           </div>
         </div>
       </section>
