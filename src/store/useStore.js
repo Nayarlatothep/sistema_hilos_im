@@ -128,5 +128,23 @@ export const useStore = create((set, get) => ({
       set({ transferencias: updatedTransferencias, loading: false });
       return data;
     }
+  },
+
+  markAllTransferenciasAsDone: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('transferencias_realizadas')
+      .update({ estado_transferencia: 1 })
+      .neq('id', 0)
+      .select();
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      const updated = get().transferencias.map(t => ({ ...t, estado_transferencia: 1 }));
+      set({ transferencias: updated, loading: false });
+      return data;
+    }
   }
 }));

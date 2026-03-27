@@ -2,7 +2,13 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Traslados() {
-  const { transferencias, planificacion, updateTransferenciaEstado, fetchTransferencias } = useStore();
+  const { 
+    transferencias, 
+    planificacion, 
+    updateTransferenciaEstado, 
+    fetchTransferencias, 
+    markAllTransferenciasAsDone 
+  } = useStore();
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -94,6 +100,12 @@ export default function Traslados() {
     await updateTransferenciaEstado(id, nuevoEstado);
   };
 
+  const handleMarkAll = async () => {
+    if (window.confirm('¿Desea marcar todos los traslados actuales como Procesados (1)?')) {
+      await markAllTransferenciasAsDone();
+    }
+  };
+
   return (
     <div key="traslados">
       <header className="mb-12">
@@ -104,15 +116,18 @@ export default function Traslados() {
             <p className="text-on-surface-variant mt-2 max-w-xl">Estado en tiempo real de hilazas, hilos y activos textiles terminados en la planta de manufactura de Intermoda.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-outline-variant/30 text-on-surface font-semibold rounded-xl hover:bg-surface-container transition-all active:scale-95">
-              <span className="material-symbols-outlined text-xl">ios_share</span>
-              Exportar
-            </button>
             <button 
               onClick={() => fetchTransferencias()}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl hover:shadow-lg transition-all active:scale-95"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-outline-variant/30 text-on-surface font-semibold rounded-xl hover:bg-surface-container transition-all active:scale-95"
             >
               <span className="material-symbols-outlined text-xl">refresh</span>
+              Sincronizar
+            </button>
+            <button 
+              onClick={handleMarkAll}
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl hover:shadow-lg transition-all active:scale-95"
+            >
+              <span className="material-symbols-outlined text-xl">checklist</span>
               Actualiza Tabla
             </button>
           </div>
