@@ -236,24 +236,25 @@ export default function Dashboard() {
 
             {st.moduleMetas.length > 0 && (
               <div className="mb-5 pt-4 border-t border-outline-variant/10">
-                <p className="text-[9px] font-black uppercase text-on-surface-variant/60 font-headline mb-3 tracking-widest">Resumen de Meta por Día (Yds)</p>
-                <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                <p className="text-[9px] font-black uppercase text-on-surface-variant/60 font-headline mb-4 tracking-widest text-center">RESUMEN META POR DIA (Kyds)</p>
+                <div className="flex flex-col gap-2.5">
                   {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
                     const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
                     const metaVal = metaRec ? (metaRec.meta_yds || 0) : 0;
                     const transVal = st.dailyTransfers[day] || 0;
                     const dayPercent = metaVal > 0 ? (transVal / metaVal) * 100 : 0;
                     
+                    const metaK = (metaVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                    const transK = (transVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
                     return (
-                      <div key={day} className="flex flex-col gap-0.5">
-                        <div className="flex justify-between text-[10px] font-bold font-body">
-                          <span className="text-slate-400">{day}:</span> 
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-primary">{transVal.toLocaleString()} / {metaVal.toLocaleString()}</span>
-                            <span className={`text-[9px] font-black ${dayPercent >= 100 ? 'text-emerald-500' : dayPercent >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
-                              ({Math.round(dayPercent)}%)
-                            </span>
-                          </div>
+                      <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-outline-variant/5 pb-1 last:border-0">
+                        <span className="text-slate-400 w-16">{day}:</span> 
+                        <div className="flex-1 flex justify-center items-center gap-2">
+                          <span className="text-primary tabular-nums">{transK} / {metaK}</span>
+                          <span className={`text-[9px] font-black tabular-nums w-10 text-right ${dayPercent >= 100 ? 'text-emerald-500' : dayPercent >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                            {Math.round(dayPercent)}%
+                          </span>
                         </div>
                       </div>
                     );
