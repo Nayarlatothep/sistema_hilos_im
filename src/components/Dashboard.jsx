@@ -336,16 +336,16 @@ export default function Dashboard() {
         </div>
 
         {/* Main Data Table Container */}
-        <div className="border border-outline-variant/10">
+        <div className="border border-outline-variant/10 overflow-x-auto">
           <table className="w-full border-collapse">
-            <thead className="sticky top-0 bg-white z-10">
+            <thead>
               <tr className="text-left text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] border-b border-outline-variant/20 shadow-[0_1px_0_rgba(0,0,0,0.05)] font-headline">
                 <th className="py-4 px-4 bg-white">Producto</th>
                 <th className="py-4 px-4 text-center bg-white">Color</th>
                 <th className="py-4 px-4 bg-white">Nombre Color</th>
-                <th className="py-4 px-4 text-right bg-white">Módulo 1</th>
-                <th className="py-4 px-4 text-right bg-white">Módulo 2</th>
-                <th className="py-4 px-4 text-right bg-white">Módulo 3</th>
+                {(moduleFilter === 'all' || moduleFilter === '1') && <th className="py-4 px-4 text-right bg-white">Módulo 1</th>}
+                {(moduleFilter === 'all' || moduleFilter === '2') && <th className="py-4 px-4 text-right bg-white">Módulo 2</th>}
+                {(moduleFilter === 'all' || moduleFilter === '3') && <th className="py-4 px-4 text-right bg-white">Módulo 3</th>}
                 <th className="py-4 px-4 text-right bg-white">Cant. Transferida</th>
                 <th className="py-4 px-4 text-right bg-white">% Cumplimiento</th>
               </tr>
@@ -361,15 +361,25 @@ export default function Dashboard() {
                     <span className="text-xs font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
                   </td>
                   <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
-                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                    {Math.round(row.mod1_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod1_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                  </td>
-                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                    {Math.round(row.mod2_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod2_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                  </td>
-                  <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                    {Math.round(row.mod3_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod3_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                  </td>
+                  
+                  {(moduleFilter === 'all' || moduleFilter === '1') && (
+                    <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                      {Math.round(row.mod1_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod1_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                    </td>
+                  )}
+                  
+                  {(moduleFilter === 'all' || moduleFilter === '2') && (
+                    <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                      {Math.round(row.mod2_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod2_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                    </td>
+                  )}
+                  
+                  {(moduleFilter === 'all' || moduleFilter === '3') && (
+                    <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                      {Math.round(row.mod3_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod3_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
+                    </td>
+                  )}
+
                   <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
                     {Math.round(row.totalTransferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
                   </td>
