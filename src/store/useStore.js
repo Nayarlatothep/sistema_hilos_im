@@ -108,5 +108,25 @@ export const useStore = create((set, get) => ({
       set({ transferencias: [], loading: false });
       return true;
     }
+  },
+
+  updateTransferenciaEstado: async (id, estado) => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('transferencias_realizadas')
+      .update({ estado_transferencia: estado })
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      const updatedTransferencias = get().transferencias.map(t => 
+        t.id === id ? { ...t, estado_transferencia: estado } : t
+      );
+      set({ transferencias: updatedTransferencias, loading: false });
+      return data;
+    }
   }
 }));

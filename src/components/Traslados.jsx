@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Traslados() {
-  const { transferencias, planificacion } = useStore();
+  const { transferencias, planificacion, updateTransferenciaEstado, fetchTransferencias } = useStore();
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -89,6 +89,11 @@ export default function Traslados() {
     }
   };
 
+  const handleToggleEstado = async (id, currentEstado) => {
+    const nuevoEstado = currentEstado === 1 ? 0 : 1;
+    await updateTransferenciaEstado(id, nuevoEstado);
+  };
+
   return (
     <div key="traslados">
       <header className="mb-12">
@@ -103,9 +108,12 @@ export default function Traslados() {
               <span className="material-symbols-outlined text-xl">ios_share</span>
               Exportar
             </button>
-            <button className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl hover:shadow-lg transition-all active:scale-95">
-              <span className="material-symbols-outlined text-xl">add</span>
-              Nueva Entrada
+            <button 
+              onClick={() => fetchTransferencias()}
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl hover:shadow-lg transition-all active:scale-95"
+            >
+              <span className="material-symbols-outlined text-xl">refresh</span>
+              Actualiza Tabla
             </button>
           </div>
         </div>
@@ -198,6 +206,7 @@ export default function Traslados() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low text-on-surface-variant text-[12px] uppercase tracking-[0.2em] font-black font-headline">
+                <th className="px-6 py-5 text-center">ST</th>
                 <th className="px-8 py-5">DIA (Día)</th>
                 <th className="px-6 py-5">HILO (Hilaza)</th>
                 <th className="px-6 py-5">COLOR (Swatch)</th>
@@ -208,15 +217,25 @@ export default function Traslados() {
             <tbody className="divide-y divide-surface-container text-sm">
               {filteredTransferencias.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-20 text-center text-on-surface-variant/40 italic font-body">
+                  <td colSpan="6" className="py-20 text-center text-on-surface-variant/40 italic font-body">
                     No se encontraron transferencias con los filtros aplicados.
                   </td>
                 </tr>
               ) : (
                 filteredTransferencias.slice(0, 50).map((t, idx) => (
-                  <tr key={t.id || idx} className="hover:bg-surface-container/30 transition-colors group">
-                    <td className="px-8 py-5 font-semibold text-primary font-body">{formatDate(t.fecha_transferencia)}</td>
-                    <td className="px-6 py-5">
+                  <tr key={t.id || idx} className={`hover:bg-surface-container/30 transition-colors group ${t.estado_transferencia === 1 ? 'opacity-40 whitespace-nowrap' : ''}`}>
+                    <td className="px-4 py-5 text-center">
+                      <input 
+                        type="checkbox" 
+                        checked={t.estado_transferencia === 1}
+                        onChange={() => handleToggleEstado(t.id, t.estado_transferencia)}
+                        className="rounded border-outline-variant text-primary focus:ring-primary/20 w-4 h-4 cursor-pointer"
+                      />
+                    </td>
+                    <td className={`px-8 py-5 font-semibold text-primary font-body ${t.estado_transferencia === 1 ? 'line-through' : ''}`}>
+                      {formatDate(t.fecha_transferencia)}
+                    </td>
+                    <td className={`px-6 py-5 ${t.estado_transferencia === 1 ? 'line-through decoration-slate-400' : ''}`}>
                       <div className="flex flex-col font-body">
                         <span className="font-bold">{t.producto}</span>
                         <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
@@ -224,16 +243,20 @@ export default function Traslados() {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5 flex items-center justify-center bg-surface-container text-[10px] font-mono font-bold text-on-surface-variant">
+                        <div className={`w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5 flex items-center justify-center bg-surface-container text-[10px] font-mono font-bold text-on-surface-variant ${t.estado_transferencia === 1 ? 'grayscale' : ''}`}>
                           {t.color}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <span className="px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body">{t.nombre_color}</span>
+                      <span className={`px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body ${t.estado_transferencia === 1 ? 'line-through' : ''}`}>
+                        {t.nombre_color}
+                      </span>
                     </td>
                     <td className="px-6 py-5 text-right pr-8 font-body">
-                      <span className="text-lg font-extrabold text-primary font-headline">{adjustQuantity(t.producto, t.cantidad).toLocaleString()}</span>
+                      <span className={`text-lg font-extrabold text-primary font-headline ${t.estado_transferencia === 1 ? 'line-through' : ''}`}>
+                        {adjustQuantity(t.producto, t.cantidad).toLocaleString()}
+                      </span>
                       <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">CONOS</span>
                     </td>
                   </tr>
