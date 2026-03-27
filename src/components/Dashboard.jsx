@@ -242,8 +242,8 @@ export default function Dashboard() {
               </div>
 
               {st.moduleMetas.length > 0 && (
-                <div className="w-full mb-6 pt-4 border-t border-white/20">
-                  <p className="text-[9px] font-black uppercase text-white/80 font-headline mb-4 tracking-widest text-center">RESUMEN META POR DIA (Kyds)</p>
+                <div className="w-full mb-6 bg-sky-100 p-4 rounded-xl border border-sky-200 relative overflow-hidden shadow-inner">
+                  <p className="text-[9px] font-black uppercase text-blue-900 font-headline mb-4 tracking-widest text-center">RESUMEN META POR DIA (Kyds)</p>
                   <div className="flex flex-col gap-2">
                     {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
                       const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
@@ -255,17 +255,21 @@ export default function Dashboard() {
                       const transK = (transVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
                       return (
-                        <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-white/5 pb-1 last:border-0">
-                          <span className="text-white/60 w-16">{day}:</span> 
+                        <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-blue-200/50 pb-1 last:border-0">
+                          <span className="text-blue-800/60 w-16">{day}:</span> 
                           <div className="flex-1 flex justify-center items-center gap-2">
-                            <span className="text-white tabular-nums font-black">{transK} / {metaK}</span>
-                            <span className={`text-[9px] font-black tabular-nums w-10 text-right ${dayPercent >= 90 ? 'text-white' : 'text-white/70'}`}>
+                            <span className="text-blue-900 tabular-nums font-black">{transK} / {metaK}</span>
+                            <span className={`text-[9px] font-black tabular-nums w-10 text-right ${dayPercent >= 90 ? 'text-emerald-600' : dayPercent >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
                               {Math.round(dayPercent)}%
                             </span>
                           </div>
                         </div>
                       );
                     })}
+                  </div>
+                  {/* Decorative icon like in Traslados */}
+                  <div className="absolute -bottom-2 -right-2 opacity-[0.05] pointer-events-none">
+                    <span className="material-symbols-outlined text-4xl text-blue-900">monitoring</span>
                   </div>
                 </div>
               )}
