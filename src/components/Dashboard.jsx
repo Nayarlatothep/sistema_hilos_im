@@ -213,7 +213,7 @@ export default function Dashboard() {
       </section>
 
       {/* KPI Cards Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {stationsData.map(st => {
           // Determinar colores de performance
           let perfColor = 'text-rose-500';
@@ -227,33 +227,44 @@ export default function Dashboard() {
           }
 
           return (
-            <div key={st.name} className="bg-sky-100 p-6 rounded-xl transition-all shadow-sm border border-sky-200 flex flex-col items-center group relative overflow-hidden">
-              <div className="w-full flex justify-between items-center mb-6 relative z-10">
-                <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-blue-900 font-headline">MODULO {st.name}</h3>
-                <span className="material-symbols-outlined text-blue-900/20 text-xl">analytics</span>
-              </div>
-              
-              <div className="flex flex-col items-center justify-center text-center mb-6 relative z-10">
-                <p className="text-blue-900 text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
-                <p className={`text-6xl font-black ${perfColor} font-headline drop-shadow-sm transition-colors`}>{Math.round(st.percent)}%</p>
-                <p className="text-blue-900/40 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus de Producción</p>
+            <div key={st.name} className="flex flex-col gap-6">
+              {/* PRIMARY KPI CARD: Compliance & Totals */}
+              <div className="bg-sky-100 p-6 rounded-2xl shadow-sm border border-sky-200 flex flex-col items-center group relative overflow-hidden transition-all hover:shadow-md">
+                <div className="w-full flex justify-between items-center mb-6 relative z-10">
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-blue-900 font-headline">MODULO {st.name}</h3>
+                  <span className="material-symbols-outlined text-blue-900/20 text-xl">analytics</span>
+                </div>
+                
+                <div className="flex flex-col items-center justify-center text-center mb-8 relative z-10">
+                  <p className="text-blue-900 text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
+                  <p className={`text-6xl font-black ${perfColor} font-headline drop-shadow-sm transition-colors`}>{Math.round(st.percent)}%</p>
+                  <p className="text-blue-900/40 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus de Producción</p>
+                </div>
+
+                <div className="w-full bg-white/40 backdrop-blur-sm rounded-xl p-4 mb-6 flex justify-between items-center relative z-10 shadow-inner">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-blue-900/40 uppercase tracking-widest">Transferido</span>
+                    <span className="text-lg font-black text-blue-900">{st.transferred.toLocaleString()}</span>
+                  </div>
+                  <div className="text-right flex flex-col">
+                    <span className="text-[9px] font-black text-blue-900/40 uppercase tracking-widest">Programado</span>
+                    <span className="text-lg font-black text-blue-900/70">{st.planned.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="w-full h-1.5 bg-blue-900/5 rounded-full overflow-hidden shadow-inner relative z-10">
+                  <div 
+                    className={`h-full ${progressColor} transition-all duration-1000 shadow-sm`} 
+                    style={{ width: `${st.percent}%` }}
+                  ></div>
+                </div>
               </div>
 
-              <div className="w-full bg-white/40 backdrop-blur-sm rounded-lg p-3 mb-6 flex justify-between items-center relative z-10">
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-blue-900/40 uppercase tracking-widest">Transferido</span>
-                  <span className="text-lg font-black text-blue-900">{st.transferred.toLocaleString()}</span>
-                </div>
-                <div className="text-right flex flex-col">
-                  <span className="text-[9px] font-black text-blue-900/40 uppercase tracking-widest">Programado</span>
-                  <span className="text-lg font-black text-blue-900/70">{st.planned.toLocaleString()}</span>
-                </div>
-              </div>
-
+              {/* SECONDARY CARD: Daily Meta Summary */}
               {st.moduleMetas.length > 0 && (
-                <div className="w-full mb-6 bg-white/30 p-4 rounded-xl border border-blue-900/5 relative overflow-hidden shadow-inner z-10">
-                  <p className="text-[9px] font-black uppercase text-blue-900/80 font-headline mb-4 tracking-widest text-center">RESUMEN META POR DIA (Kyds)</p>
-                  <div className="flex flex-col gap-2">
+                <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl border border-sky-100 relative overflow-hidden shadow-sm z-10 flex flex-col gap-4">
+                  <p className="text-[10px] font-black uppercase text-blue-900 font-headline tracking-widest text-center border-b border-blue-900/5 pb-4">RESUMEN META POR DIA (Kyds)</p>
+                  <div className="flex flex-col gap-3">
                     {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
                       const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
                       const metaVal = metaRec ? (metaRec.meta_yds || 0) : 0;
@@ -268,10 +279,10 @@ export default function Dashboard() {
                       else if (dayPercent >= 50) dayColor = 'text-amber-500';
 
                       return (
-                        <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-blue-900/5 pb-1 last:border-0 px-2">
+                        <div key={day} className="flex items-center justify-between text-[11px] font-bold font-body border-b border-blue-900/5 pb-2 last:border-0 px-2 transition-colors hover:bg-blue-50/30">
                           <span className="text-blue-900/40 w-16">{day}:</span> 
                           <span className="text-blue-900 tabular-nums font-black flex-1 text-center">{transK} / {metaK}</span>
-                          <span className={`text-[9px] font-black tabular-nums w-12 text-right ${dayColor}`}>
+                          <span className={`text-[10px] font-black tabular-nums w-12 text-right ${dayColor}`}>
                             {Math.round(dayPercent)}%
                           </span>
                         </div>
@@ -280,13 +291,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
-
-              <div className="w-full h-1.5 bg-blue-900/5 rounded-full overflow-hidden shadow-inner relative z-10">
-                <div 
-                  className={`h-full ${progressColor} transition-all duration-1000 shadow-sm`} 
-                  style={{ width: `${st.percent}%` }}
-                ></div>
-              </div>
             </div>
           );
         })}
