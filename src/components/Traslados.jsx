@@ -136,20 +136,15 @@ export default function Traslados() {
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => fetchTransferencias()}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-outline-variant/30 text-on-surface font-semibold rounded-xl hover:bg-surface-container transition-all active:scale-95"
-            >
-              <span className="material-symbols-outlined text-xl">refresh</span>
-              Sincronizar
-            </button>
-            <button 
               onClick={handleApplyChecks}
               disabled={localChecks.length === 0}
-              className={`flex items-center gap-2 px-6 py-2.5 font-semibold rounded-xl transition-all active:scale-95 
-                ${localChecks.length > 0 ? 'bg-gradient-to-br from-primary to-primary-container text-white shadow-lg' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
+              className={`flex items-center justify-center gap-3 px-12 py-3 font-extrabold rounded-xl transition-all active:scale-95 whitespace-nowrap min-w-[240px]
+                ${localChecks.length > 0 
+                  ? 'bg-gradient-to-br from-primary to-primary-container text-white shadow-xl shadow-primary/20 hover:shadow-primary/40' 
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'}`}
             >
-              <span className="material-symbols-outlined text-xl">checklist</span>
-              Actualiza Tabla {localChecks.length > 0 && `(${localChecks.length})`}
+              <span className="material-symbols-outlined text-2xl">checklist</span>
+              <span className="uppercase tracking-widest text-sm">Actualiza Tabla {localChecks.length > 0 && `(${localChecks.length})`}</span>
             </button>
           </div>
         </div>
