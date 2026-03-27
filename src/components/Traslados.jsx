@@ -7,10 +7,11 @@ export default function Traslados() {
     planificacion, 
     updateTransferenciaEstado, 
     fetchTransferencias, 
-    markAllTransferenciasAsDone 
+    updateMultipleTransferenciasEstado 
   } = useStore();
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [localChecks, setLocalChecks] = React.useState([]);
 
   const filteredTransferencias = React.useMemo(() => {
     let data = transferencias;
@@ -95,14 +96,17 @@ export default function Traslados() {
     }
   };
 
-  const handleToggleEstado = async (id, currentEstado) => {
-    const nuevoEstado = currentEstado === 1 ? 0 : 1;
-    await updateTransferenciaEstado(id, nuevoEstado);
+  const handleToggleEstadoLocal = (id) => {
+    setLocalChecks(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
   };
 
-  const handleMarkAll = async () => {
-    if (window.confirm('¿Desea marcar todos los traslados actuales como Procesados (1)?')) {
-      await markAllTransferenciasAsDone();
+  const handleApplyChecks = async () => {
+    if (localChecks.length === 0) return;
+    if (window.confirm(`¿Desea marcar los ${localChecks.length} traslados seleccionados como Procesados?`)) {
+      const res = await updateMultipleTransferenciasEstado(localChecks, 1);
+      if (res) setLocalChecks([]);
     }
   };
 
@@ -124,11 +128,13 @@ export default function Traslados() {
               Sincronizar
             </button>
             <button 
-              onClick={handleMarkAll}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-xl hover:shadow-lg transition-all active:scale-95"
+              onClick={handleApplyChecks}
+              disabled={localChecks.length === 0}
+              className={`flex items-center gap-2 px-6 py-2.5 font-semibold rounded-xl transition-all active:scale-95 
+                ${localChecks.length > 0 ? 'bg-gradient-to-br from-primary to-primary-container text-white shadow-lg' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}
             >
               <span className="material-symbols-outlined text-xl">checklist</span>
-              Actualiza Tabla
+              Actualiza Tabla {localChecks.length > 0 && `(${localChecks.length})`}
             </button>
           </div>
         </div>
@@ -237,45 +243,53 @@ export default function Traslados() {
                   </td>
                 </tr>
               ) : (
-                filteredTransferencias.slice(0, 50).map((t, idx) => (
-                  <tr key={t.id || idx} className={`hover:bg-surface-container/30 transition-colors group ${t.estado_transferencia === 1 ? 'opacity-40 whitespace-nowrap' : ''}`}>
-                    <td className="px-4 py-5 text-center">
-                      <input 
-                        type="checkbox" 
-                        checked={t.estado_transferencia === 1}
-                        onChange={() => handleToggleEstado(t.id, t.estado_transferencia)}
-                        className="rounded border-outline-variant text-primary focus:ring-primary/20 w-4 h-4 cursor-pointer"
-                      />
-                    </td>
-                    <td className={`px-8 py-5 font-semibold text-primary font-body ${t.estado_transferencia === 1 ? 'line-through' : ''}`}>
-                      {formatDate(t.fecha_transferencia)}
-                    </td>
-                    <td className={`px-6 py-5 ${t.estado_transferencia === 1 ? 'line-through decoration-slate-400' : ''}`}>
-                      <div className="flex flex-col font-body">
-                        <span className="font-bold">{t.producto}</span>
-                        <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5 flex items-center justify-center bg-surface-container text-[10px] font-mono font-bold text-on-surface-variant ${t.estado_transferencia === 1 ? 'grayscale' : ''}`}>
-                          {t.color}
+                filteredTransferencias.slice(0, 50).map((t, idx) => {
+                  const isDbDone = t.estado_transferencia === 1;
+                  const isCheckedLocal = localChecks.includes(t.id);
+                  const showChecked = isDbDone || isCheckedLocal;
+                  
+                  return (
+                    <tr key={t.id || idx} className={`hover:bg-surface-container/30 transition-colors group ${isDbDone ? 'opacity-40 whitespace-nowrap' : ''}`}>
+                      <td className="px-4 py-5 text-center">
+                        <input 
+                          type="checkbox" 
+                          checked={showChecked}
+                          disabled={isDbDone}
+                          onChange={() => handleToggleEstadoLocal(t.id)}
+                          className={`rounded border-outline-variant text-primary focus:ring-primary/20 w-4 h-4 
+                            ${isDbDone ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                        />
+                      </td>
+                      <td className={`px-8 py-5 font-semibold text-primary font-body ${isDbDone ? 'line-through' : ''}`}>
+                        {formatDate(t.fecha_transferencia)}
+                      </td>
+                      <td className={`px-6 py-5 ${isDbDone ? 'line-through decoration-slate-400' : ''}`}>
+                        <div className="flex flex-col font-body">
+                          <span className="font-bold">{t.producto}</span>
+                          <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className={`px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body ${t.estado_transferencia === 1 ? 'line-through' : ''}`}>
-                        {t.nombre_color}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-right pr-8 font-body">
-                      <span className={`text-lg font-extrabold text-primary font-headline ${t.estado_transferencia === 1 ? 'line-through' : ''}`}>
-                        {adjustQuantity(t.producto, t.cantidad).toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">CONOS</span>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5 flex items-center justify-center bg-surface-container text-[10px] font-mono font-bold text-on-surface-variant ${isDbDone ? 'grayscale' : ''}`}>
+                            {t.color}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={`px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body ${isDbDone ? 'line-through' : ''}`}>
+                          {t.nombre_color}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right pr-8 font-body">
+                        <span className={`text-lg font-extrabold text-primary font-headline ${isDbDone ? 'line-through' : ''}`}>
+                          {adjustQuantity(t.producto, t.cantidad).toLocaleString()}
+                        </span>
+                        <span className="text-[10px] text-on-surface-variant block uppercase font-bold tracking-tighter">CONOS</span>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

@@ -146,5 +146,27 @@ export const useStore = create((set, get) => ({
       set({ transferencias: updated, loading: false });
       return data;
     }
+  },
+
+  updateMultipleTransferenciasEstado: async (ids, estado) => {
+    if (!ids || ids.length === 0) return true;
+    set({ loading: true, error: null });
+    
+    const { data, error } = await supabase
+      .from('transferencias_realizadas')
+      .update({ estado_transferencia: estado })
+      .in('id', ids)
+      .select();
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      const updatedTransferencias = get().transferencias.map(t => 
+        ids.includes(t.id) ? { ...t, estado_transferencia: estado } : t
+      );
+      set({ transferencias: updatedTransferencias, loading: false });
+      return data;
+    }
   }
 }));
