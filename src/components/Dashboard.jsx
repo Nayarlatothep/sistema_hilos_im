@@ -47,9 +47,28 @@ export default function Dashboard() {
         const sName = name.toLowerCase();
         return mMod === sName || mMod.includes(sName) || sName.includes(mMod);
       });
+
+      // Calcular transferencias diarias (lunes-viernes) desde transferencias_realizadas
+      const dailyTransfers = {
+        'Lunes': 0, 'Martes': 0, 'Miércoles': 0, 'Jueves': 0, 'Viernes': 0, 'Proceso': 0
+      };
+      const daysInSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      
+      transferencias.forEach(t => {
+        const tMod = normalizeModule(t.modulo);
+        if (tMod === name) {
+          const date = new Date(t.fecha_transferencia);
+          let dayIdx = date.getDay(); // 0-6
+          // Sabado (6) y Domingo (0) -> Viernes (5)
+          if (dayIdx === 0 || dayIdx === 6) dayIdx = 5;
+          const dayName = daysInSpanish[dayIdx];
+          if (dailyTransfers[dayName] !== undefined) {
+            dailyTransfers[dayName] += parseInt(t.cantidad || 0, 10);
+          }
+        }
+      });
       
       // Determinar meta de hoy
-      const daysInSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       const todayName = daysInSpanish[new Date().getDay()];
       const todayMetaRecord = moduleMetas.find(m => String(m.dia || '').toLowerCase() === todayName.toLowerCase());
       const dailyGoal = todayMetaRecord ? (todayMetaRecord.meta_yds || 0) : 0;
@@ -62,6 +81,7 @@ export default function Dashboard() {
         statusColor,
         dailyGoal,
         moduleMetas,
+        dailyTransfers,
         hasMeta: moduleMetas.length > 0
       };
     });
@@ -219,12 +239,22 @@ export default function Dashboard() {
                 <p className="text-[9px] font-black uppercase text-on-surface-variant/60 font-headline mb-3 tracking-widest">Resumen de Meta por Día (Yds)</p>
                 <div className="grid grid-cols-2 gap-y-2 gap-x-4">
                   {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
-                    const meta = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
-                    const value = meta ? (meta.meta_yds ? meta.meta_yds.toLocaleString() : '0') : '0';
+                    const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
+                    const metaVal = metaRec ? (metaRec.meta_yds || 0) : 0;
+                    const transVal = st.dailyTransfers[day] || 0;
+                    const dayPercent = metaVal > 0 ? (transVal / metaVal) * 100 : 0;
+                    
                     return (
-                      <div key={day} className="flex justify-between text-[10px] font-bold font-body">
-                        <span className="text-slate-400">{day}:</span> 
-                        <span className="text-primary">{value}</span>
+                      <div key={day} className="flex flex-col gap-0.5">
+                        <div className="flex justify-between text-[10px] font-bold font-body">
+                          <span className="text-slate-400">{day}:</span> 
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-primary">{transVal.toLocaleString()} / {metaVal.toLocaleString()}</span>
+                            <span className={`text-[9px] font-black ${dayPercent >= 100 ? 'text-emerald-500' : dayPercent >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
+                              ({Math.round(dayPercent)}%)
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
