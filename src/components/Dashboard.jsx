@@ -43,11 +43,14 @@ export default function Dashboard() {
 
       // Encontrar la meta diaria para este módulo de forma más flexible
       const metaModule = meta_diaria?.find(m => {
-        const mId = String(m.modulo || m.id || '').toLowerCase();
+        const mId = String(m.modulo || m.id || m.modulo_id || '').toLowerCase();
         return mId.includes(name) || name.includes(mId);
       });
       
-      const dailyGoal = metaModule ? (metaModule.meta || metaModule.cantidad || metaModule.valor || 0) : 0;
+      const dailyGoal = metaModule ? (metaModule.meta || metaModule.cantidad || metaModule.valor || metaModule.goal || 0) : 0;
+      if (meta_diaria.length > 0 && !metaModule) {
+        console.warn(`No metadata found for module ${name} in fetched data:`, meta_diaria);
+      }
 
       return {
         name,
@@ -55,7 +58,8 @@ export default function Dashboard() {
         transferred: data.transferred,
         percent,
         statusColor,
-        dailyGoal
+        dailyGoal,
+        hasMeta: !!metaModule
       };
     });
   }, [planificacion, transferencias, meta_diaria]);
@@ -196,12 +200,19 @@ export default function Dashboard() {
               <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
               <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
             </div>
-            {st.dailyGoal > 0 && (
-              <div className="flex items-center gap-1 mb-4">
+            
+            <div className="flex flex-col gap-1 mb-4">
+              <div className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px] text-secondary">target</span>
-                <span className="text-[10px] font-bold uppercase text-secondary font-headline">Meta Diaria: {st.dailyGoal.toLocaleString()}</span>
+                <span className="text-[10px] font-bold uppercase text-secondary font-headline">
+                  Meta Diaria: {st.dailyGoal > 0 ? st.dailyGoal.toLocaleString() : 'Pendiente'}
+                </span>
               </div>
-            )}
+              {!st.hasMeta && meta_diaria.length > 0 && (
+                <span className="text-[8px] text-rose-400 uppercase font-bold ml-5">No asignada</span>
+              )}
+            </div>
+
             <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
               <div 
                 className={`h-full transition-all duration-1000 ${st.statusColor}`} 
