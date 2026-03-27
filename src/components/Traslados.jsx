@@ -14,7 +14,7 @@ export default function Traslados() {
   const [localChecks, setLocalChecks] = React.useState([]);
 
   const filteredTransferencias = React.useMemo(() => {
-    let data = transferencias;
+    let data = [...transferencias]; // Create a copy for sorting
     
     if (dateFilter) {
       data = data.filter(t => t.fecha_transferencia?.startsWith(dateFilter));
@@ -28,6 +28,21 @@ export default function Traslados() {
         t.color?.toLowerCase().includes(q)
       );
     }
+
+    // Sorting: Estado 0/NULL first (at the top), Estado 1 at the bottom.
+    // Secondary: Newest date first.
+    data.sort((a, b) => {
+      const estA = a.estado_transferencia || 0;
+      const estB = b.estado_transferencia || 0;
+
+      if (estA !== estB) {
+        return estA - estB; // 0 comes before 1
+      }
+      
+      const dateA = new Date(a.fecha_transferencia || 0).getTime();
+      const dateB = new Date(b.fecha_transferencia || 0).getTime();
+      return dateB - dateA; // Newest first
+    });
     
     return data;
   }, [transferencias, dateFilter, searchQuery]);
@@ -243,7 +258,7 @@ export default function Traslados() {
                   </td>
                 </tr>
               ) : (
-                filteredTransferencias.slice(0, 50).map((t, idx) => {
+                filteredTransferencias.map((t, idx) => {
                   const isDbDone = t.estado_transferencia === 1;
                   const isCheckedLocal = localChecks.includes(t.id);
                   const showChecked = isDbDone || isCheckedLocal;
