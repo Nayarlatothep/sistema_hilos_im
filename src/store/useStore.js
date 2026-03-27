@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 export const useStore = create((set, get) => ({
   planificacion: [],
   transferencias: [],
+  meta_diaria: [],
   loading: false,
   error: null,
 
@@ -28,6 +29,19 @@ export const useStore = create((set, get) => ({
       set({ error: error.message, loading: false });
     } else {
       set({ transferencias: data, loading: false });
+    }
+  },
+
+  fetchMetaDiaria: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('meta_diaria_plancostura')
+      .select('*');
+    if (error) {
+      console.error('Error fetching meta_diaria_plancostura:', error);
+      set({ error: error.message, loading: false });
+    } else {
+      set({ meta_diaria: data, loading: false });
     }
   },
 

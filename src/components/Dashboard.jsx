@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Dashboard() {
-  const { planificacion, transferencias } = useStore();
+  const { planificacion, transferencias, meta_diaria } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
 
   const stationsData = useMemo(() => {
@@ -41,15 +41,20 @@ export default function Dashboard() {
       if (percent >= 100) statusColor = 'bg-emerald-500';
       else if (percent >= 50) statusColor = 'bg-amber-500';
 
+      // Encontrar la meta diaria para este módulo
+      const metaModule = meta_diaria.find(m => String(m.modulo).includes(name));
+      const dailyGoal = metaModule ? (metaModule.meta || metaModule.cantidad || 0) : 0;
+
       return {
         name,
         planned: data.planned,
         transferred: data.transferred,
         percent,
-        statusColor
+        statusColor,
+        dailyGoal
       };
     });
-  }, [planificacion, transferencias]);
+  }, [planificacion, transferencias, meta_diaria]);
 
   const productionData = useMemo(() => {
     const products = {};
@@ -183,10 +188,16 @@ export default function Dashboard() {
                 {Math.round(st.percent)}%
               </span>
             </div>
-            <div className="flex items-baseline gap-2 mb-4">
+            <div className="flex items-baseline gap-2 mb-2">
               <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
               <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
             </div>
+            {st.dailyGoal > 0 && (
+              <div className="flex items-center gap-1 mb-4">
+                <span className="material-symbols-outlined text-[14px] text-secondary">target</span>
+                <span className="text-[10px] font-bold uppercase text-secondary font-headline">Meta Diaria: {st.dailyGoal.toLocaleString()}</span>
+              </div>
+            )}
             <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
               <div 
                 className={`h-full transition-all duration-1000 ${st.statusColor}`} 

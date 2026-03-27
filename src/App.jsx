@@ -7,12 +7,13 @@ import TransferForm from './components/TransferForm';
 import Traslados from './components/Traslados';
 
 function App() {
-  const { fetchPlanificacion, fetchTransferencias, loading, error } = useStore();
+  const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, loading, error } = useStore();
   const [currentTab, setCurrentTab] = useState('dashboard-monitor');
 
   useEffect(() => {
     fetchPlanificacion();
     fetchTransferencias();
+    fetchMetaDiaria();
   }, []);
 
   const renderContent = () => {
