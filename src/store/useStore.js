@@ -35,10 +35,10 @@ export const useStore = create((set, get) => ({
   fetchMetaDiaria: async () => {
     set({ loading: true, error: null });
     const { data, error } = await supabase
-      .from('meta_diaria_produccion')
+      .from('meta_diaria_plancostura')
       .select('*');
     if (error) {
-      console.error('Error fetching meta_diaria_produccion:', error);
+      console.error('Error fetching meta_diaria_plancostura:', error);
       set({ error: error.message, loading: false });
     } else {
       set({ meta_diaria: data, loading: false });

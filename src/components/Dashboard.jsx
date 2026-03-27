@@ -41,7 +41,7 @@ export default function Dashboard() {
       if (percent >= 100) statusColor = 'bg-emerald-500';
       else if (percent >= 50) statusColor = 'bg-amber-500';
 
-      // Filtrar metas por módulo desde la tabla meta_diaria_produccion (campos: dia, meta_yds, modulo)
+      // Filtrar metas por módulo desde la tabla meta_diaria_plancostura (campos: dia, meta_yds, modulo)
       const moduleMetas = (meta_diaria || []).filter(m => {
         const mMod = String(m.modulo || '').toLowerCase();
         const sName = name.toLowerCase();
