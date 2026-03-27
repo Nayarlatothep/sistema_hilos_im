@@ -231,7 +231,7 @@ export default function Dashboard() {
               </div>
               
               <div className="flex flex-col items-center justify-center text-center mb-6 relative z-10">
-                <p className="text-black text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
+                <p className="text-blue-900 text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
                 <p className={`text-6xl font-black ${perfColor} font-headline drop-shadow-sm transition-colors`}>{Math.round(st.percent)}%</p>
                 <p className="text-blue-900/40 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus de Producción</p>
               </div>
@@ -265,14 +265,12 @@ export default function Dashboard() {
                       else if (dayPercent >= 50) dayColor = 'text-amber-500';
 
                       return (
-                        <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-blue-900/5 pb-1 last:border-0">
+                        <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-blue-900/5 pb-1 last:border-0 px-2">
                           <span className="text-blue-900/40 w-16">{day}:</span> 
-                          <div className="flex-1 flex justify-center items-center gap-2">
-                            <span className="text-blue-900 tabular-nums font-black">{transK} / {metaK}</span>
-                            <span className={`text-[9px] font-black tabular-nums w-10 text-right ${dayColor}`}>
-                              {Math.round(dayPercent)}%
-                            </span>
-                          </div>
+                          <span className="text-blue-900 tabular-nums font-black flex-1 text-center">{transK} / {metaK}</span>
+                          <span className={`text-[9px] font-black tabular-nums w-12 text-right ${dayColor}`}>
+                            {Math.round(dayPercent)}%
+                          </span>
                         </div>
                       );
                     })}
