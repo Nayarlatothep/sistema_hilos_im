@@ -170,7 +170,7 @@ export default function Traslados() {
           <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Volumen total de material</p>
         </div>
         <div className={`${stats.bgColor} p-6 rounded-xl transition-all shadow-xl shadow-black/5 flex flex-col items-center justify-center text-center ring-2 ring-white/20`}>
-          <p className="text-white/80 text-[14px] font-black uppercase tracking-[0.25em] mb-3 font-headline">% CUMPLIMIENTO</p>
+          <p className="text-white text-[14px] font-black uppercase tracking-[0.25em] mb-3 font-headline">% CUMPLIMIENTO</p>
           <p className="text-6xl font-black text-white font-headline drop-shadow-md">{Math.round(stats.cumplimiento)}%</p>
           <p className="text-white/70 text-xs mt-3 font-extrabold uppercase tracking-tight">Estatus Actual del Plan</p>
         </div>
