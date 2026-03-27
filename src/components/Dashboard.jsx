@@ -211,66 +211,74 @@ export default function Dashboard() {
 
       {/* KPI Cards Section */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stationsData.map(st => (
-          <div key={st.name} className="bg-surface-container-lowest p-6 shadow-sm border border-outline-variant/10 group hover:border-primary/20 transition-all">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline">Módulo {st.name}</h3>
-              <span className={`text-xs font-black font-headline ${st.percent >= 100 ? 'text-emerald-500' : st.percent >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
-                {Math.round(st.percent)}%
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
-              <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
-            </div>
-            
-            {st.dailyGoal > 0 && (
-              <div className="flex items-center gap-1.5 mb-5 bg-secondary/[0.03] p-2 border-l-2 border-secondary rounded-r">
-                <span className="material-symbols-outlined text-sm text-secondary">target</span>
+        {stationsData.map(st => {
+          // Determinar colores basados en la lógica de Traslados
+          let bgColor = 'bg-rose-500';
+          if (st.percent >= 90) bgColor = 'bg-emerald-500';
+          else if (st.percent >= 50) bgColor = 'bg-amber-600';
+
+          return (
+            <div key={st.name} className={`${bgColor} p-6 rounded-xl transition-all shadow-xl shadow-black/5 flex flex-col items-center group ring-2 ring-white/10`}>
+              <div className="w-full flex justify-between items-center mb-6">
+                <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white/90 font-headline">Mód. {st.name}</h3>
+                <span className="material-symbols-outlined text-white/40 text-xl">analytics</span>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center text-center mb-6">
+                <p className="text-white text-[12px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
+                <p className="text-6xl font-black text-white font-headline drop-shadow-md">{Math.round(st.percent)}%</p>
+                <p className="text-white/80 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus de Producción</p>
+              </div>
+
+              <div className="w-full bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-6 flex justify-between items-center">
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black uppercase text-secondary/70 font-headline leading-tight">Meta de Hoy</span>
-                  <span className="text-[11px] font-black text-secondary font-body leading-tight">{st.dailyGoal.toLocaleString()} Yds</span>
+                  <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Transferido</span>
+                  <span className="text-lg font-black text-white">{st.transferred.toLocaleString()}</span>
+                </div>
+                <div className="text-right flex flex-col">
+                  <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Programado</span>
+                  <span className="text-lg font-black text-white/90">{st.planned.toLocaleString()}</span>
                 </div>
               </div>
-            )}
 
-            {st.moduleMetas.length > 0 && (
-              <div className="mb-5 pt-4 border-t border-outline-variant/10">
-                <p className="text-[9px] font-black uppercase text-on-surface-variant/60 font-headline mb-4 tracking-widest text-center">RESUMEN META POR DIA (Kyds)</p>
-                <div className="flex flex-col gap-2.5">
-                  {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
-                    const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
-                    const metaVal = metaRec ? (metaRec.meta_yds || 0) : 0;
-                    const transVal = st.dailyTransfers[day] || 0;
-                    const dayPercent = metaVal > 0 ? (transVal / metaVal) * 100 : 0;
-                    
-                    const metaK = (metaVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                    const transK = (transVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+              {st.moduleMetas.length > 0 && (
+                <div className="w-full mb-6 pt-4 border-t border-white/20">
+                  <p className="text-[9px] font-black uppercase text-white/80 font-headline mb-4 tracking-widest text-center">RESUMEN META POR DIA (Kyds)</p>
+                  <div className="flex flex-col gap-2">
+                    {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
+                      const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
+                      const metaVal = metaRec ? (metaRec.meta_yds || 0) : 0;
+                      const transVal = st.dailyTransfers[day] || 0;
+                      const dayPercent = metaVal > 0 ? (transVal / metaVal) * 100 : 0;
+                      
+                      const metaK = (metaVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                      const transK = (transVal / 1000).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-                    return (
-                      <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-outline-variant/5 pb-1 last:border-0">
-                        <span className="text-slate-400 w-16">{day}:</span> 
-                        <div className="flex-1 flex justify-center items-center gap-2">
-                          <span className="text-primary tabular-nums">{transK} / {metaK}</span>
-                          <span className={`text-[9px] font-black tabular-nums w-10 text-right ${dayPercent >= 100 ? 'text-emerald-500' : dayPercent >= 50 ? 'text-amber-500' : 'text-rose-500'}`}>
-                            {Math.round(dayPercent)}%
-                          </span>
+                      return (
+                        <div key={day} className="flex items-center justify-between text-[10px] font-bold font-body border-b border-white/5 pb-1 last:border-0">
+                          <span className="text-white/60 w-16">{day}:</span> 
+                          <div className="flex-1 flex justify-center items-center gap-2">
+                            <span className="text-white tabular-nums font-black">{transK} / {metaK}</span>
+                            <span className={`text-[9px] font-black tabular-nums w-10 text-right ${dayPercent >= 90 ? 'text-white' : 'text-white/70'}`}>
+                              {Math.round(dayPercent)}%
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
-              <div 
-                className={`h-full transition-all duration-1000 ${st.statusColor}`} 
-                style={{ width: `${st.percent}%` }}
-              ></div>
+              <div className="w-full h-1.5 bg-black/20 rounded-full overflow-hidden shadow-inner">
+                <div 
+                  className="h-full bg-white transition-all duration-1000 shadow-[0_0_8px_rgba(255,255,255,0.5)]" 
+                  style={{ width: `${st.percent}%` }}
+                ></div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       {/* Data Explorer Section */}
