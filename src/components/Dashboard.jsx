@@ -41,13 +41,18 @@ export default function Dashboard() {
       if (percent >= 100) statusColor = 'bg-emerald-500';
       else if (percent >= 50) statusColor = 'bg-amber-500';
 
-      // Encontrar la meta diaria para este módulo usando las columnas indicadas: modulo y meta_yds
-      const metaModule = meta_diaria?.find(m => {
-        const mId = String(m.modulo || '').toLowerCase();
-        return mId.includes(name) || name.includes(mId);
+      // Filtrar metas por módulo desde la tabla meta_diaria_produccion (campos: dia, meta_yds, modulo)
+      const moduleMetas = (meta_diaria || []).filter(m => {
+        const mMod = String(m.modulo || '').toLowerCase();
+        const sName = name.toLowerCase();
+        return mMod === sName || mMod.includes(sName) || sName.includes(mMod);
       });
       
-      const dailyGoal = metaModule ? (metaModule.meta_yds || 0) : 0;
+      // Determinar meta de hoy
+      const daysInSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const todayName = daysInSpanish[new Date().getDay()];
+      const todayMetaRecord = moduleMetas.find(m => String(m.dia || '').toLowerCase() === todayName.toLowerCase());
+      const dailyGoal = todayMetaRecord ? (todayMetaRecord.meta_yds || 0) : 0;
 
       return {
         name,
@@ -56,7 +61,8 @@ export default function Dashboard() {
         percent,
         statusColor,
         dailyGoal,
-        hasMeta: !!metaModule
+        moduleMetas,
+        hasMeta: moduleMetas.length > 0
       };
     });
   }, [planificacion, transferencias, meta_diaria]);
@@ -205,6 +211,31 @@ export default function Dashboard() {
                   <span className="text-[9px] font-black uppercase text-secondary/70 font-headline leading-tight">Meta de Hoy</span>
                   <span className="text-[11px] font-black text-secondary font-body leading-tight">{st.dailyGoal.toLocaleString()} Yds</span>
                 </div>
+              </div>
+            )}
+
+            {st.moduleMetas.length > 0 && (
+              <div className="mb-5 pt-4 border-t border-outline-variant/10">
+                <p className="text-[9px] font-black uppercase text-on-surface-variant/60 font-headline mb-3 tracking-widest">Resumen de Meta por Día (Yds)</p>
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                  {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'].map(day => {
+                    const meta = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
+                    if (!meta) return null;
+                    return (
+                      <div key={day} className="flex justify-between text-[10px] font-bold font-body">
+                        <span className="text-slate-400">{day}:</span> 
+                        <span className="text-primary">{meta.meta_yds ? meta.meta_yds.toLocaleString() : '0'}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* if there is any process info in any row, show it */}
+                {st.moduleMetas.some(m => m.proceso) && (
+                  <div className="mt-4 flex items-center gap-2 bg-primary/[0.04] px-3 py-2 rounded-lg border border-primary/10">
+                    <span className="material-symbols-outlined text-[14px] text-primary">account_tree</span>
+                    <span className="text-[10px] font-black uppercase text-primary font-headline tracking-tight">Proceso: {st.moduleMetas.find(m => m.proceso)?.proceso}</span>
+                  </div>
+                )}
               </div>
             )}
 
