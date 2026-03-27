@@ -41,16 +41,13 @@ export default function Dashboard() {
       if (percent >= 100) statusColor = 'bg-emerald-500';
       else if (percent >= 50) statusColor = 'bg-amber-500';
 
-      // Encontrar la meta diaria para este módulo de forma más flexible
+      // Encontrar la meta diaria para este módulo usando las columnas indicadas: modulo y meta_yds
       const metaModule = meta_diaria?.find(m => {
-        const mId = String(m.modulo || m.id || m.modulo_id || '').toLowerCase();
+        const mId = String(m.modulo || '').toLowerCase();
         return mId.includes(name) || name.includes(mId);
       });
       
-      const dailyGoal = metaModule ? (metaModule.meta || metaModule.cantidad || metaModule.valor || metaModule.goal || 0) : 0;
-      if (meta_diaria.length > 0 && !metaModule) {
-        console.warn(`No metadata found for module ${name} in fetched data:`, meta_diaria);
-      }
+      const dailyGoal = metaModule ? (metaModule.meta_yds || 0) : 0;
 
       return {
         name,
@@ -196,22 +193,20 @@ export default function Dashboard() {
                 {Math.round(st.percent)}%
               </span>
             </div>
-            <div className="flex items-baseline gap-2 mb-2">
+            <div className="flex items-baseline gap-2 mb-4">
               <span className="text-2xl font-black text-primary font-headline">{st.transferred.toLocaleString()}</span>
               <span className="text-xs font-medium text-slate-400">/ {st.planned.toLocaleString()} Yardas</span>
             </div>
             
-            <div className="flex flex-col gap-1 mb-4">
-              <div className="flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px] text-secondary">target</span>
-                <span className="text-[10px] font-bold uppercase text-secondary font-headline">
-                  Meta Diaria: {st.dailyGoal > 0 ? st.dailyGoal.toLocaleString() : 'Pendiente'}
-                </span>
+            {st.dailyGoal > 0 && (
+              <div className="flex items-center gap-1.5 mb-5 bg-secondary/[0.03] p-2 border-l-2 border-secondary rounded-r">
+                <span className="material-symbols-outlined text-sm text-secondary">target</span>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black uppercase text-secondary/70 font-headline leading-tight">Meta de Hoy</span>
+                  <span className="text-[11px] font-black text-secondary font-body leading-tight">{st.dailyGoal.toLocaleString()} Yds</span>
+                </div>
               </div>
-              {!st.hasMeta && meta_diaria.length > 0 && (
-                <span className="text-[8px] text-rose-400 uppercase font-bold ml-5">No asignada</span>
-              )}
-            </div>
+            )}
 
             <div className="w-full h-1 bg-surface-container-low rounded-full overflow-hidden">
               <div 

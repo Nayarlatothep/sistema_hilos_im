@@ -41,7 +41,6 @@ export const useStore = create((set, get) => ({
       console.error('Error fetching meta_diaria_plancostura:', error);
       set({ error: error.message, loading: false });
     } else {
-      console.log('Fecthed Meta Diaria:', data);
       set({ meta_diaria: data, loading: false });
     }
   },
