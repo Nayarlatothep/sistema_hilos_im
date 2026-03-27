@@ -226,12 +226,12 @@ export default function Dashboard() {
           return (
             <div key={st.name} className="bg-sky-100 p-6 rounded-xl transition-all shadow-sm border border-sky-200 flex flex-col items-center group relative overflow-hidden">
               <div className="w-full flex justify-between items-center mb-6 relative z-10">
-                <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-blue-900/70 font-headline">Mód. {st.name}</h3>
+                <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-blue-900 font-headline">MODULO {st.name}</h3>
                 <span className="material-symbols-outlined text-blue-900/20 text-xl">analytics</span>
               </div>
               
               <div className="flex flex-col items-center justify-center text-center mb-6 relative z-10">
-                <p className="text-blue-900/60 text-[12px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
+                <p className="text-black text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
                 <p className={`text-6xl font-black ${perfColor} font-headline drop-shadow-sm transition-colors`}>{Math.round(st.percent)}%</p>
                 <p className="text-blue-900/40 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus de Producción</p>
               </div>
