@@ -157,7 +157,7 @@ export default function Traslados() {
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <div className="bg-slate-200 p-6 rounded-xl flex flex-col items-center justify-center text-center shadow-sm">
-          <p className="text-slate-900 text-[14px] font-black uppercase tracking-[0.25em] mb-3 font-headline">CANTIDAD REQUERIDA</p>
+          <p className="text-slate-900 text-[12px] font-black uppercase tracking-widest mb-3 font-headline whitespace-nowrap">CANTIDAD REQUERIDA</p>
           <p className="text-6xl font-black text-slate-900 font-headline drop-shadow-sm">{stats.totalRequerida.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-3 text-emerald-700 text-[10px] font-black uppercase">
             <span className="material-symbols-outlined text-sm">trending_up</span>
@@ -165,7 +165,7 @@ export default function Traslados() {
           </div>
         </div>
         <div className="bg-slate-200 p-6 rounded-xl transition-all flex flex-col items-center justify-center text-center shadow-sm">
-          <p className="text-slate-900 text-[14px] font-black uppercase tracking-[0.25em] mb-3 font-headline">CANTIDAD TRANSFERIDA</p>
+          <p className="text-slate-900 text-[12px] font-black uppercase tracking-widest mb-3 font-headline whitespace-nowrap">CANTIDAD TRANSFERIDA</p>
           <p className="text-6xl font-black text-slate-900 font-headline drop-shadow-sm">{stats.totalStock.toLocaleString()}</p>
           <p className="text-slate-600 text-[10px] mt-3 font-black uppercase">Volumen de material</p>
         </div>
