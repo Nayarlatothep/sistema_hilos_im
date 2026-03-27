@@ -177,23 +177,31 @@ export default function Traslados() {
         <div className="bg-sky-100 p-6 rounded-xl transition-all overflow-hidden relative shadow-sm border border-sky-200">
           <div className="relative z-10 h-full flex flex-col">
             <p className="text-blue-900 text-[12px] font-black uppercase tracking-widest mb-4 font-headline whitespace-nowrap">RESUMEN MODULOS</p>
-            <div className="flex flex-col gap-3 flex-grow">
+            <div className="flex flex-col gap-5 flex-grow">
               {stats.moduleStats.map(mod => (
-                <div key={mod.modId} className="flex items-center justify-between group/mod">
-                  <div className="flex flex-col">
-                    <span className="text-[11px] font-black uppercase text-slate-900 font-headline tracking-tighter">Módulo {mod.modId}</span>
-                    <span className="text-[10px] text-slate-600 font-black tabular-nums">
-                      {mod.trans.toLocaleString()} / {mod.req.toLocaleString()}
-                    </span>
+                <div key={mod.modId} className="flex flex-col gap-1.5 group/mod">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black uppercase text-blue-900 font-headline tracking-tighter">Módulo {mod.modId}</span>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] text-blue-800 font-black tabular-nums">
+                        {mod.trans.toLocaleString()} / {mod.req.toLocaleString()}
+                      </span>
+                      <span className={`text-[10px] font-black ${mod.percent >= 90 ? 'text-emerald-600' : mod.percent >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
+                        {Math.round(mod.percent)}%
+                      </span>
+                    </div>
                   </div>
-                  <div className={`${mod.badgeColor} text-white px-3 py-1 rounded-lg text-[10px] font-black shadow-sm transition-transform active:scale-95 cursor-default`}>
-                    {Math.round(mod.percent)}%
+                  <div className="w-full bg-blue-200/50 rounded-full h-2 overflow-hidden border border-blue-200/50 shadow-inner">
+                    <div 
+                      className={`${mod.badgeColor} h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(0,0,0,0.1)]`}
+                      style={{ width: `${Math.min(mod.percent, 100)}%` }}
+                    />
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="absolute bottom-0 right-0 opacity-[0.03] pointer-events-none">
+          <div className="absolute bottom-0 right-0 opacity-[0.05] pointer-events-none">
             <span className="material-symbols-outlined text-8xl -mb-6 -mr-4 text-blue-900">monitoring</span>
           </div>
         </div>
