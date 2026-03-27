@@ -63,12 +63,17 @@ export default function Traslados() {
 
     let color = 'text-rose-500'; // Rojo crítico
     let border = 'border-rose-500';
+    let bgColor = 'bg-rose-500';
+    let textColor = 'text-white';
+    
     if (cumplimiento >= 90) {
       color = 'text-emerald-500'; // Verde adecuado
       border = 'border-emerald-500';
+      bgColor = 'bg-emerald-500';
     } else if (cumplimiento >= 50) {
       color = 'text-amber-500'; // Amarillo alerta
       border = 'border-amber-500';
+      bgColor = 'bg-amber-600'; // Darker amber for contrast
     }
 
     // Module stats logic
@@ -98,7 +103,7 @@ export default function Traslados() {
       return { modId, req: toolReq, trans: toolTrans, percent: prc, badgeColor };
     });
 
-    return { totalStock, totalRequerida, cumplimiento, color, border, moduleStats };
+    return { totalStock, totalRequerida, cumplimiento, color, border, bgColor, textColor, moduleStats };
   }, [filteredTransferencias, planificacion, transferencias]);
 
   const formatDate = (dateString) => {
@@ -164,10 +169,10 @@ export default function Traslados() {
           <p className="text-4xl font-extrabold text-primary font-headline">{stats.totalStock.toLocaleString()}</p>
           <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Volumen total de material</p>
         </div>
-        <div className={`bg-surface-container-lowest p-6 rounded-xl transition-all border-l-4 ${stats.border} flex flex-col items-center justify-center text-center`}>
-          <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-2 font-headline">% CUMPLIMIENTO</p>
-          <p className={`text-4xl font-extrabold font-headline ${stats.color}`}>{Math.round(stats.cumplimiento)}%</p>
-          <p className="text-on-surface-variant/60 text-[10px] mt-2 font-medium">Progreso vs Plan Real</p>
+        <div className={`${stats.bgColor} p-6 rounded-xl transition-all shadow-xl shadow-black/5 flex flex-col items-center justify-center text-center ring-2 ring-white/20`}>
+          <p className="text-white/80 text-[14px] font-black uppercase tracking-[0.25em] mb-3 font-headline">% CUMPLIMIENTO</p>
+          <p className="text-6xl font-black text-white font-headline drop-shadow-md">{Math.round(stats.cumplimiento)}%</p>
+          <p className="text-white/70 text-xs mt-3 font-extrabold uppercase tracking-tight">Estatus Actual del Plan</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl transition-all overflow-hidden relative">
           <div className="relative z-10 h-full flex flex-col">
