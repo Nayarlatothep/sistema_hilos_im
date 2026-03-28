@@ -225,9 +225,9 @@ export default function Dashboard() {
           }
 
           return (
-            <div key={st.name} className="flex flex-col gap-6">
+            <div key={st.name} className="flex flex-col gap-0 shadow-xl rounded-2xl overflow-hidden transition-all hover:scale-[1.01]">
               {/* PRIMARY KPI CARD: Compliance & Totals */}
-              <div className={`${perfBg} p-6 rounded-2xl shadow-xl border-none flex flex-col items-center group relative overflow-hidden transition-all hover:scale-[1.02]`}>
+              <div className={`${perfBg} p-6 rounded-none flex flex-col items-center group relative overflow-hidden transition-all`}>
                 <div className="w-full flex justify-between items-center mb-6 relative z-10">
                   <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white/90 font-headline">MODULO {st.name}</h3>
                   <span className="material-symbols-outlined text-white/30 text-xl">analytics</span>
@@ -264,7 +264,7 @@ export default function Dashboard() {
 
               {/* SECONDARY CARD: Daily Meta Summary */}
               {st.moduleMetas.length > 0 && (
-                <div className="bg-sky-100 p-6 rounded-2xl border border-sky-200 relative overflow-hidden shadow-sm z-10 flex flex-col gap-4">
+                <div className="bg-sky-100 p-6 rounded-none relative overflow-hidden flex flex-col gap-4 border-t border-white/10">
                   <p className="text-[10px] font-black uppercase text-blue-900 font-headline tracking-widest text-center border-b border-blue-900/10 pb-4">RESUMEN META POR DIA (Kyds)</p>
                   <div className="flex flex-col gap-3">
                     {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
