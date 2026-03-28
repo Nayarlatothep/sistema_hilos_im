@@ -216,54 +216,56 @@ export default function Dashboard() {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {stationsData.map(st => {
           // Determinar colores de performance
-          let perfColor = 'text-rose-500';
-          let progressColor = 'bg-rose-500';
+          let perfBg = 'bg-rose-600';
+          let perfProgress = 'bg-white/40';
           if (st.percent >= 90) {
-            perfColor = 'text-emerald-500';
-            progressColor = 'bg-emerald-500';
+            perfBg = 'bg-emerald-600';
           } else if (st.percent >= 50) {
-            perfColor = 'text-amber-500';
-            progressColor = 'bg-amber-500';
+            perfBg = 'bg-amber-600';
           }
 
           return (
             <div key={st.name} className="flex flex-col gap-6">
               {/* PRIMARY KPI CARD: Compliance & Totals */}
-              <div className="bg-sky-100 p-6 rounded-2xl shadow-sm border border-sky-200 flex flex-col items-center group relative overflow-hidden transition-all hover:shadow-md">
+              <div className={`${perfBg} p-6 rounded-2xl shadow-xl border-none flex flex-col items-center group relative overflow-hidden transition-all hover:scale-[1.02]`}>
                 <div className="w-full flex justify-between items-center mb-6 relative z-10">
-                  <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-blue-900 font-headline">MODULO {st.name}</h3>
-                  <span className="material-symbols-outlined text-blue-900/20 text-xl">analytics</span>
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white/90 font-headline">MODULO {st.name}</h3>
+                  <span className="material-symbols-outlined text-white/30 text-xl">analytics</span>
                 </div>
                 
                 <div className="flex flex-col items-center justify-center text-center mb-8 relative z-10">
-                  <p className="text-blue-900 text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
-                  <p className={`text-6xl font-black ${perfColor} font-headline drop-shadow-sm transition-colors`}>{Math.round(st.percent)}%</p>
-                  <p className="text-blue-900/40 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus de Producción</p>
+                  <p className="text-white/80 text-[15px] font-black uppercase tracking-[0.25em] mb-2 font-headline">% CUMPLIMIENTO</p>
+                  <p className={`text-6xl font-black text-white font-headline drop-shadow-md`}>{Math.round(st.percent)}%</p>
+                  <p className="text-white/60 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus en tiempo real</p>
                 </div>
 
-                <div className="w-full bg-white/40 backdrop-blur-sm rounded-xl p-4 mb-6 flex justify-between items-center relative z-10 shadow-inner">
+                <div className="w-full bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-8 flex justify-between items-center relative z-10 border border-white/10 shadow-lg">
                   <div className="flex flex-col">
-                    <span className="text-[9px] font-black text-blue-900/40 uppercase tracking-widest">Transferido</span>
-                    <span className="text-lg font-black text-blue-900">{st.transferred.toLocaleString()}</span>
+                    <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Transferido</span>
+                    <span className="text-lg font-black text-white">{st.transferred.toLocaleString()}</span>
                   </div>
                   <div className="text-right flex flex-col">
-                    <span className="text-[9px] font-black text-blue-900/40 uppercase tracking-widest">Programado</span>
-                    <span className="text-lg font-black text-blue-900/70">{st.planned.toLocaleString()}</span>
+                    <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Programado</span>
+                    <span className="text-lg font-black text-white/90">{st.planned.toLocaleString()}</span>
                   </div>
                 </div>
 
-                <div className="w-full h-1.5 bg-blue-900/5 rounded-full overflow-hidden shadow-inner relative z-10">
+                <div className="w-full h-2 bg-black/10 rounded-full overflow-hidden shadow-inner relative z-10">
                   <div 
-                    className={`h-full ${progressColor} transition-all duration-1000 shadow-sm`} 
+                    className={`h-full ${perfProgress} transition-all duration-1000`} 
                     style={{ width: `${st.percent}%` }}
                   ></div>
                 </div>
+                
+                {/* Decorative background shape */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-12 -mb-12 blur-xl pointer-events-none"></div>
               </div>
 
               {/* SECONDARY CARD: Daily Meta Summary */}
               {st.moduleMetas.length > 0 && (
-                <div className="bg-white/50 backdrop-blur-md p-6 rounded-2xl border border-sky-100 relative overflow-hidden shadow-sm z-10 flex flex-col gap-4">
-                  <p className="text-[10px] font-black uppercase text-blue-900 font-headline tracking-widest text-center border-b border-blue-900/5 pb-4">RESUMEN META POR DIA (Kyds)</p>
+                <div className="bg-sky-100 p-6 rounded-2xl border border-sky-200 relative overflow-hidden shadow-sm z-10 flex flex-col gap-4">
+                  <p className="text-[10px] font-black uppercase text-blue-900 font-headline tracking-widest text-center border-b border-blue-900/10 pb-4">RESUMEN META POR DIA (Kyds)</p>
                   <div className="flex flex-col gap-3">
                     {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Proceso'].map(day => {
                       const metaRec = st.moduleMetas.find(m => String(m.dia || '').toLowerCase() === day.toLowerCase());
@@ -279,7 +281,7 @@ export default function Dashboard() {
                       else if (dayPercent >= 50) dayColor = 'text-amber-500';
 
                       return (
-                        <div key={day} className="flex items-center justify-between text-[11px] font-bold font-body border-b border-blue-900/5 pb-2 last:border-0 px-2 transition-colors hover:bg-blue-50/30">
+                        <div key={day} className="flex items-center justify-between text-[11px] font-bold font-body border-b border-blue-900/5 pb-2 last:border-0 px-2">
                           <span className="text-blue-900/40 w-16">{day}:</span> 
                           <span className="text-blue-900 tabular-nums font-black flex-1 text-center">{transK} / {metaK}</span>
                           <span className={`text-[10px] font-black tabular-nums w-12 text-right ${dayColor}`}>
