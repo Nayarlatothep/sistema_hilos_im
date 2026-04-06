@@ -96,7 +96,7 @@ export default function TransferForm() {
     if (res) {
       setLocalTransferencias([]);
       fetchTransferencias();
-      alert("Success!");
+      alert("¡Éxito!");
     }
   };
 
@@ -110,8 +110,8 @@ export default function TransferForm() {
   return (
     <div className="flex flex-col gap-10 max-w-5xl mx-auto">
       <section className="font-headline">
-        <h2 className="text-4xl font-black text-primary tracking-tighter">Traslado a Almacen Producción</h2>
-        <p className="text-on-surface-variant font-medium mt-2">Log production transfers and yardage calculations.</p>
+        <h2 className="text-4xl font-black text-primary tracking-tighter">Traslado a Almacén de Producción</h2>
+        <p className="text-on-surface-variant font-medium mt-2">Registro de transferencias y cálculo de yardaje.</p>
       </section>
 
       <section className="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/10 overflow-hidden">
@@ -120,8 +120,8 @@ export default function TransferForm() {
             <span className="material-symbols-outlined text-3xl">inventory_2</span>
           </div>
           <div>
-            <h3 className="text-xl font-black text-primary font-headline">Production Details</h3>
-            <p className="text-on-surface-variant text-sm font-medium">Capture real-time site data.</p>
+            <h3 className="text-xl font-black text-primary font-headline">Detalles de Producción</h3>
+            <p className="text-on-surface-variant text-sm font-medium">Captura de datos de planta en tiempo real.</p>
           </div>
         </div>
 
@@ -148,19 +148,19 @@ export default function TransferForm() {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">palette</span> Color Code
+                <span className="material-symbols-outlined text-sm">palette</span> Código de Color
               </label>
               <input 
                 className="w-full bg-surface-container-low/50 border-none border-b-2 border-outline-variant text-sm py-4 px-4 rounded-t-lg font-body text-slate-400"
                 value={selectedItem?.color || ''} 
                 readOnly 
-                placeholder="Auto-detected"
+                placeholder="Auto-detección"
               />
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">grid_view</span> Module
+                <span className="material-symbols-outlined text-sm">grid_view</span> Módulo
               </label>
               <select 
                 className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
@@ -168,16 +168,16 @@ export default function TransferForm() {
                 onChange={(e) => setFormData({...formData, modulo: e.target.value})}
                 required
               >
-                <option value="" disabled>Select Module</option>
+                <option value="" disabled>Seleccione Módulo</option>
                 {availableModules.map(mod => (
-                  <option key={mod} value={mod}>Modulo {mod}</option>
+                  <option key={mod} value={mod}>Módulo {mod}</option>
                 ))}
               </select>
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">circle</span> Quantity (Units)
+                <span className="material-symbols-outlined text-sm">circle</span> Cantidad (Unidades)
               </label>
               <div className="relative">
                 <input 
@@ -194,41 +194,41 @@ export default function TransferForm() {
           </div>
 
           <div className="flex justify-end gap-4 border-t border-slate-100 pt-8">
-            <button 
-              type="button" 
-              onClick={() => setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' })}
-              className="px-6 py-2 text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors uppercase tracking-widest"
-            >
-              Reset
-            </button>
-            <button 
-              type="submit" 
-              disabled={loading || !selectedItem}
-              className="px-10 py-3 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-xl shadow-primary/20 hover:bg-[#0a1a2e] active:scale-95 transition-all flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-sm">add</span> Add entry
-            </button>
+              <button 
+                type="button" 
+                onClick={() => setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' })}
+                className="px-6 py-2 text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors uppercase tracking-widest"
+              >
+                Reiniciar
+              </button>
+              <button 
+                type="submit" 
+                disabled={loading || !selectedItem}
+                className="px-10 py-3 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-xl shadow-primary/20 hover:bg-[#0a1a2e] active:scale-95 transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">add</span> Agregar Entrada
+              </button>
           </div>
         </form>
       </section>
 
       <section className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="bg-surface-container-low/50 px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
-          <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">Session Log</h3>
+          <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">Bitácora de Sesión</h3>
           <div className="flex gap-4">
             <button 
               onClick={handleClearTrans}
               disabled={loading}
               className="px-4 py-2 bg-rose-500/10 text-rose-600 text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all rounded-lg"
             >
-              Clear DB
+              Limpiar DB
             </button>
             <button 
               onClick={handleUpload}
               disabled={loading || localTransferencias.length === 0}
               className="px-8 py-2 bg-secondary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-lg shadow-secondary/30 hover:bg-[#8f3400] active:scale-95 transition-all"
             >
-              Sync Records
+              Sincronizar Registros
             </button>
           </div>
         </div>

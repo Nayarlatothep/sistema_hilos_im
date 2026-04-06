@@ -184,7 +184,7 @@ export default function Traslados() {
         </div>
         <div className="bg-sky-100 p-6 rounded-xl transition-all overflow-hidden relative shadow-sm border border-sky-200">
           <div className="relative z-10 h-full flex flex-col">
-            <p className="text-blue-900 text-[12px] font-black uppercase tracking-widest mb-4 font-headline whitespace-nowrap">RESUMEN MODULOS</p>
+            <p className="text-blue-900 text-[12px] font-black uppercase tracking-widest mb-4 font-headline whitespace-nowrap">RESUMEN MÓDULOS</p>
             <div className="flex flex-col gap-5 flex-grow">
               {stats.moduleStats.map(mod => (
                 <div key={mod.modId} className="flex flex-col gap-1.5 group/mod">

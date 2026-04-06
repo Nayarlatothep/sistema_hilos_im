@@ -102,8 +102,8 @@ export default function DataIngestion() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <div className="font-headline">
-            <h1 className="text-4xl font-black text-primary tracking-tighter">Inventory Ingestion</h1>
-            <p className="text-on-surface-variant font-medium mt-2">Upload your weekly production files to sync data.</p>
+            <h1 className="text-4xl font-black text-primary tracking-tighter uppercase">Ingreso de Planificación</h1>
+            <p className="text-on-surface-variant font-medium mt-2 text-xs uppercase tracking-widest">Carga de archivos semanales y sincronización de datos.</p>
           </div>
           <button 
             onClick={handleClearTable}
@@ -123,10 +123,10 @@ export default function DataIngestion() {
           <div className="mb-4 inline-flex p-5 rounded-full bg-primary-fixed-dim/20 text-primary">
             <span className="material-symbols-outlined text-5xl">cloud_upload</span>
           </div>
-          <h2 className="text-xl font-bold text-primary font-headline">Drag & Drop Production Files</h2>
-          <p className="text-on-surface-variant mt-2 mb-6 font-body">Supported formats: .xlsx, .xls, .csv</p>
-          <div className="inline-block px-8 py-3 bg-primary text-white text-sm font-bold rounded-lg shadow-lg hover:bg-[#0a1a2e] transition-all">
-            Browse Locally
+          <h2 className="text-xl font-bold text-primary font-headline">Arrastre y suelte archivos de producción</h2>
+          <p className="text-on-surface-variant mt-2 mb-6 font-body text-sm">Formatos soportados: .xlsx, .xls, .csv</p>
+          <div className="inline-block px-8 py-3 bg-primary text-white text-sm font-bold rounded-lg shadow-lg hover:bg-[#0a1a2e] transition-all uppercase tracking-widest">
+            Buscar en mi equipo
           </div>
         </div>
 
@@ -171,11 +171,11 @@ export default function DataIngestion() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-surface-container-low/30 border-b border-outline-variant/20 font-headline">
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">SKU</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Product</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Color / Desc</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Module</th>
-                  <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Quantity</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">HILO</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">PRODUCTO</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">COLOR / DESC</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">MÓDULO</th>
+                  <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">CANTIDAD</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-body">

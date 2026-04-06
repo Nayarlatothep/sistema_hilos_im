@@ -213,7 +213,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-end">
           <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">KPI Producción</h2>
           <div className="text-right">
-            <p className="text-on-surface-variant text-[10px] font-bold uppercase font-headline">Last Update</p>
+            <p className="text-on-surface-variant text-[10px] font-bold uppercase font-headline">Última Actualización</p>
             <p className="font-bold text-primary font-body">{timestamp}</p>
           </div>
         </div>
@@ -236,7 +236,7 @@ export default function Dashboard() {
               {/* PRIMARY KPI CARD: Compliance & Totals */}
               <div className={`${perfBg} p-6 rounded-none flex flex-col items-center group relative overflow-hidden transition-all`}>
                 <div className="w-full flex justify-between items-center mb-6 relative z-10">
-                  <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white/90 font-headline">MODULO {st.name}</h3>
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white/90 font-headline">MÓDULO {st.name}</h3>
                   <span className="material-symbols-outlined text-white/30 text-xl">analytics</span>
                 </div>
                 
@@ -329,13 +329,13 @@ export default function Dashboard() {
             </div>
             <div className="relative w-full md:w-48 font-body">
               <select 
-                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 pl-4 rounded-t-lg transition-colors appearance-none font-bold text-primary"
+                className="w-full pl-10 pr-10 py-3 bg-surface-container-low border-none rounded-xl text-xs focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary font-headline uppercase tracking-widest appearance-none"
                 value={moduleFilter}
                 onChange={(e) => setModuleFilter(e.target.value)}
               >
-                <option value="all">TODOS LOS MODULOS</option>
+                <option value="all">Filtrar por módulo</option>
                 {availableModules.map(mod => (
-                  <option key={mod} value={mod}>MODULO {mod}</option>
+                  <option key={mod} value={mod}>MÓDULO {mod}</option>
                 ))}
               </select>
               <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>

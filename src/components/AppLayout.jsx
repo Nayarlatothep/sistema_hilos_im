@@ -11,7 +11,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
             className="h-10 w-auto" 
             src="/intermoda_logo.png"
           />
-          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">CONTROL DE HILOS EN MODULOS DE PRODUCCION</h1>
+          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Control de Hilos en Módulos de Producción</h1>
         </div>
         
         <div className="flex items-center gap-6">
@@ -30,7 +30,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                     className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'dashboard-monitor' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
                     onClick={(e) => { e.preventDefault(); onTabChange('dashboard-monitor'); }}
                   >
-                    KPI Produccion
+                    KPI Producción
                   </a>
                   <a 
                     href="#"
@@ -53,7 +53,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
               >
-                Traslado a Almacen Producción
+                Traslado a Almacén de Producción
               </a>
             </nav>
           </div>
