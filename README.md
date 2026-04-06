@@ -587,6 +587,7 @@ flowchart TD
 
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
+| **v13.0** | Abril 2026 | Restauración de identidad corporativa en encabezados, integración de logo local estable y ajuste de color Navy Suave |
 | **v12.0** | Abril 2026 | Botón de refresco manual en Traslados, mejora de visibilidad en campo Color (UI), y corrección de estilos |
 | **v11.0** | Abril 2026 | Sistema de módulos dinámicos, descubrimiento automático de módulos N |
 | **v3.0** | Marzo 2026 | Dashboard de traslados, checkboxes persistentes, KPI coloreados |
