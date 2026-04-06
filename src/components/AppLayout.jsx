@@ -8,8 +8,8 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         <div className="flex items-center gap-4">
           <img 
             alt="Intermoda Logo" 
-            className="h-8 w-auto" 
-            src="https://lh3.googleusercontent.com/aida/ADBb0ujjnX_BfJjQ0SUWgHpqJ1gv1wmTgUCBZCN_ggtke6FlYCk-MZ7J5KkSne154r2BVcQziUDav-AM6IE3DGP0aiioI_UNXbSyDSh2-KbE09X0j44oYU5tQgMgVM733Mt8aLE3wFcipBxlLpig-5novUVMO3RQ_9L-fOoJu-rpNyVjO1FGNeeH51ymkVGl3D33iyPgbLrHeze8a2yVkOBym3Za5xDwQcLiMxKnYyY59gzNFBKz655-TT9siSPxI259Agf9HyXpZBcRUw"
+            className="h-10 w-auto" 
+            src="/intermoda_logo.png"
           />
           <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Intermoda Monitor</h1>
         </div>
