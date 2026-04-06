@@ -290,11 +290,9 @@ export default function Traslados() {
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-10 h-10 rounded-lg shadow-inner ring-1 ring-black/5 flex items-center justify-center bg-surface-container text-[10px] font-mono font-bold text-on-surface-variant ${isDbDone ? 'grayscale' : ''}`}>
-                            {t.color}
-                          </div>
-                        </div>
+                        <span className={`text-base font-mono font-bold text-slate-500 uppercase tracking-tight ${isDbDone ? 'line-through decoration-slate-400' : ''}`}>
+                          {t.color}
+                        </span>
                       </td>
                       <td className="px-6 py-5">
                         <span className={`px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body ${isDbDone ? 'line-through' : ''}`}>
