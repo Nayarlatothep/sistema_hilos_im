@@ -265,12 +265,39 @@ export default function Traslados() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low text-on-surface-variant text-[12px] uppercase tracking-[0.2em] font-black font-headline">
-                <th className="px-6 py-5 text-center">ST</th>
-                <th className="px-8 py-5">DIA (Día)</th>
-                <th className="px-6 py-5">HILO (Hilaza)</th>
-                <th className="px-6 py-5">COLOR (Swatch)</th>
-                <th className="px-6 py-5">NOMBRE COLOR</th>
-                <th className="px-6 py-5 text-right pr-8">CANTIDAD CONOS</th>
+                <th className="px-6 py-5 text-center">
+                  <span className="material-symbols-outlined text-sm">done_all</span>
+                </th>
+                <th className="px-8 py-5">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary/60">calendar_today</span>
+                    <span>DÍA</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary/60">texture</span>
+                    <span>HILO</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary/60">palette</span>
+                    <span>COLOR</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary/60">sell</span>
+                    <span>NOMBRE COLOR</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5 text-right pr-8">
+                  <div className="flex items-center gap-2 justify-end">
+                    <span className="material-symbols-outlined text-sm text-primary/60">inventory_2</span>
+                    <span>CONOS</span>
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container text-sm">
