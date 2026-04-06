@@ -11,7 +11,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
             className="h-10 w-auto" 
             src="/intermoda_logo.png"
           />
-          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Control de Hilos en modulos</h1>
+          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">CONTROL DE HILOS EN MODULOS DE PRODUCCION</h1>
         </div>
         
         <div className="flex items-center gap-6">
