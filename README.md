@@ -61,7 +61,7 @@ La plataforma fue diseñada para ser operada por personal de planta y supervisor
 - 📊 **Dashboard KPI en tiempo real** — Tarjetas de cumplimiento por módulo con indicadores de color (verde/amarillo/rojo)
 - 📈 **Meta diaria por módulo** — Resumen Lunes-Viernes de cumplimiento vs. meta configurada en Supabase
 - 📦 **Registro de traslados** — Formulario para documentar transferencias de hilos entre almacenes con cálculo automático de yardaje
-- 📋 **Reporte de traslados** — Tabla interactiva con filtros, estado procesado/pendiente, y actualización en lote
+- 📋 **Reporte de traslados** — Tabla interactiva con filtros, estado procesado/pendiente, actualización en lote y **botón de refresco manual**
 - 📤 **Ingesta de datos (Excel)** — Carga masiva de planificación desde archivos `.xlsx`, `.xls`, o `.csv` con validación previa
 - 🔄 **Módulos dinámicos** — El sistema detecta automáticamente módulos nuevos (4, 5, N...) sin necesidad de cambios de código
 - 📱 **PWA-ready** — Configuración de Progressive Web App para instalación en dispositivos móviles
@@ -347,7 +347,9 @@ Vista detallada de todas las transferencias realizadas.
 - Tarjetas de resumen: Cantidad Requerida, Cantidad Transferida, % Cumplimiento, Resumen por Módulo
 - Tabla con checkboxes para marcar traslados como procesados
 - Actualización en lote ("Actualiza Tabla") — solo afecta los seleccionados localmente
+- **Botón de refresco manual** — Actualiza instantáneamente toda la data (transferencias, planificación y metas)
 - Sorting inteligente: pendientes primero, luego por fecha más reciente
+- **Mejora de visibilidad**: Códigos de color con tipografía ampliada (`text-base`) y diseño limpio sin bordes
 - Indicadores visuales: strikethrough + opacity para registros procesados
 
 ---
@@ -585,6 +587,7 @@ flowchart TD
 
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
+| **v12.0** | Abril 2026 | Botón de refresco manual en Traslados, mejora de visibilidad en campo Color (UI), y corrección de estilos |
 | **v11.0** | Abril 2026 | Sistema de módulos dinámicos, descubrimiento automático de módulos N |
 | **v3.0** | Marzo 2026 | Dashboard de traslados, checkboxes persistentes, KPI coloreados |
 | **v2.0** | Marzo 2026 | Submenu Dashboard, Monitor Producción separado de Traslados |
