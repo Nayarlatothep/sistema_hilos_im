@@ -7,9 +7,20 @@ export default function Traslados() {
     planificacion, 
     updateTransferenciaEstado, 
     fetchTransferencias, 
+    fetchPlanificacion,
+    fetchMetaDiaria,
     updateMultipleTransferenciasEstado,
     getAvailableModules
   } = useStore();
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      fetchTransferencias(),
+      fetchPlanificacion(),
+      fetchMetaDiaria()
+    ]);
+  };
+
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [localChecks, setLocalChecks] = React.useState([]);
@@ -233,6 +244,13 @@ export default function Traslados() {
                 </button>
               )}
             </div>
+            <button 
+              onClick={handleRefresh}
+              className="p-2 bg-surface-container-low rounded-lg text-on-surface-variant hover:text-primary transition-all active:scale-95 flex items-center justify-center shadow-sm"
+              title="Refrescar datos"
+            >
+              <span className="material-symbols-outlined text-xl">refresh</span>
+            </button>
             <button className="p-2 bg-surface-container-low rounded-lg text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined">filter_list</span>
             </button>
