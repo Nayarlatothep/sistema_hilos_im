@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function TransferForm() {
-  const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, clearTransferencias, loading } = useStore();
+  const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, clearTransferencias, loading, getAvailableModules } = useStore();
+  const availableModules = React.useMemo(() => getAvailableModules(), [planificacion, transferencias]);
   
   const [formData, setFormData] = useState({
     sku: '',
@@ -168,9 +169,9 @@ export default function TransferForm() {
                 required
               >
                 <option value="" disabled>Select Module</option>
-                <option value="1">Modulo 1</option>
-                <option value="2">Modulo 2</option>
-                <option value="3">Modulo 3</option>
+                {availableModules.map(mod => (
+                  <option key={mod} value={mod}>Modulo {mod}</option>
+                ))}
               </select>
             </div>
 

@@ -7,7 +7,8 @@ export default function Traslados() {
     planificacion, 
     updateTransferenciaEstado, 
     fetchTransferencias, 
-    updateMultipleTransferenciasEstado 
+    updateMultipleTransferenciasEstado,
+    getAvailableModules
   } = useStore();
   const [dateFilter, setDateFilter] = React.useState('');
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -76,15 +77,11 @@ export default function Traslados() {
       bgColor = 'bg-amber-600'; // Darker amber for contrast
     }
 
-    // Module stats logic
-    const moduleList = ['1', '2', '3'];
+    // Dynamic module discovery — no hardcoded list
+    const moduleList = getAvailableModules();
     const normalizeModule = (m) => {
       if (!m) return null;
-      const str = String(m).toLowerCase();
-      if (str.includes('1')) return '1';
-      if (str.includes('2')) return '2';
-      if (str.includes('3')) return '3';
-      return null;
+      return String(m).trim();
     };
 
     const moduleStats = moduleList.map(modId => {

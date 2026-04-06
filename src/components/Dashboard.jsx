@@ -2,25 +2,24 @@ import React, { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Dashboard() {
-  const { planificacion, transferencias, meta_diaria } = useStore();
+  const { planificacion, transferencias, meta_diaria, getAvailableModules } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [moduleFilter, setModuleFilter] = React.useState('all');
 
-  const stationsData = useMemo(() => {
-    const stations = {
-      '1': { planned: 0, transferred: 0 },
-      '2': { planned: 0, transferred: 0 },
-      '3': { planned: 0, transferred: 0 }
-    };
+  // Dynamic module discovery — no hardcoded module list
+  const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias]);
 
-    const normalizeModule = (m) => {
-      if (!m) return null;
-      const str = String(m).toLowerCase();
-      if (str.includes('1')) return '1';
-      if (str.includes('2')) return '2';
-      if (str.includes('3')) return '3';
-      return null;
-    };
+  const normalizeModule = (m) => {
+    if (!m) return null;
+    return String(m).trim();
+  };
+
+  const stationsData = useMemo(() => {
+    // Build stations dynamically from available modules
+    const stations = {};
+    availableModules.forEach(mod => {
+      stations[mod] = { planned: 0, transferred: 0 };
+    });
 
     planificacion.forEach(p => {
       const key = normalizeModule(p.modulo);
@@ -44,9 +43,8 @@ export default function Dashboard() {
 
       // Filtrar metas por módulo desde la tabla meta_diaria_plancostura (campos: dia, meta_yds, modulo)
       const moduleMetas = (meta_diaria || []).filter(m => {
-        const mMod = String(m.modulo || '').toLowerCase();
-        const sName = name.toLowerCase();
-        return mMod === sName || mMod.includes(sName) || sName.includes(mMod);
+        const mMod = String(m.modulo || '').trim();
+        return mMod === name;
       });
 
       // Calcular transferencias diarias (lunes-viernes) desde transferencias_realizadas
@@ -86,19 +84,10 @@ export default function Dashboard() {
         hasMeta: moduleMetas.length > 0
       };
     });
-  }, [planificacion, transferencias, meta_diaria]);
+  }, [planificacion, transferencias, meta_diaria, availableModules]);
 
   const productionData = useMemo(() => {
     const products = {};
-
-    const normalizeModule = (m) => {
-      if (!m) return null;
-      const str = String(m).toLowerCase();
-      if (str.includes('1')) return '1';
-      if (str.includes('2')) return '2';
-      if (str.includes('3')) return '3';
-      return null;
-    };
 
     planificacion.forEach(p => {
       const key = `${p.producto}_${p.color}`.toLowerCase().trim();
@@ -107,34 +96,38 @@ export default function Dashboard() {
           producto: p.producto,
           color: p.color,
           nombre_color: p.nombre_color,
-          mod1_planned: 0,
-          mod1_transferred: 0,
-          mod2_planned: 0,
-          mod2_transferred: 0,
-          mod3_planned: 0,
-          mod3_transferred: 0,
+          modules: {},  // Dynamic: { '1': { planned, transferred }, '2': {...}, ... }
         };
       }
       const modKey = normalizeModule(p.modulo);
-      if (modKey === '1') products[key].mod1_planned += parseInt(p.cantidad || 0, 10);
-      if (modKey === '2') products[key].mod2_planned += parseInt(p.cantidad || 0, 10);
-      if (modKey === '3') products[key].mod3_planned += parseInt(p.cantidad || 0, 10);
+      if (modKey) {
+        if (!products[key].modules[modKey]) {
+          products[key].modules[modKey] = { planned: 0, transferred: 0 };
+        }
+        products[key].modules[modKey].planned += parseInt(p.cantidad || 0, 10);
+      }
     });
 
     transferencias.forEach(t => {
       const key = `${t.producto}_${t.color}`.toLowerCase().trim();
       if (products[key]) {
         const modKey = normalizeModule(t.modulo);
-        const qty = parseInt(t.cantidad || 0, 10);
-        if (modKey === '1') products[key].mod1_transferred += qty;
-        if (modKey === '2') products[key].mod2_transferred += qty;
-        if (modKey === '3') products[key].mod3_transferred += qty;
+        if (modKey) {
+          if (!products[key].modules[modKey]) {
+            products[key].modules[modKey] = { planned: 0, transferred: 0 };
+          }
+          products[key].modules[modKey].transferred += parseInt(t.cantidad || 0, 10);
+        }
       }
     });
 
     const baseData = Object.values(products).map(p => {
-      const totalTransferred = p.mod1_transferred + p.mod2_transferred + p.mod3_transferred;
-      const totalPlanned = p.mod1_planned + p.mod2_planned + p.mod3_planned;
+      let totalTransferred = 0;
+      let totalPlanned = 0;
+      Object.values(p.modules).forEach(mod => {
+        totalTransferred += mod.transferred;
+        totalPlanned += mod.planned;
+      });
       const percent = totalPlanned > 0 ? Math.min(100, (totalTransferred / totalPlanned) * 100) : 0;
       return { ...p, totalTransferred, totalPlanned, percent };
     });
@@ -142,9 +135,10 @@ export default function Dashboard() {
     // Filtering
     let filtered = [...baseData];
     if (moduleFilter !== 'all') {
-      if (moduleFilter === '1') filtered = filtered.filter(p => p.mod1_planned > 0 || p.mod1_transferred > 0);
-      if (moduleFilter === '2') filtered = filtered.filter(p => p.mod2_planned > 0 || p.mod2_transferred > 0);
-      if (moduleFilter === '3') filtered = filtered.filter(p => p.mod3_planned > 0 || p.mod3_transferred > 0);
+      filtered = filtered.filter(p => {
+        const mod = p.modules[moduleFilter];
+        return mod && (mod.planned > 0 || mod.transferred > 0);
+      });
     }
 
     if (searchQuery) {
@@ -181,10 +175,23 @@ export default function Dashboard() {
       if (a.producto > b.producto) return 1;
       return nameA.localeCompare(nameB);
     });
-  }, [planificacion, transferencias, searchQuery, moduleFilter]);
+  }, [planificacion, transferencias, searchQuery, moduleFilter, availableModules]);
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
+
+  // Dynamic grid class based on number of modules
+  const getGridClass = () => {
+    const count = stationsData.length;
+    if (count <= 3) return 'md:grid-cols-3';
+    if (count <= 4) return 'md:grid-cols-2 lg:grid-cols-4';
+    return 'md:grid-cols-3 lg:grid-cols-5';
+  };
+
+  // Visible modules in table (filtered)
+  const visibleModules = moduleFilter === 'all' 
+    ? availableModules 
+    : availableModules.filter(mod => mod === moduleFilter);
 
   if (stationsData.length === 0) {
     return (
@@ -212,8 +219,8 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* KPI Cards Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* KPI Cards Section — Dynamic grid */}
+      <section className={`grid grid-cols-1 ${getGridClass()} gap-8`}>
         {stationsData.map(st => {
           // Determinar colores de performance
           let perfBg = 'bg-rose-600';
@@ -327,9 +334,9 @@ export default function Dashboard() {
                 onChange={(e) => setModuleFilter(e.target.value)}
               >
                 <option value="all">TODOS LOS MODULOS</option>
-                <option value="1">MODULO 1</option>
-                <option value="2">MODULO 2</option>
-                <option value="3">MODULO 3</option>
+                {availableModules.map(mod => (
+                  <option key={mod} value={mod}>MODULO {mod}</option>
+                ))}
               </select>
               <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
             </div>
@@ -349,9 +356,9 @@ export default function Dashboard() {
                 <th className="py-4 px-4 bg-white">Producto</th>
                 <th className="py-4 px-4 text-center bg-white">Color</th>
                 <th className="py-4 px-4 bg-white">Nombre Color</th>
-                {(moduleFilter === 'all' || moduleFilter === '1') && <th className="py-4 px-4 text-right bg-white">Módulo 1</th>}
-                {(moduleFilter === 'all' || moduleFilter === '2') && <th className="py-4 px-4 text-right bg-white">Módulo 2</th>}
-                {(moduleFilter === 'all' || moduleFilter === '3') && <th className="py-4 px-4 text-right bg-white">Módulo 3</th>}
+                {visibleModules.map(mod => (
+                  <th key={mod} className="py-4 px-4 text-right bg-white">Módulo {mod}</th>
+                ))}
                 <th className="py-4 px-4 text-right bg-white">Cant. Transferida</th>
                 <th className="py-4 px-4 text-right bg-white">% Cumplimiento</th>
               </tr>
@@ -368,23 +375,15 @@ export default function Dashboard() {
                   </td>
                   <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
                   
-                  {(moduleFilter === 'all' || moduleFilter === '1') && (
-                    <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                      {Math.round(row.mod1_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod1_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                    </td>
-                  )}
-                  
-                  {(moduleFilter === 'all' || moduleFilter === '2') && (
-                    <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                      {Math.round(row.mod2_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod2_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                    </td>
-                  )}
-                  
-                  {(moduleFilter === 'all' || moduleFilter === '3') && (
-                    <td className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                      {Math.round(row.mod3_transferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()} / {Math.round(row.mod3_planned / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                    </td>
-                  )}
+                  {visibleModules.map(mod => {
+                    const modData = row.modules[mod] || { planned: 0, transferred: 0 };
+                    const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
+                    return (
+                      <td key={mod} className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                        {Math.round(modData.transferred / divisor).toLocaleString()} / {Math.round(modData.planned / divisor).toLocaleString()}
+                      </td>
+                    );
+                  })}
 
                   <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
                     {Math.round(row.totalTransferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
