@@ -246,7 +246,7 @@ export default function Traslados() {
             </div>
             <button 
               onClick={handleRefresh}
-              className="p-2 bg-surface-container-low rounded-lg text-on-surface-variant hover:text-primary transition-all active:scale-95 flex items-center justify-center shadow-sm"
+              className="p-2 bg-primary rounded-lg text-white hover:bg-primary/90 transition-all active:scale-95 flex items-center justify-center shadow-md"
               title="Refrescar datos"
             >
               <span className="material-symbols-outlined text-xl">refresh</span>
