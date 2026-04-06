@@ -4,7 +4,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
   return (
     <div className="bg-background font-body text-on-background antialiased min-h-screen flex flex-col">
       {/* TopAppBar */}
-      <header className="fixed top-0 w-full z-50 bg-[#001731] shadow-2xl h-16 flex justify-between items-center px-8 border-b border-white/5">
+      <header className="fixed top-0 w-full z-50 bg-[#2C3E50] shadow-2xl h-16 flex justify-between items-center px-8 border-b border-white/5">
         <div className="flex items-center gap-4">
           <img 
             alt="Intermoda Logo" 
