@@ -5,6 +5,7 @@ export default function Dashboard() {
   const { planificacion, transferencias, meta_diaria, getAvailableModules } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [moduleFilter, setModuleFilter] = React.useState('all');
+  const [expandedRow, setExpandedRow] = React.useState(null);
   
   const dayOptions = [
     { label: 'Lu', value: 'LUNES' },
@@ -145,8 +146,16 @@ export default function Dashboard() {
           color: p.color,
           nombre_color: p.nombre_color,
           modules: {},
+          ops: {},  // { opName: cantidad }
         };
       }
+
+      // Collect OP details
+      const opName = p.op || 'Sin OP';
+      if (!products[key].ops[opName]) {
+        products[key].ops[opName] = 0;
+      }
+      products[key].ops[opName] += parseFloat(p.cantidad || 0);
       const pMod = String(p.modulo || '').trim();
       const modKey = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
@@ -462,38 +471,69 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {productionData.map((row, idx) => (
-                <tr key={idx} className={`group hover:bg-surface-container-low transition-colors font-body ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''}`}>
-                  <td className="py-6 px-4">
-                    <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors">{row.producto}</p>
-                    <p className="text-[10px] text-slate-400">Production Line Active</p>
-                  </td>
-                  <td className="py-6 px-4 text-center">
-                    <span className="text-base font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
-                  </td>
-                  <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
-                  
-                  {visibleModules.map(mod => {
-                    const modData = row.modules[mod] || { planned: 0, transferred: 0 };
-                    const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
-                    return (
-                      <td key={mod} className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                        {Math.round(modData.transferred / divisor).toLocaleString()} / {Math.round(modData.planned / divisor).toLocaleString()}
+              {productionData.map((row, idx) => {
+                const isExpanded = expandedRow === idx;
+                const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
+                const opEntries = Object.entries(row.ops || {});
+                return (
+                  <React.Fragment key={idx}>
+                    <tr 
+                      onClick={() => setExpandedRow(isExpanded ? null : idx)}
+                      className={`group hover:bg-surface-container-low transition-colors font-body cursor-pointer ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''} ${isExpanded ? 'bg-primary/5' : ''}`}
+                    >
+                      <td className="py-6 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`material-symbols-outlined text-sm text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}>chevron_right</span>
+                          <div>
+                            <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors">{row.producto}</p>
+                            <p className="text-[10px] text-slate-400">{opEntries.length} OP(s) asignada(s)</p>
+                          </div>
+                        </div>
                       </td>
-                    );
-                  })}
+                      <td className="py-6 px-4 text-center">
+                        <span className="text-base font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
+                      </td>
+                      <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
+                      
+                      {visibleModules.map(mod => {
+                        const modData = row.modules[mod] || { planned: 0, transferred: 0 };
+                        return (
+                          <td key={mod} className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                            {Math.round(modData.transferred / divisor).toLocaleString()} / {Math.round(modData.planned / divisor).toLocaleString()}
+                          </td>
+                        );
+                      })}
 
-                  <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
-                    {Math.round(row.totalTransferred / (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180') ? 1225 : 3000)).toLocaleString()}
-                  </td>
-                  <td className="py-6 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="text-xs font-black text-secondary tabular-nums">{Math.round(row.percent)}%</span>
-                      <div className={`w-1.5 h-1.5 rounded-full ${row.percent >= 100 ? 'bg-emerald-500' : row.percent >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                      <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
+                        {Math.round(row.totalTransferred / divisor).toLocaleString()}
+                      </td>
+                      <td className="py-6 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-xs font-black text-secondary tabular-nums">{Math.round(row.percent)}%</span>
+                          <div className={`w-1.5 h-1.5 rounded-full ${row.percent >= 100 ? 'bg-emerald-500' : row.percent >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
+                        </div>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="bg-primary/[0.03]">
+                        <td colSpan={3 + visibleModules.length + 2} className="px-4 py-4">
+                          <div className="ml-8 border-l-2 border-primary/20 pl-6">
+                            <p className="text-[10px] font-black uppercase text-primary/60 tracking-[0.2em] mb-3 font-headline">Desglose por Orden de Producción</p>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                              {opEntries.map(([opName, cantidad]) => (
+                                <div key={opName} className="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm">
+                                  <p className="text-[10px] font-black text-secondary uppercase tracking-widest font-headline">{opName}</p>
+                                  <p className="text-lg font-black text-primary tabular-nums">{Math.round(cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400 font-medium">conos</span></p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
