@@ -241,7 +241,7 @@ export default function Dashboard() {
       if (a.producto > b.producto) return 1;
       return nameA.localeCompare(nameB);
     });
-  }, [planificacion, transferencias, searchQuery, moduleFilter, availableModules]);
+  }, [planificacion, transferencias, searchQuery, moduleFilter, availableModules, selectedDays]);
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
