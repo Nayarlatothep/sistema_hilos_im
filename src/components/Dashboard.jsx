@@ -266,14 +266,15 @@ export default function Dashboard() {
                   <p className="text-white/60 text-[10px] mt-2 font-extrabold uppercase tracking-tight">Estatus en tiempo real</p>
                 </div>
 
-                <div className="w-full bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-8 flex justify-between items-center relative z-10 border border-white/10 shadow-lg">
-                  <div className="flex flex-col">
+                <div className="w-full bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-8 flex justify-around items-center relative z-10 border border-white/10 shadow-lg">
+                  <div className="flex flex-col items-center text-center">
                     <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Transferido</span>
-                    <span className="text-lg font-black text-white">{(st.transferred / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}Kyds</span>
+                    <span className="text-base font-black text-white">{(st.transferred / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}Kyds</span>
                   </div>
-                  <div className="text-right flex flex-col">
+                  <div className="h-8 w-[1px] bg-white/10"></div>
+                  <div className="flex flex-col items-center text-center">
                     <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Programado</span>
-                    <span className="text-lg font-black text-white/90">{(st.planned / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}Kyds</span>
+                    <span className="text-base font-black text-white/90">{(st.planned / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}Kyds</span>
                   </div>
                 </div>
 
