@@ -331,6 +331,16 @@ export default function Dashboard() {
           .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
           .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
           .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+          
+          /* Force hide default arrow on all browsers */
+          select {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+          }
+          select::-ms-expand {
+            display: none !important;
+          }
         `}} />
         
         {/* Table Controls */}
