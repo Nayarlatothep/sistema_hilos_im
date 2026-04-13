@@ -234,6 +234,13 @@ export default function Dashboard() {
     };
 
     return filtered.sort((a, b) => {
+      // Regla especial: HILO ANECOT GIMP SOFT T-180 siempre al final
+      const isGimpA = String(a.producto || "").includes("HILO ANECOT GIMP SOFT T-180") || String(a.nombre_color || "").includes("HILO ANECOT GIMP SOFT T-180");
+      const isGimpB = String(b.producto || "").includes("HILO ANECOT GIMP SOFT T-180") || String(b.nombre_color || "").includes("HILO ANECOT GIMP SOFT T-180");
+      
+      if (isGimpA && !isGimpB) return 1;
+      if (!isGimpA && isGimpB) return -1;
+
       const nameA = a.nombre_color.toLowerCase().trim();
       const nameB = b.nombre_color.toLowerCase().trim();
       const pA = colorPriorityMap[nameA] || 99;
