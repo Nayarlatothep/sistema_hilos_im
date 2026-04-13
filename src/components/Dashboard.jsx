@@ -382,7 +382,7 @@ export default function Dashboard() {
                 <button
                   key={day.value}
                   onClick={() => toggleDay(day.value)}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black transition-all shadow-sm border-2 ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black transition-all shadow-sm border-2 ${
                     isActive 
                       ? 'bg-primary border-primary text-white shadow-primary/30 scale-110' 
                       : 'bg-surface-container-low border-transparent text-slate-400 hover:border-slate-200'
@@ -430,7 +430,8 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex gap-3 w-full md:w-auto font-headline">
-            <button className="flex items-center gap-2 px-6 py-2 bg-secondary text-white text-xs font-bold uppercase tracking-widest hover:bg-[#8f3400] transition-transform active:scale-95 shadow-md shadow-secondary/20">
+            <button className="flex items-center gap-2 px-8 py-3 bg-secondary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">
+              <span className="material-symbols-outlined text-sm">rocket_launch</span>
               Run Optimization
             </button>
           </div>
