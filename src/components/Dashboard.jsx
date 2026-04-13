@@ -5,6 +5,24 @@ export default function Dashboard() {
   const { planificacion, transferencias, meta_diaria, getAvailableModules } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [moduleFilter, setModuleFilter] = React.useState('all');
+  
+  const dayOptions = [
+    { label: 'Lu', value: 'Lunes' },
+    { label: 'Ma', value: 'Martes' },
+    { label: 'Mi', value: 'Miércoles' },
+    { label: 'Ju', value: 'Jueves' },
+    { label: 'Vi', value: 'Viernes' },
+    { label: 'Pr', value: 'Proceso' },
+  ];
+  const [selectedDays, setSelectedDays] = React.useState(dayOptions.map(d => d.value));
+
+  const toggleDay = (dayValue) => {
+    setSelectedDays(prev => 
+      prev.includes(dayValue) 
+        ? prev.filter(d => d !== dayValue) 
+        : [...prev, dayValue]
+    );
+  };
 
   // Dynamic module discovery — no hardcoded module list
   const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias]);
@@ -23,6 +41,11 @@ export default function Dashboard() {
 
     planificacion.forEach(p => {
       const rawMod = String(p.modulo || '').trim();
+      const pDia = String(p.dia || '').trim();
+      
+      // Filter by selected days
+      if (selectedDays.length > 0 && !selectedDays.includes(pDia)) return;
+
       // Robust matching: find if the string contains 1, 2, 3, or 4
       const matched = ['1', '2', '3', '4'].find(m => 
         rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
@@ -35,6 +58,9 @@ export default function Dashboard() {
 
     transferencias.forEach(t => {
       const rawMod = String(t.modulo || '').trim();
+      // NOTE: We don't filter transferencias by day yet because they don't have a 'dia' column in DB, 
+      // but they are usually recent. If 'dia' is added to transferencias table later, we should filter here too.
+      
       const matched = ['1', '2', '3', '4'].find(m => 
         rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
       );
@@ -99,6 +125,9 @@ export default function Dashboard() {
     const products = {};
 
     planificacion.forEach(p => {
+      const pDia = String(p.dia || '').trim();
+      if (selectedDays.length > 0 && !selectedDays.includes(pDia)) return;
+
       const key = `${p.producto}_${p.color}`.toLowerCase().trim();
       if (!products[key]) {
         products[key] = {
@@ -343,6 +372,35 @@ export default function Dashboard() {
           }
         `}} />
         
+        {/* Day Filter Bubbles */}
+        <div className="flex flex-col gap-3 mb-8">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] font-headline">Filtrar por Día de Planificación</p>
+          <div className="flex flex-wrap gap-4">
+            {dayOptions.map(day => {
+              const isActive = selectedDays.includes(day.value);
+              return (
+                <button
+                  key={day.value}
+                  onClick={() => toggleDay(day.value)}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-xs font-black transition-all shadow-sm border-2 ${
+                    isActive 
+                      ? 'bg-primary border-primary text-white shadow-primary/30 scale-110' 
+                      : 'bg-surface-container-low border-transparent text-slate-400 hover:border-slate-200'
+                  }`}
+                >
+                  {day.label}
+                </button>
+              );
+            })}
+            <button
+               onClick={() => setSelectedDays(selectedDays.length === dayOptions.length ? [] : dayOptions.map(d => d.value))}
+               className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors"
+            >
+              {selectedDays.length === dayOptions.length ? 'Deseleccionar Todo' : 'Seleccionar Todo'}
+            </button>
+          </div>
+        </div>
+
         {/* Table Controls */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
