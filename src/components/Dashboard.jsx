@@ -105,8 +105,6 @@ export default function Dashboard() {
           producto: p.producto,
           color: p.color,
           nombre_color: p.nombre_color,
-          op: p.op, // Keep as info but not in key
-          dia: p.dia,
           modules: {},  // Dynamic: { '1': { planned, transferred }, '2': {...}, ... }
         };
       }
@@ -374,8 +372,6 @@ export default function Dashboard() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-left text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] border-b border-outline-variant/20 shadow-[0_1px_0_rgba(0,0,0,0.05)] font-headline">
-                <th className="py-4 px-4 bg-white">Día</th>
-                <th className="py-4 px-4 bg-white">OP</th>
                 <th className="py-4 px-4 bg-white">Producto</th>
                 <th className="py-4 px-4 text-center bg-white">Color</th>
                 <th className="py-4 px-4 bg-white">Nombre Color</th>
@@ -389,12 +385,6 @@ export default function Dashboard() {
             <tbody className="divide-y divide-slate-50">
               {productionData.map((row, idx) => (
                 <tr key={idx} className={`group hover:bg-surface-container-low transition-colors font-body ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''}`}>
-                  <td className="py-6 px-4">
-                    <span className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded">{row.dia || '-'}</span>
-                  </td>
-                  <td className="py-6 px-4">
-                    <span className="text-xs font-bold text-secondary">{row.op || '-'}</span>
-                  </td>
                   <td className="py-6 px-4">
                     <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors">{row.producto}</p>
                     <p className="text-[10px] text-slate-400">Production Line Active</p>
