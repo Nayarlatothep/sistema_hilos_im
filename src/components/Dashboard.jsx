@@ -40,15 +40,16 @@ export default function Dashboard() {
     });
 
     planificacion.forEach(p => {
-      const rawMod = String(p.modulo || '').trim();
+      const pMod = String(p.modulo || '').trim();
       const pDia = String(p.dia || '').trim();
       
-      // Filter by selected days
-      if (selectedDays.length > 0 && !selectedDays.includes(pDia)) return;
+      // If NOT all days are selected, apply filtering
+      const isAllSelected = selectedDays.length === dayOptions.length;
+      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === pDia.toLowerCase())) return;
 
       // Robust matching: find if the string contains 1, 2, 3, or 4
       const matched = ['1', '2', '3', '4'].find(m => 
-        rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+        pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
       );
       
       if (matched) {
@@ -126,7 +127,9 @@ export default function Dashboard() {
 
     planificacion.forEach(p => {
       const pDia = String(p.dia || '').trim();
-      if (selectedDays.length > 0 && !selectedDays.includes(pDia)) return;
+      
+      const isAllSelected = selectedDays.length === dayOptions.length;
+      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === pDia.toLowerCase())) return;
 
       const key = `${p.producto}_${p.color}`.toLowerCase().trim();
       if (!products[key]) {
