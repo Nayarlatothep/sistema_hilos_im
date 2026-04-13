@@ -54,9 +54,6 @@ export default function Dashboard() {
 
     planificacion.forEach(p => {
       const pMod = String(p.modulo || '').trim();
-      const pDia = normalizeDay(p.dia);
-      
-      if (!isAllSelected && !selectedDays.includes(pDia)) return;
 
       const matched = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
@@ -69,9 +66,6 @@ export default function Dashboard() {
 
     transferencias.forEach(t => {
       const pMod = String(t.modulo || '').trim();
-      const tDia = getDayName(t.fecha_transferencia);
-      
-      if (!isAllSelected && !selectedDays.includes(tDia)) return;
 
       const matched = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
@@ -127,7 +121,7 @@ export default function Dashboard() {
         hasMeta: moduleMetas.length > 0
       };
     });
-  }, [planificacion, transferencias, meta_diaria, availableModules, selectedDays]);
+  }, [planificacion, transferencias, meta_diaria, availableModules]);
 
   const visibleModules = useMemo(() => (
     moduleFilter === 'all' 
