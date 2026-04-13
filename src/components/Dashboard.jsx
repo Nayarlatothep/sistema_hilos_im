@@ -150,17 +150,17 @@ export default function Dashboard() {
         };
       }
 
-      // Collect OP details with day info
-      products[key].opsDetail.push({
-        op: p.op || 'Sin OP',
-        cantidad: parseFloat(p.cantidad || 0),
-        dia: p.dia || '',
-      });
+      // Collect OP details with day and module info
       const pMod = String(p.modulo || '').trim();
       const modKey = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
       );
-      
+      products[key].opsDetail.push({
+        op: p.op || 'Sin OP',
+        cantidad: parseFloat(p.cantidad || 0),
+        dia: p.dia || '',
+        modulo: modKey || '',
+      });
       if (modKey) {
         if (!products[key].modules[modKey]) {
           products[key].modules[modKey] = { planned: 0, transferred: 0 };
@@ -481,14 +481,18 @@ export default function Dashboard() {
               {productionData.map((row, idx) => {
                 const isExpanded = expandedRow === idx;
                 const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
-                // Group opsDetail by OP name
+                // Group opsDetail by OP name, filtered by module if applicable
                 const opsGrouped = {};
-                (row.opsDetail || []).forEach(d => {
+                const filteredOps = moduleFilter === 'all' 
+                  ? (row.opsDetail || []) 
+                  : (row.opsDetail || []).filter(d => d.modulo === moduleFilter);
+                filteredOps.forEach(d => {
                   if (!opsGrouped[d.op]) {
-                    opsGrouped[d.op] = { cantidad: 0, dias: new Set() };
+                    opsGrouped[d.op] = { cantidad: 0, dias: new Set(), modulos: new Set() };
                   }
                   opsGrouped[d.op].cantidad += d.cantidad;
                   if (d.dia) opsGrouped[d.op].dias.add(d.dia);
+                  if (d.modulo) opsGrouped[d.op].modulos.add(d.modulo);
                 });
                 const opEntries = Object.entries(opsGrouped);
                 return (
@@ -540,9 +544,14 @@ export default function Dashboard() {
                                 <div key={opName} className="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm">
                                   <p className="text-[10px] font-black text-secondary uppercase tracking-widest font-headline">{opName}</p>
                                   <p className="text-lg font-black text-primary tabular-nums">{Math.round(data.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400 font-medium">conos</span></p>
-                                  {data.dias.size > 0 && (
-                                    <p className="text-[9px] text-slate-400 mt-1 font-bold uppercase">{[...data.dias].join(', ')}</p>
-                                  )}
+                                  <div className="flex gap-2 mt-1 flex-wrap">
+                                    {data.modulos.size > 0 && (
+                                      <span className="text-[9px] text-primary/50 font-bold uppercase">Mód: {[...data.modulos].join(', ')}</span>
+                                    )}
+                                    {data.dias.size > 0 && (
+                                      <span className="text-[9px] text-slate-400 font-bold uppercase">{[...data.dias].join(', ')}</span>
+                                    )}
+                                  </div>
                                 </div>
                               ))}
                             </div>
