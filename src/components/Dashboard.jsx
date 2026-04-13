@@ -31,6 +31,22 @@ export default function Dashboard() {
     if (!m) return null;
     return String(m).trim();
   };
+  const getDayName = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      // Handle timestamp strings from Supabase (ISO format or similar)
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return '';
+      const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const dayName = days[date.getDay()];
+      if (dayName === 'Sábado' || dayName === 'Domingo') return 'Proceso';
+      return dayName;
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const isAllSelected = selectedDays.length === dayOptions.length;
 
   const stationsData = useMemo(() => {
     // Build stations dynamically from available modules
@@ -44,7 +60,6 @@ export default function Dashboard() {
       const pDia = String(p.dia || '').trim();
       
       // If NOT all days are selected, apply filtering
-      const isAllSelected = selectedDays.length === dayOptions.length;
       if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === pDia.toLowerCase())) return;
 
       // Robust matching: find if the string contains 1, 2, 3, or 4
@@ -58,12 +73,13 @@ export default function Dashboard() {
     });
 
     transferencias.forEach(t => {
-      const rawMod = String(t.modulo || '').trim();
-      // NOTE: We don't filter transferencias by day yet because they don't have a 'dia' column in DB, 
-      // but they are usually recent. If 'dia' is added to transferencias table later, we should filter here too.
+      const pMod = String(t.modulo || '').trim();
+      const tDia = getDayName(t.fecha_transferencia);
       
+      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === tDia.toLowerCase())) return;
+
       const matched = ['1', '2', '3', '4'].find(m => 
-        rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+        pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
       );
       
       if (matched) {
@@ -154,6 +170,9 @@ export default function Dashboard() {
     });
 
     transferencias.forEach(t => {
+      const tDia = getDayName(t.fecha_transferencia);
+      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === tDia.toLowerCase())) return;
+
       const key = `${t.producto}_${t.color}`.toLowerCase().trim();
       if (products[key]) {
         const rawMod = String(t.modulo || '').trim();
