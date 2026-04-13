@@ -35,6 +35,16 @@ export default function Dashboard() {
 
   const isAllSelected = selectedDays.length === dayOptions.length;
 
+  const toggleDay = (dayValue) => {
+    setSelectedDays(prev => 
+      prev.includes(dayValue) 
+        ? prev.filter(d => d !== dayValue) 
+        : [...prev, dayValue]
+    );
+  };
+
+  const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias]);
+
   const stationsData = useMemo(() => {
     // Build stations dynamically from available modules
     const stations = {};
@@ -118,6 +128,12 @@ export default function Dashboard() {
       };
     });
   }, [planificacion, transferencias, meta_diaria, availableModules, selectedDays]);
+
+  const visibleModules = useMemo(() => (
+    moduleFilter === 'all' 
+      ? availableModules 
+      : availableModules.filter(mod => mod === moduleFilter)
+  ), [availableModules, moduleFilter]);
 
   const productionData = useMemo(() => {
     const products = {};
@@ -238,10 +254,6 @@ export default function Dashboard() {
     return 'md:grid-cols-3 lg:grid-cols-5';
   };
 
-  // Visible modules in table (filtered)
-  const visibleModules = moduleFilter === 'all' 
-    ? availableModules 
-    : availableModules.filter(mod => mod === moduleFilter);
 
   if (stationsData.length === 0) {
     return (
