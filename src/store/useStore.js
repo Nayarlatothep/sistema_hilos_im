@@ -163,17 +163,8 @@ export const useStore = create((set, get) => ({
   },
 
   getAvailableModules: () => {
-    const { planificacion, transferencias } = get();
-    const moduleSet = new Set();
-    
-    planificacion.forEach(p => {
-      if (p.modulo) moduleSet.add(String(p.modulo).trim());
-    });
-    transferencias.forEach(t => {
-      if (t.modulo) moduleSet.add(String(t.modulo).trim());
-    });
-    
-    return [...moduleSet].sort((a, b) => Number(a) - Number(b));
+    // Restringido a solo módulos 1, 2, 3 y 4 por requerimiento
+    return ['1', '2', '3', '4'];
   },
 
   updateMultipleTransferenciasEstado: async (ids, estado) => {
