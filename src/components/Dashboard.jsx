@@ -23,18 +23,24 @@ export default function Dashboard() {
 
     planificacion.forEach(p => {
       const rawMod = String(p.modulo || '').trim();
-      // Extract only digits from module string (e.g., "Módulo 1" -> "1")
-      const key = rawMod.replace(/\D/g, ''); 
-      if (key && stations[key]) {
-        stations[key].planned += parseInt(p.cantidad || 0, 10);
+      // Robust matching: find if the string contains 1, 2, 3, or 4
+      const matched = ['1', '2', '3', '4'].find(m => 
+        rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+      );
+      
+      if (matched) {
+        stations[matched].planned += Number(p.cantidad || 0);
       }
     });
 
     transferencias.forEach(t => {
       const rawMod = String(t.modulo || '').trim();
-      const key = rawMod.replace(/\D/g, '');
-      if (key && stations[key]) {
-        stations[key].transferred += parseInt(t.cantidad || 0, 10);
+      const matched = ['1', '2', '3', '4'].find(m => 
+        rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+      );
+      
+      if (matched) {
+        stations[matched].transferred += Number(t.cantidad || 0);
       }
     });
 
@@ -93,39 +99,43 @@ export default function Dashboard() {
     const products = {};
 
     planificacion.forEach(p => {
-      const key = `${p.producto}_${p.color}_${p.op || ''}_${p.dia || ''}`.toLowerCase().trim();
+      const key = `${p.producto}_${p.color}`.toLowerCase().trim();
       if (!products[key]) {
         products[key] = {
           producto: p.producto,
           color: p.color,
           nombre_color: p.nombre_color,
-          op: p.op,
+          op: p.op, // Keep as info but not in key
           dia: p.dia,
           modules: {},  // Dynamic: { '1': { planned, transferred }, '2': {...}, ... }
         };
       }
-      const modKey = normalizeModule(p.modulo);
+      const rawMod = String(p.modulo || '').trim();
+      const modKey = ['1', '2', '3', '4'].find(m => 
+        rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+      );
+      
       if (modKey) {
         if (!products[key].modules[modKey]) {
           products[key].modules[modKey] = { planned: 0, transferred: 0 };
         }
-        products[key].modules[modKey].planned += parseInt(p.cantidad || 0, 10);
+        products[key].modules[modKey].planned += Number(p.cantidad || 0);
       }
     });
 
     transferencias.forEach(t => {
-      // For transfers, we try to match them to a planning record. 
-      // Note: If transferencias table doesn't have OP/DIA, this matching might need refinement.
-      // For now, we'll try to match by product/color as before, but it might be ambiguous if multiple OPs exist.
-      // Ideally, the transferencias table should also have an OP column.
-      const key = `${t.producto}_${t.color}_${t.op || ''}_${t.dia || ''}`.toLowerCase().trim();
+      const key = `${t.producto}_${t.color}`.toLowerCase().trim();
       if (products[key]) {
-        const modKey = normalizeModule(t.modulo);
+        const rawMod = String(t.modulo || '').trim();
+        const modKey = ['1', '2', '3', '4'].find(m => 
+          rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+        );
+        
         if (modKey) {
           if (!products[key].modules[modKey]) {
             products[key].modules[modKey] = { planned: 0, transferred: 0 };
           }
-          products[key].modules[modKey].transferred += parseInt(t.cantidad || 0, 10);
+          products[key].modules[modKey].transferred += Number(t.cantidad || 0);
         }
       }
     });
