@@ -339,25 +339,26 @@ export default function Dashboard() {
             <div className="relative w-full md:w-80 font-body">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
               <input 
-                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 pl-10 rounded-t-lg transition-colors" 
-                placeholder="Search product or color..." 
+                className="w-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/10 text-xs py-3.5 pl-10 rounded-xl transition-all font-bold text-primary placeholder:text-slate-400/70" 
+                placeholder="BUSCAR PRODUCTO O COLOR..." 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="relative w-full md:w-48 font-body">
+            <div className="relative w-full md:w-60 font-body">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">grid_view</span>
               <select 
-                className="w-full pl-10 pr-10 py-3 bg-surface-container-low border-none rounded-xl text-xs focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary font-headline uppercase tracking-widest appearance-none"
+                className="w-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/10 text-[10px] py-3.5 pl-10 pr-10 rounded-xl transition-all font-black text-primary font-headline uppercase tracking-[0.15em] appearance-none cursor-pointer"
                 value={moduleFilter}
                 onChange={(e) => setModuleFilter(e.target.value)}
               >
-                <option value="all">Filtrar por módulo</option>
+                <option value="all">FILTRAR POR MÓDULO</option>
                 {availableModules.map(mod => (
                   <option key={mod} value={mod}>MÓDULO {mod}</option>
                 ))}
               </select>
-              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
             </div>
           </div>
           <div className="flex gap-3 w-full md:w-auto font-headline">
