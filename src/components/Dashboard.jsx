@@ -146,16 +146,16 @@ export default function Dashboard() {
           color: p.color,
           nombre_color: p.nombre_color,
           modules: {},
-          ops: {},  // { opName: cantidad }
+          opsDetail: [],  // Array of { op, cantidad, dia }
         };
       }
 
-      // Collect OP details
-      const opName = p.op || 'Sin OP';
-      if (!products[key].ops[opName]) {
-        products[key].ops[opName] = 0;
-      }
-      products[key].ops[opName] += parseFloat(p.cantidad || 0);
+      // Collect OP details with day info
+      products[key].opsDetail.push({
+        op: p.op || 'Sin OP',
+        cantidad: parseFloat(p.cantidad || 0),
+        dia: p.dia || '',
+      });
       const pMod = String(p.modulo || '').trim();
       const modKey = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
@@ -481,7 +481,16 @@ export default function Dashboard() {
               {productionData.map((row, idx) => {
                 const isExpanded = expandedRow === idx;
                 const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
-                const opEntries = Object.entries(row.ops || {});
+                // Group opsDetail by OP name
+                const opsGrouped = {};
+                (row.opsDetail || []).forEach(d => {
+                  if (!opsGrouped[d.op]) {
+                    opsGrouped[d.op] = { cantidad: 0, dias: new Set() };
+                  }
+                  opsGrouped[d.op].cantidad += d.cantidad;
+                  if (d.dia) opsGrouped[d.op].dias.add(d.dia);
+                });
+                const opEntries = Object.entries(opsGrouped);
                 return (
                   <React.Fragment key={idx}>
                     <tr 
@@ -527,10 +536,13 @@ export default function Dashboard() {
                           <div className="ml-8 border-l-2 border-primary/20 pl-6">
                             <p className="text-[10px] font-black uppercase text-primary/60 tracking-[0.2em] mb-3 font-headline">Desglose por Orden de Producción</p>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                              {opEntries.map(([opName, cantidad]) => (
+                              {opEntries.map(([opName, data]) => (
                                 <div key={opName} className="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm">
                                   <p className="text-[10px] font-black text-secondary uppercase tracking-widest font-headline">{opName}</p>
-                                  <p className="text-lg font-black text-primary tabular-nums">{Math.round(cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400 font-medium">conos</span></p>
+                                  <p className="text-lg font-black text-primary tabular-nums">{Math.round(data.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400 font-medium">conos</span></p>
+                                  {data.dias.size > 0 && (
+                                    <p className="text-[9px] text-slate-400 mt-1 font-bold uppercase">{[...data.dias].join(', ')}</p>
+                                  )}
                                 </div>
                               ))}
                             </div>
