@@ -7,43 +7,30 @@ export default function Dashboard() {
   const [moduleFilter, setModuleFilter] = React.useState('all');
   
   const dayOptions = [
-    { label: 'Lu', value: 'Lunes' },
-    { label: 'Ma', value: 'Martes' },
-    { label: 'Mi', value: 'Miércoles' },
-    { label: 'Ju', value: 'Jueves' },
-    { label: 'Vi', value: 'Viernes' },
-    { label: 'Pr', value: 'Proceso' },
+    { label: 'Lu', value: 'LUNES' },
+    { label: 'Ma', value: 'MARTES' },
+    { label: 'Mi', value: 'MIERCOLES' },
+    { label: 'Ju', value: 'JUEVES' },
+    { label: 'Vi', value: 'VIERNES' },
+    { label: 'Pr', value: 'PROCESO' },
   ];
   const [selectedDays, setSelectedDays] = React.useState(dayOptions.map(d => d.value));
 
-  const toggleDay = (dayValue) => {
-    setSelectedDays(prev => 
-      prev.includes(dayValue) 
-        ? prev.filter(d => d !== dayValue) 
-        : [...prev, dayValue]
-    );
+  const normalizeDay = (str) => {
+    if (!str) return '';
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
   };
 
-  // Dynamic module discovery — no hardcoded module list
-  const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias]);
-
-  const normalizeModule = (m) => {
-    if (!m) return null;
-    return String(m).trim();
-  };
   const getDayName = (dateStr) => {
     if (!dateStr) return '';
     try {
-      // Handle timestamp strings from Supabase (ISO format or similar)
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return '';
-      const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-      const dayName = days[date.getDay()];
-      if (dayName === 'Sábado' || dayName === 'Domingo') return 'Proceso';
-      return dayName;
-    } catch (e) {
-      return '';
-    }
+      const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+      let d = days[date.getDay()];
+      if (d === 'SABADO' || d === 'DOMINGO') return 'PROCESO';
+      return d;
+    } catch (e) { return ''; }
   };
 
   const isAllSelected = selectedDays.length === dayOptions.length;
@@ -57,18 +44,16 @@ export default function Dashboard() {
 
     planificacion.forEach(p => {
       const pMod = String(p.modulo || '').trim();
-      const pDia = String(p.dia || '').trim();
+      const pDia = normalizeDay(p.dia);
       
-      // If NOT all days are selected, apply filtering
-      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === pDia.toLowerCase())) return;
+      if (!isAllSelected && !selectedDays.includes(pDia)) return;
 
-      // Robust matching: find if the string contains 1, 2, 3, or 4
       const matched = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
       );
       
       if (matched) {
-        stations[matched].planned += Number(p.cantidad || 0);
+        stations[matched].planned += parseFloat(p.cantidad || 0);
       }
     });
 
@@ -76,14 +61,14 @@ export default function Dashboard() {
       const pMod = String(t.modulo || '').trim();
       const tDia = getDayName(t.fecha_transferencia);
       
-      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === tDia.toLowerCase())) return;
+      if (!isAllSelected && !selectedDays.includes(tDia)) return;
 
       const matched = ['1', '2', '3', '4'].find(m => 
         pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
       );
       
       if (matched) {
-        stations[matched].transferred += Number(t.cantidad || 0);
+        stations[matched].transferred += parseFloat(t.cantidad || 0);
       }
     });
 
@@ -93,24 +78,21 @@ export default function Dashboard() {
       if (percent >= 100) statusColor = 'bg-emerald-500';
       else if (percent >= 50) statusColor = 'bg-amber-500';
 
-      // Filtrar metas por módulo desde la tabla meta_diaria_plancostura (campos: dia, meta_yds, modulo)
       const moduleMetas = (meta_diaria || []).filter(m => {
         const mMod = String(m.modulo || '').trim();
         return mMod === name;
       });
 
-      // Calcular transferencias diarias (lunes-viernes) desde transferencias_realizadas
       const dailyTransfers = {
         'Lunes': 0, 'Martes': 0, 'Miércoles': 0, 'Jueves': 0, 'Viernes': 0, 'Proceso': 0
       };
       const daysInSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       
       transferencias.forEach(t => {
-        const tMod = normalizeModule(t.modulo);
+        const tMod = String(t.modulo || '').trim();
         if (tMod === name) {
           const date = new Date(t.fecha_transferencia);
-          let dayIdx = date.getDay(); // 0-6
-          // Sabado (6) y Domingo (0) -> Viernes (5)
+          let dayIdx = date.getDay();
           if (dayIdx === 0 || dayIdx === 6) dayIdx = 5;
           const dayName = daysInSpanish[dayIdx];
           if (dailyTransfers[dayName] !== undefined) {
@@ -119,7 +101,6 @@ export default function Dashboard() {
         }
       });
       
-      // Determinar meta de hoy
       const todayName = daysInSpanish[new Date().getDay()];
       const todayMetaRecord = moduleMetas.find(m => String(m.dia || '').toLowerCase() === todayName.toLowerCase());
       const dailyGoal = todayMetaRecord ? (todayMetaRecord.meta_yds || 0) : 0;
@@ -136,54 +117,48 @@ export default function Dashboard() {
         hasMeta: moduleMetas.length > 0
       };
     });
-  }, [planificacion, transferencias, meta_diaria, availableModules]);
+  }, [planificacion, transferencias, meta_diaria, availableModules, selectedDays]);
 
   const productionData = useMemo(() => {
     const products = {};
 
     planificacion.forEach(p => {
-      const pDia = String(p.dia || '').trim();
+      const pDia = normalizeDay(p.dia);
       
-      const isAllSelected = selectedDays.length === dayOptions.length;
-      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === pDia.toLowerCase())) return;
+      if (!isAllSelected && !selectedDays.includes(pDia)) return;
 
-      // Normalize product and color by removing spaces and special chars for matching
-      const cleanProd = String(p.producto || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const cleanColor = String(p.color || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const key = `${cleanProd}_${cleanColor}`;
+      const key = (p.sku || '').trim().toLowerCase();
       if (!products[key]) {
         products[key] = {
+          sku: p.sku,
           producto: p.producto,
           color: p.color,
           nombre_color: p.nombre_color,
-          modules: {},  // Dynamic: { '1': { planned, transferred }, '2': {...}, ... }
+          modules: {},
         };
       }
-      const rawMod = String(p.modulo || '').trim();
+      const pMod = String(p.modulo || '').trim();
       const modKey = ['1', '2', '3', '4'].find(m => 
-        rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+        pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
       );
       
       if (modKey) {
         if (!products[key].modules[modKey]) {
           products[key].modules[modKey] = { planned: 0, transferred: 0 };
         }
-        products[key].modules[modKey].planned += Number(p.cantidad || 0);
+        products[key].modules[modKey].planned += parseFloat(p.cantidad || 0);
       }
     });
 
     transferencias.forEach(t => {
       const tDia = getDayName(t.fecha_transferencia);
-      if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === tDia.toLowerCase())) return;
+      if (!isAllSelected && !selectedDays.includes(tDia)) return;
 
-      const cleanProd = String(t.producto || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const cleanColor = String(t.color || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const key = `${cleanProd}_${cleanColor}`;
-      
+      const key = (t.sku || '').trim().toLowerCase();
       if (products[key]) {
-        const rawMod = String(t.modulo || '').trim();
+        const pMod = String(t.modulo || '').trim();
         const modKey = ['1', '2', '3', '4'].find(m => 
-          rawMod === m || rawMod.includes(` ${m}`) || rawMod.includes(`${m} `) || rawMod.startsWith(`Módulo ${m}`) || rawMod.startsWith(`Modulo ${m}`)
+          pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
         );
         
         if (modKey) {
