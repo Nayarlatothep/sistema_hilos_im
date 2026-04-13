@@ -9,7 +9,9 @@ export default function TransferForm() {
     sku: '',
     nombre_color: '',
     modulo: '',
-    cantidad: ''
+    cantidad: '',
+    op: '',
+    dia: ''
   });
 
   const [localTransferencias, setLocalTransferencias] = useState([]);
@@ -30,6 +32,10 @@ export default function TransferForm() {
         };
       }
       dataMap[key].planned += parseInt(p.cantidad || 0, 10);
+      if (!dataMap[key].ops) dataMap[key].ops = new Set();
+      if (!dataMap[key].dias) dataMap[key].dias = new Set();
+      if (p.op) dataMap[key].ops.add(p.op);
+      if (p.dia) dataMap[key].dias.add(p.dia);
     });
 
     transferencias.forEach(t => {
@@ -68,6 +74,8 @@ export default function TransferForm() {
       color: selectedItem.color,
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
+      op: formData.op,
+      dia: formData.dia,
       cantidad: qty,
       yardas: (selectedItem.producto === '60 08 180' || selectedItem.producto === '60 08 0180') ? qty * 1225 : qty * 3000
     };
@@ -89,6 +97,8 @@ export default function TransferForm() {
       color: t.color,
       nombre_color: t.nombre_color,
       modulo: t.modulo,
+      op: t.op,
+      dia: t.dia,
       cantidad: t.yardas
     }));
 
@@ -171,6 +181,38 @@ export default function TransferForm() {
                 <option value="" disabled>Seleccione Módulo</option>
                 {availableModules.map(mod => (
                   <option key={mod} value={mod}>Módulo {mod}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">confirmation_number</span> OP (Orden de Producción)
+              </label>
+              <select 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
+                value={formData.op}
+                onChange={(e) => setFormData({...formData, op: e.target.value})}
+              >
+                <option value="">Opcional / Seleccione OP</option>
+                {selectedItem?.ops && [...selectedItem.ops].map(op => (
+                  <option key={op} value={op}>{op}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">calendar_today</span> Día
+              </label>
+              <select 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
+                value={formData.dia}
+                onChange={(e) => setFormData({...formData, dia: e.target.value})}
+              >
+                <option value="">Opcional / Seleccione Día</option>
+                {selectedItem?.dias && [...selectedItem.dias].map(dia => (
+                  <option key={dia} value={dia}>{dia}</option>
                 ))}
               </select>
             </div>

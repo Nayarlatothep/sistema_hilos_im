@@ -41,6 +41,8 @@ export default function DataIngestion() {
             nombre_color: row.Nombre_Color || row.nombre_color || row.NombreColor || '',
             modulo: row.Modulo || row.modulo || row.Modulos || row.modulos || '',
             cantidad: parseInt(row.Cantidad || row.cantidad, 10),
+            op: row.OP || row.op || row.Op || '',
+            dia: row.DIA || row.dia || row.Dia || '',
           };
 
           if (parsedRow.producto && parsedRow.nombre_color && !isNaN(parsedRow.cantidad)) {
@@ -172,9 +174,11 @@ export default function DataIngestion() {
               <thead>
                 <tr className="bg-surface-container-low/30 border-b border-outline-variant/20 font-headline">
                   <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">HILO</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">OP</th>
                   <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">PRODUCTO</th>
                   <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">COLOR / DESC</th>
                   <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">MÓDULO</th>
+                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">DÍA</th>
                   <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">CANTIDAD</th>
                 </tr>
               </thead>
@@ -182,15 +186,17 @@ export default function DataIngestion() {
                 {dataToUpload.map((row, i) => (
                   <tr key={`valid-${i}`} className="hover:bg-primary-fixed/5 transition-colors">
                     <td className="px-8 py-4 text-sm font-medium text-slate-400 tabular-nums">{row.sku || '-'}</td>
+                    <td className="px-8 py-4 text-sm font-bold text-secondary">{row.op || '-'}</td>
                     <td className="px-8 py-4 text-sm font-black text-primary font-headline">{row.producto}</td>
                     <td className="px-8 py-4 text-sm text-on-surface-variant">{row.color} - {row.nombre_color}</td>
                     <td className="px-8 py-4 text-sm text-slate-500">{row.modulo || 'N/A'}</td>
+                    <td className="px-8 py-4 text-sm text-slate-500">{row.dia || '-'}</td>
                     <td className="px-8 py-4 text-sm font-black text-primary text-right tabular-nums">{row.cantidad.toLocaleString()}</td>
                   </tr>
                 ))}
                 {errorRows.map((row, i) => (
                   <tr key={`error-${i}`} className="bg-rose-50/50">
-                    <td className="px-8 py-4 text-sm font-medium text-rose-400 italic" colSpan="4">
+                    <td className="px-8 py-4 text-sm font-medium text-rose-400 italic" colSpan="6">
                       Invalid record found: {row.producto || 'Missing data'}
                     </td>
                     <td className="px-8 py-4 text-sm font-bold text-rose-600 text-right uppercase tracking-widest">Error</td>

@@ -90,12 +90,14 @@ export default function Dashboard() {
     const products = {};
 
     planificacion.forEach(p => {
-      const key = `${p.producto}_${p.color}`.toLowerCase().trim();
+      const key = `${p.producto}_${p.color}_${p.op || ''}_${p.dia || ''}`.toLowerCase().trim();
       if (!products[key]) {
         products[key] = {
           producto: p.producto,
           color: p.color,
           nombre_color: p.nombre_color,
+          op: p.op,
+          dia: p.dia,
           modules: {},  // Dynamic: { '1': { planned, transferred }, '2': {...}, ... }
         };
       }
@@ -109,7 +111,11 @@ export default function Dashboard() {
     });
 
     transferencias.forEach(t => {
-      const key = `${t.producto}_${t.color}`.toLowerCase().trim();
+      // For transfers, we try to match them to a planning record. 
+      // Note: If transferencias table doesn't have OP/DIA, this matching might need refinement.
+      // For now, we'll try to match by product/color as before, but it might be ambiguous if multiple OPs exist.
+      // Ideally, the transferencias table should also have an OP column.
+      const key = `${t.producto}_${t.color}_${t.op || ''}_${t.dia || ''}`.toLowerCase().trim();
       if (products[key]) {
         const modKey = normalizeModule(t.modulo);
         if (modKey) {
@@ -145,7 +151,8 @@ export default function Dashboard() {
       const term = searchQuery.toLowerCase();
       filtered = filtered.filter(p => 
         p.producto.toLowerCase().includes(term) || 
-        p.nombre_color.toLowerCase().includes(term)
+        p.nombre_color.toLowerCase().includes(term) ||
+        (p.op && p.op.toLowerCase().includes(term))
       );
     }
 
@@ -353,6 +360,8 @@ export default function Dashboard() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="text-left text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] border-b border-outline-variant/20 shadow-[0_1px_0_rgba(0,0,0,0.05)] font-headline">
+                <th className="py-4 px-4 bg-white">Día</th>
+                <th className="py-4 px-4 bg-white">OP</th>
                 <th className="py-4 px-4 bg-white">Producto</th>
                 <th className="py-4 px-4 text-center bg-white">Color</th>
                 <th className="py-4 px-4 bg-white">Nombre Color</th>
@@ -367,8 +376,14 @@ export default function Dashboard() {
               {productionData.map((row, idx) => (
                 <tr key={idx} className={`group hover:bg-surface-container-low transition-colors font-body ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''}`}>
                   <td className="py-6 px-4">
+                    <span className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded">{row.dia || '-'}</span>
+                  </td>
+                  <td className="py-6 px-4">
+                    <span className="text-xs font-bold text-secondary">{row.op || '-'}</span>
+                  </td>
+                  <td className="py-6 px-4">
                     <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors">{row.producto}</p>
-                    <p className="text-[10px] text-slate-400">Production Line Active | ID: {idx + 101}</p>
+                    <p className="text-[10px] text-slate-400">Production Line Active</p>
                   </td>
                   <td className="py-6 px-4 text-center">
                     <span className="text-base font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>

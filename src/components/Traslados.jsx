@@ -282,6 +282,12 @@ export default function Traslados() {
                 </th>
                 <th className="px-6 py-5">
                   <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary/60">confirmation_number</span>
+                    <span>OP</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5">
+                  <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary/60">palette</span>
                     <span>COLOR</span>
                   </div>
@@ -303,7 +309,7 @@ export default function Traslados() {
             <tbody className="divide-y divide-surface-container text-sm">
               {filteredTransferencias.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-20 text-center text-on-surface-variant/40 italic font-body">
+                  <td colSpan="7" className="py-20 text-center text-on-surface-variant/40 italic font-body">
                     No se encontraron transferencias con los filtros aplicados.
                   </td>
                 </tr>
@@ -333,6 +339,11 @@ export default function Traslados() {
                           <span className="font-bold">{t.producto}</span>
                           <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
                         </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={`text-xs font-bold text-secondary ${isDbDone ? 'line-through decoration-slate-400' : ''}`}>
+                          {t.op || '-'}
+                        </span>
                       </td>
                       <td className="px-6 py-5">
                         <span className={`text-base font-mono font-bold text-slate-500 uppercase tracking-tight ${isDbDone ? 'line-through decoration-slate-400' : ''}`}>
