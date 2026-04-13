@@ -147,7 +147,10 @@ export default function Dashboard() {
       const isAllSelected = selectedDays.length === dayOptions.length;
       if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === pDia.toLowerCase())) return;
 
-      const key = `${p.producto}_${p.color}`.toLowerCase().trim();
+      // Normalize product and color by removing spaces and special chars for matching
+      const cleanProd = String(p.producto || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const cleanColor = String(p.color || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const key = `${cleanProd}_${cleanColor}`;
       if (!products[key]) {
         products[key] = {
           producto: p.producto,
@@ -173,7 +176,10 @@ export default function Dashboard() {
       const tDia = getDayName(t.fecha_transferencia);
       if (!isAllSelected && !selectedDays.some(d => d.toLowerCase() === tDia.toLowerCase())) return;
 
-      const key = `${t.producto}_${t.color}`.toLowerCase().trim();
+      const cleanProd = String(t.producto || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const cleanColor = String(t.color || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const key = `${cleanProd}_${cleanColor}`;
+      
       if (products[key]) {
         const rawMod = String(t.modulo || '').trim();
         const modKey = ['1', '2', '3', '4'].find(m => 
@@ -184,7 +190,7 @@ export default function Dashboard() {
           if (!products[key].modules[modKey]) {
             products[key].modules[modKey] = { planned: 0, transferred: 0 };
           }
-          products[key].modules[modKey].transferred += Number(t.cantidad || 0);
+          products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
         }
       }
     });
