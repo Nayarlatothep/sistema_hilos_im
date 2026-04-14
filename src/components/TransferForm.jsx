@@ -39,7 +39,9 @@ export default function TransferForm() {
       }
     });
 
-    return Object.values(dataMap);
+    return Object.values(dataMap).sort((a, b) => 
+      (a.nombre_color || '').localeCompare(b.nombre_color || '')
+    );
   }, [planificacion, transferencias]);
 
   const selectedItem = useMemo(() => {
