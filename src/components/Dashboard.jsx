@@ -194,6 +194,10 @@ export default function Dashboard() {
           if (!products[key].modules[modKey]) {
             products[key].modules[modKey] = { planned: 0, transferred: 0 };
           }
+          if (!products[key].modules[modKey].transfersByDay) {
+            products[key].modules[modKey].transfersByDay = {};
+          }
+          products[key].modules[modKey].transfersByDay[tDia] = (products[key].modules[modKey].transfersByDay[tDia] || 0) + parseFloat(t.cantidad || 0);
           products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
         }
       }
@@ -525,11 +529,12 @@ export default function Dashboard() {
                   : (row.opsDetail || []).filter(d => selectedModules.includes(d.modulo));
                 filteredOps.forEach(d => {
                   if (!opsGrouped[d.op]) {
-                    opsGrouped[d.op] = { cantidad: 0, dias: new Set(), modulos: new Set() };
+                    opsGrouped[d.op] = { cantidad: 0, dias: new Set(), modulos: new Set(), breakdown: [] };
                   }
                   opsGrouped[d.op].cantidad += d.cantidad;
                   if (d.dia) opsGrouped[d.op].dias.add(d.dia);
                   if (d.modulo) opsGrouped[d.op].modulos.add(d.modulo);
+                  opsGrouped[d.op].breakdown.push({ dia: d.dia, modulo: d.modulo, cantidad: d.cantidad });
                 });
                 const dayWeight = {
                   'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'JUEVES': 4, 'VIERNES': 5, 'PROCESO': 6, 'SABADO': 6, 'DOMINGO': 6
@@ -554,25 +559,35 @@ export default function Dashboard() {
                   return modA - modB;
                 });
 
-                // Calculate total transferred for waterfall distribution
-                let totalTransferredForOps = 0;
-                if (isAllModules) {
-                  Object.values(row.modules).forEach(m => { totalTransferredForOps += m.transferred; });
-                } else {
-                  selectedModules.forEach(modId => {
-                    const modData = row.modules[modId] || { transferred: 0 };
-                    totalTransferredForOps += modData.transferred;
-                  });
-                }
+                // Day-Aware Waterfall Pool
+                const poolByModAndDay = {};
+                visibleModules.forEach(modId => {
+                  poolByModAndDay[modId] = { ...(row.modules[modId]?.transfersByDay || {}) };
+                });
 
-                // Waterfall: distribute transfers across OPs in order
-                let remaining = totalTransferredForOps;
+                const getMatchDay = (dia) => {
+                  const norm = normalizeDay(dia);
+                  if (norm === 'SABADO' || norm === 'DOMINGO') return 'PROCESO';
+                  return norm;
+                };
+
                 const opWithTransfers = opEntries.map(([opName, data]) => {
                   const opPlanned = data.cantidad;
-                  const filled = Math.min(remaining, opPlanned);
-                  remaining = Math.max(0, remaining - opPlanned);
-                  const opPercent = opPlanned > 0 ? Math.min(100, (filled / opPlanned) * 100) : 0;
-                  return { opName, data, filled, opPercent };
+                  let filledForOp = 0;
+
+                  // Waterfall strictly matching the dia and modulo of each planning line
+                  data.breakdown.forEach(item => {
+                    const dKey = getMatchDay(item.dia);
+                    const pool = poolByModAndDay[item.modulo]?.[dKey] || 0;
+                    const fill = Math.min(pool, item.cantidad);
+                    filledForOp += fill;
+                    if (poolByModAndDay[item.modulo] && poolByModAndDay[item.modulo][dKey] !== undefined) {
+                      poolByModAndDay[item.modulo][dKey] -= fill;
+                    }
+                  });
+
+                  const opPercent = opPlanned > 0 ? Math.min(100, (filledForOp / opPlanned) * 100) : 0;
+                  return { opName, data, filled: filledForOp, opPercent };
                 });
                 return (
                   <React.Fragment key={idx}>
