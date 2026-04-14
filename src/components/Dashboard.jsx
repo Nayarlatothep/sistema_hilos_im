@@ -592,21 +592,28 @@ export default function Dashboard() {
                   return norm;
                 };
 
-                // DEBUG: log pool and breakdown for first row only
+                // DEBUG: comprehensive log for first row
                 if (idx === 0) {
-                  console.log('=== DEBUG OP WATERFALL ===');
+                  console.log('=== DEBUG OP WATERFALL (Row 0) ===');
                   console.log('SKU:', row.sku, '| Producto:', row.producto);
                   console.log('selectedDays:', selectedDays);
+                  console.log('row.totalTransferred:', row.totalTransferred);
+                  console.log('row.modules (full):', JSON.stringify(
+                    Object.fromEntries(
+                      Object.entries(row.modules).map(([k, v]) => [k, { planned: v.planned, transferred: v.transferred, transfersByDay: v.transfersByDay }])
+                    )
+                  ));
                   console.log('Pool by Mod/Day:', JSON.stringify(poolByModAndDay));
-                  console.log('OP entries count:', opEntries.length);
-                  opEntries.forEach(([opName, data]) => {
-                    console.log(`  OP: ${opName}, planned: ${data.cantidad}, breakdown:`, data.breakdown.map(b => ({
-                      dia: b.dia,
-                      normalizedDia: getMatchDay(b.dia),
-                      modulo: b.modulo,
-                      cantidad: b.cantidad
-                    })));
-                  });
+                }
+                // DEBUG: find first row that HAS transfers
+                if (row.totalTransferred > 0 && idx <= 5) {
+                  console.log(`=== ROW WITH TRANSFERS (idx ${idx}) ===`);
+                  console.log('SKU:', row.sku, '| Producto:', row.producto, '| totalTransferred:', row.totalTransferred);
+                  console.log('modules:', JSON.stringify(
+                    Object.fromEntries(
+                      Object.entries(row.modules).map(([k, v]) => [k, { planned: v.planned, transferred: v.transferred, transfersByDay: v.transfersByDay }])
+                    )
+                  ));
                 }
 
                 const opWithTransfers = opEntries.map(([opName, data]) => {
