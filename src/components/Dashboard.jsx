@@ -25,20 +25,17 @@ export default function Dashboard() {
   const getDayName = (dateStr) => {
     if (!dateStr) return '';
     try {
-      // Parse as local time to avoid UTC date-only offset bug
-      let date;
-      if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
-        // Date-only string: parse as local midnight
-        const [y, m, d] = dateStr.trim().split('-').map(Number);
-        date = new Date(y, m - 1, d);
-      } else {
-        date = new Date(dateStr);
+      const str = String(dateStr).trim();
+      // Always extract YYYY-MM-DD and parse as local time to avoid UTC offset
+      const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) {
+        const date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+        const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+        let d = days[date.getDay()];
+        if (d === 'SABADO' || d === 'DOMINGO') return 'PROCESO';
+        return d;
       }
-      if (isNaN(date.getTime())) return '';
-      const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
-      let d = days[date.getDay()];
-      if (d === 'SABADO' || d === 'DOMINGO') return 'PROCESO';
-      return d;
+      return '';
     } catch (e) { return ''; }
   };
 
