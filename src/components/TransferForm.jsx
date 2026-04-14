@@ -48,6 +48,19 @@ export default function TransferForm() {
     return inventoryData.find(item => item.sku === formData.sku);
   }, [inventoryData, formData.sku]);
 
+  const [filterText, setFilterText] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
+
+  const filteredItems = useMemo(() => {
+    const q = filterText.toLowerCase().trim();
+    const isSelectedMatch = selectedItem && `${selectedItem.producto} - ${selectedItem.nombre_color}` === filterText;
+    if (!q || isSelectedMatch) return inventoryData;
+    return inventoryData.filter(item => 
+      String(item.producto).toLowerCase().includes(q) || 
+      String(item.nombre_color).toLowerCase().includes(q)
+    );
+  }, [inventoryData, filterText, selectedItem]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg(null);
@@ -77,6 +90,7 @@ export default function TransferForm() {
     setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
     setMsg({ type: 'success', text: `Registered locally.` });
     setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
+    setFilterText('');
     setTimeout(() => setMsg(null), 3000);
   };
 
@@ -133,19 +147,50 @@ export default function TransferForm() {
               <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm">texture</span> Hilo-Color
               </label>
-              <select 
-                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
-                value={formData.sku}
-                onChange={(e) => setFormData({...formData, sku: e.target.value})}
-                required
-              >
-                <option value="" disabled>Seleccione SKU</option>
-                {inventoryData.map(item => (
-                  <option key={`${item.producto}_${item.nombre_color}`} value={item.sku}>
-                    {item.producto} - {item.nombre_color}
-                  </option>
-                ))}
-              </select>
+              <div className="relative group">
+                <input 
+                  type="text"
+                  className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body placeholder:text-slate-300"
+                  placeholder="Buscar Producto o Color..."
+                  value={filterText}
+                  onChange={(e) => {
+                    setFilterText(e.target.value);
+                    setShowOptions(true);
+                    if (!e.target.value) setFormData({...formData, sku: ''});
+                  }}
+                  onFocus={() => setShowOptions(true)}
+                  onBlur={() => setTimeout(() => setShowOptions(false), 200)}
+                  autoComplete="off"
+                />
+                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none transition-transform group-focus-within:rotate-180">
+                  expand_more
+                </span>
+                
+                {showOptions && (
+                  <div className="absolute left-0 right-0 top-full bg-white border border-outline-variant shadow-2xl rounded-b-xl z-50 max-h-64 overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-2">
+                    {filteredItems.length > 0 ? (
+                      filteredItems.map(item => (
+                        <div 
+                          key={`${item.producto}_${item.nombre_color}`}
+                          onMouseDown={() => {
+                            setFormData({...formData, sku: item.sku});
+                            setFilterText(`${item.producto} - ${item.nombre_color}`);
+                            setShowOptions(false);
+                          }}
+                          className="px-6 py-4 hover:bg-primary/5 cursor-pointer border-b border-slate-50 last:border-0 flex flex-col gap-0.5"
+                        >
+                          <p className="text-sm font-black text-primary font-headline">{item.producto}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{item.nombre_color}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-6 py-10 text-center text-slate-400 italic text-sm font-body">
+                        No se encontraron coincidencias
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -198,7 +243,10 @@ export default function TransferForm() {
           <div className="flex justify-end gap-4 border-t border-slate-100 pt-8">
               <button 
                 type="button" 
-                onClick={() => setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' })}
+                onClick={() => {
+                  setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
+                  setFilterText('');
+                }}
                 className="px-6 py-2 text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors uppercase tracking-widest"
               >
                 Reiniciar
