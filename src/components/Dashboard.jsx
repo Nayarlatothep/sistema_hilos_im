@@ -192,10 +192,19 @@ export default function Dashboard() {
     const baseData = Object.values(products).map(p => {
       let totalTransferred = 0;
       let totalPlanned = 0;
-      Object.values(p.modules).forEach(mod => {
-        totalTransferred += mod.transferred;
-        totalPlanned += mod.planned;
-      });
+      if (moduleFilter !== 'all') {
+        // Only count the filtered module
+        const mod = p.modules[moduleFilter];
+        if (mod) {
+          totalTransferred = mod.transferred;
+          totalPlanned = mod.planned;
+        }
+      } else {
+        Object.values(p.modules).forEach(mod => {
+          totalTransferred += mod.transferred;
+          totalPlanned += mod.planned;
+        });
+      }
       const percent = totalPlanned > 0 ? Math.min(100, (totalTransferred / totalPlanned) * 100) : 0;
       return { ...p, totalTransferred, totalPlanned, percent };
     });
