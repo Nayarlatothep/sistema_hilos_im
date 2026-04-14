@@ -214,6 +214,16 @@ export default function Dashboard() {
       }
     });
 
+    // DEBUG: SKU key matching diagnostic
+    const productKeys = Object.keys(products).slice(0, 5);
+    const transferKeys = transferencias.slice(0, 5).map(t => (t.sku || '').trim().toLowerCase());
+    const transferDays = transferencias.slice(0, 5).map(t => ({ sku: t.sku, fecha: t.fecha_transferencia, dia: getDayName(t.fecha_transferencia), modulo: t.modulo }));
+    console.log('=== DEBUG SKU MATCHING ===');
+    console.log('Planning product keys (first 5):', productKeys);
+    console.log('Transfer SKU keys (first 5):', transferKeys);
+    console.log('Transfer details (first 5):', transferDays);
+    console.log('Any SKU key match?', transferKeys.some(tk => products[tk] !== undefined));
+
     const baseData = Object.values(products).map(p => {
       let totalTransferred = 0;
       let totalPlanned = 0;
