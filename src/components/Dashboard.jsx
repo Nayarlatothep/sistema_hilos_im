@@ -582,6 +582,23 @@ export default function Dashboard() {
                   return norm;
                 };
 
+                // DEBUG: log pool and breakdown for first row only
+                if (idx === 0) {
+                  console.log('=== DEBUG OP WATERFALL ===');
+                  console.log('SKU:', row.sku, '| Producto:', row.producto);
+                  console.log('selectedDays:', selectedDays);
+                  console.log('Pool by Mod/Day:', JSON.stringify(poolByModAndDay));
+                  console.log('OP entries count:', opEntries.length);
+                  opEntries.forEach(([opName, data]) => {
+                    console.log(`  OP: ${opName}, planned: ${data.cantidad}, breakdown:`, data.breakdown.map(b => ({
+                      dia: b.dia,
+                      normalizedDia: getMatchDay(b.dia),
+                      modulo: b.modulo,
+                      cantidad: b.cantidad
+                    })));
+                  });
+                }
+
                 const opWithTransfers = opEntries.map(([opName, data]) => {
                   const opPlanned = data.cantidad;
                   let filledForOp = 0;
