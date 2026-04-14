@@ -39,9 +39,12 @@ export default function TransferForm() {
       }
     });
 
-    return Object.values(dataMap).sort((a, b) => 
-      (a.nombre_color || '').localeCompare(b.nombre_color || '')
-    );
+    return Object.values(dataMap).sort((a, b) => {
+      const prodA = String(a.producto || '');
+      const prodB = String(b.producto || '');
+      if (prodA !== prodB) return prodA.localeCompare(prodB);
+      return (a.nombre_color || '').localeCompare(b.nombre_color || '');
+    });
   }, [planificacion, transferencias]);
 
   const selectedItem = useMemo(() => {
