@@ -197,7 +197,10 @@ export default function Dashboard() {
           if (!products[key].modules[modKey].transfersByDay) {
             products[key].modules[modKey].transfersByDay = {};
           }
-          products[key].modules[modKey].transfersByDay[tDia] = (products[key].modules[modKey].transfersByDay[tDia] || 0) + parseFloat(t.cantidad || 0);
+          // Normalize the key: already uppercase, no accents, weekends→PROCESO
+          const normalizedTDia = normalizeDay(tDia);
+          const dayPoolKey = (normalizedTDia === 'SABADO' || normalizedTDia === 'DOMINGO') ? 'PROCESO' : normalizedTDia;
+          products[key].modules[modKey].transfersByDay[dayPoolKey] = (products[key].modules[modKey].transfersByDay[dayPoolKey] || 0) + parseFloat(t.cantidad || 0);
           products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
         }
       }
@@ -559,9 +562,9 @@ export default function Dashboard() {
                   return modA - modB;
                 });
 
-                // Day-Aware Waterfall Pool
+                // Day-Aware Waterfall Pool — build from all modules in this row
                 const poolByModAndDay = {};
-                visibleModules.forEach(modId => {
+                Object.keys(row.modules).forEach(modId => {
                   poolByModAndDay[modId] = { ...(row.modules[modId]?.transfersByDay || {}) };
                 });
 
