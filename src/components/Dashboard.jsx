@@ -495,6 +495,25 @@ export default function Dashboard() {
                   if (d.modulo) opsGrouped[d.op].modulos.add(d.modulo);
                 });
                 const opEntries = Object.entries(opsGrouped);
+
+                // Calculate total transferred for waterfall distribution
+                let totalTransferredForOps = 0;
+                if (moduleFilter === 'all') {
+                  Object.values(row.modules).forEach(m => { totalTransferredForOps += m.transferred; });
+                } else {
+                  const modData = row.modules[moduleFilter] || { transferred: 0 };
+                  totalTransferredForOps = modData.transferred;
+                }
+
+                // Waterfall: distribute transfers across OPs in order
+                let remaining = totalTransferredForOps;
+                const opWithTransfers = opEntries.map(([opName, data]) => {
+                  const opPlanned = data.cantidad;
+                  const filled = Math.min(remaining, opPlanned);
+                  remaining = Math.max(0, remaining - opPlanned);
+                  const opPercent = opPlanned > 0 ? Math.min(100, (filled / opPlanned) * 100) : 0;
+                  return { opName, data, filled, opPercent };
+                });
                 return (
                   <React.Fragment key={idx}>
                     <tr 
@@ -540,20 +559,49 @@ export default function Dashboard() {
                           <div className="ml-8 border-l-2 border-primary/20 pl-6">
                             <p className="text-[10px] font-black uppercase text-primary/60 tracking-[0.2em] mb-3 font-headline">Desglose por Orden de Producción</p>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                              {opEntries.map(([opName, data]) => (
-                                <div key={opName} className="bg-white rounded-lg px-4 py-3 border border-slate-100 shadow-sm">
-                                  <p className="text-[10px] font-black text-secondary uppercase tracking-widest font-headline">{opName}</p>
-                                  <p className="text-lg font-black text-primary tabular-nums">{Math.round(data.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400 font-medium">conos</span></p>
-                                  <div className="flex gap-2 mt-1 flex-wrap">
-                                    {data.modulos.size > 0 && (
-                                      <span className="text-[9px] text-primary/50 font-bold uppercase">Mód: {[...data.modulos].join(', ')}</span>
-                                    )}
-                                    {data.dias.size > 0 && (
-                                      <span className="text-[9px] text-slate-400 font-bold uppercase">{[...data.dias].join(', ')}</span>
-                                    )}
+                              {opWithTransfers.map(({ opName, data, filled, opPercent }) => {
+                                const plannedConos = Math.round(data.cantidad / divisor);
+                                const filledConos = Math.round(filled / divisor);
+                                let cardBorder = 'border-slate-100';
+                                let statusIcon = 'pending';
+                                let statusColor = 'text-slate-400';
+                                if (opPercent >= 100) {
+                                  cardBorder = 'border-emerald-200 bg-emerald-50/50';
+                                  statusIcon = 'check_circle';
+                                  statusColor = 'text-emerald-500';
+                                } else if (opPercent > 0) {
+                                  cardBorder = 'border-amber-200 bg-amber-50/30';
+                                  statusIcon = 'timelapse';
+                                  statusColor = 'text-amber-500';
+                                }
+                                return (
+                                  <div key={opName} className={`rounded-lg px-4 py-3 border shadow-sm ${cardBorder}`}>
+                                    <div className="flex items-center justify-between mb-1">
+                                      <p className="text-[10px] font-black text-secondary uppercase tracking-widest font-headline">{opName}</p>
+                                      <span className={`material-symbols-outlined text-sm ${statusColor}`}>{statusIcon}</span>
+                                    </div>
+                                    <p className="text-lg font-black text-primary tabular-nums">
+                                      {filledConos} <span className="text-slate-300">/</span> {plannedConos}
+                                      <span className="text-[10px] text-slate-400 font-medium ml-1">conos</span>
+                                    </p>
+                                    {/* Progress bar */}
+                                    <div className="w-full h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                                      <div 
+                                        className={`h-full rounded-full transition-all ${opPercent >= 100 ? 'bg-emerald-500' : opPercent > 0 ? 'bg-amber-500' : 'bg-slate-200'}`}
+                                        style={{ width: `${Math.min(100, opPercent)}%` }}
+                                      />
+                                    </div>
+                                    <div className="flex gap-2 mt-2 flex-wrap">
+                                      {data.modulos.size > 0 && (
+                                        <span className="text-[9px] text-primary/50 font-bold uppercase">Mód: {[...data.modulos].join(', ')}</span>
+                                      )}
+                                      {data.dias.size > 0 && (
+                                        <span className="text-[9px] text-slate-400 font-bold uppercase">{[...data.dias].join(', ')}</span>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         </td>
