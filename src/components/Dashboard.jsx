@@ -202,27 +202,12 @@ export default function Dashboard() {
           if (!products[key].modules[modKey]) {
             products[key].modules[modKey] = { planned: 0, transferred: 0 };
           }
-          if (!products[key].modules[modKey].transfersByDay) {
-            products[key].modules[modKey].transfersByDay = {};
-          }
-          // Normalize the key: already uppercase, no accents, weekends→PROCESO
-          const normalizedTDia = normalizeDay(tDia);
-          const dayPoolKey = (normalizedTDia === 'SABADO' || normalizedTDia === 'DOMINGO') ? 'PROCESO' : normalizedTDia;
-          products[key].modules[modKey].transfersByDay[dayPoolKey] = (products[key].modules[modKey].transfersByDay[dayPoolKey] || 0) + parseFloat(t.cantidad || 0);
           products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
         }
       }
     });
 
-    // DEBUG: SKU key matching diagnostic
-    const productKeys = Object.keys(products).slice(0, 5);
-    const transferKeys = transferencias.slice(0, 5).map(t => (t.sku || '').trim().toLowerCase());
-    const transferDays = transferencias.slice(0, 5).map(t => ({ sku: t.sku, fecha: t.fecha_transferencia, dia: getDayName(t.fecha_transferencia), modulo: t.modulo }));
-    console.log('=== DEBUG SKU MATCHING ===');
-    console.log('Planning product keys (first 5):', productKeys);
-    console.log('Transfer SKU keys (first 5):', transferKeys);
-    console.log('Transfer details (first 5):', transferDays);
-    console.log('Any SKU key match?', transferKeys.some(tk => products[tk] !== undefined));
+
 
     const baseData = Object.values(products).map(p => {
       let totalTransferred = 0;
@@ -580,60 +565,24 @@ export default function Dashboard() {
                   return modA - modB;
                 });
 
-                // Build local pool for this SKU/Module/Day
-                const poolByModAndDay = {};
-                Object.keys(row.modules).forEach(modId => {
-                  poolByModAndDay[modId] = { ...(row.modules[modId]?.transfersByDay || {}) };
-                });
-
-                const getMatchDay = (dia) => {
-                  const norm = normalizeDay(dia);
-                  if (norm === 'SABADO' || norm === 'DOMINGO') return 'PROCESO';
-                  return norm;
-                };
-
-                // DEBUG: comprehensive log for first row
-                if (idx === 0) {
-                  console.log('=== DEBUG OP WATERFALL (Row 0) ===');
-                  console.log('SKU:', row.sku, '| Producto:', row.producto);
-                  console.log('selectedDays:', selectedDays);
-                  console.log('row.totalTransferred:', row.totalTransferred);
-                  console.log('row.modules (full):', JSON.stringify(
-                    Object.fromEntries(
-                      Object.entries(row.modules).map(([k, v]) => [k, { planned: v.planned, transferred: v.transferred, transfersByDay: v.transfersByDay }])
-                    )
-                  ));
-                  console.log('Pool by Mod/Day:', JSON.stringify(poolByModAndDay));
-                }
-                // DEBUG: find first row that HAS transfers
-                if (row.totalTransferred > 0 && idx <= 5) {
-                  console.log(`=== ROW WITH TRANSFERS (idx ${idx}) ===`);
-                  console.log('SKU:', row.sku, '| Producto:', row.producto, '| totalTransferred:', row.totalTransferred);
-                  console.log('modules:', JSON.stringify(
-                    Object.fromEntries(
-                      Object.entries(row.modules).map(([k, v]) => [k, { planned: v.planned, transferred: v.transferred, transfersByDay: v.transfersByDay }])
-                    )
-                  ));
+                // Sequential waterfall: distribute day-filtered transfers across day-sorted OPs
+                let totalTransferredForOps = 0;
+                if (isAllModules) {
+                  Object.values(row.modules).forEach(m => { totalTransferredForOps += m.transferred; });
+                } else {
+                  selectedModules.forEach(modId => {
+                    const modData = row.modules[modId] || { transferred: 0 };
+                    totalTransferredForOps += modData.transferred;
+                  });
                 }
 
+                let remaining = totalTransferredForOps;
                 const opWithTransfers = opEntries.map(([opName, data]) => {
                   const opPlanned = data.cantidad;
-                  let filledForOp = 0;
-
-                  // Distribute transfers strictly by matching day and module
-                  data.breakdown.forEach(item => {
-                    const dKey = getMatchDay(item.dia);
-                    const poolQty = poolByModAndDay[item.modulo]?.[dKey] || 0;
-                    const fill = Math.min(poolQty, item.cantidad);
-                    filledForOp += fill;
-                    
-                    if (poolByModAndDay[item.modulo] && poolByModAndDay[item.modulo][dKey] !== undefined) {
-                      poolByModAndDay[item.modulo][dKey] -= fill;
-                    }
-                  });
-
-                  const opPercent = opPlanned > 0 ? Math.min(100, (filledForOp / opPlanned) * 100) : 0;
-                  return { opName, data, filled: filledForOp, opPercent };
+                  const filled = Math.min(remaining, opPlanned);
+                  remaining = Math.max(0, remaining - opPlanned);
+                  const opPercent = opPlanned > 0 ? Math.min(100, (filled / opPlanned) * 100) : 0;
+                  return { opName, data, filled, opPercent };
                 });
                 return (
                   <React.Fragment key={idx}>
