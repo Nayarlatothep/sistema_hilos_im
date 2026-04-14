@@ -531,7 +531,28 @@ export default function Dashboard() {
                   if (d.dia) opsGrouped[d.op].dias.add(d.dia);
                   if (d.modulo) opsGrouped[d.op].modulos.add(d.modulo);
                 });
-                const opEntries = Object.entries(opsGrouped);
+                const dayWeight = {
+                  'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'JUEVES': 4, 'VIERNES': 5, 'PROCESO': 6, 'SABADO': 6, 'DOMINGO': 6
+                };
+
+                const opEntries = Object.entries(opsGrouped).sort((a, b) => {
+                  const getMinWeight = (dias) => {
+                    const weights = Array.from(dias).map(d => dayWeight[normalizeDay(d)] || 99);
+                    return weights.length > 0 ? Math.min(...weights) : 99;
+                  };
+                  const getMinMod = (mods) => {
+                    const modNums = Array.from(mods).map(m => parseInt(m) || 99);
+                    return modNums.length > 0 ? Math.min(...modNums) : 99;
+                  };
+
+                  const weightA = getMinWeight(a[1].dias);
+                  const weightB = getMinWeight(b[1].dias);
+                  if (weightA !== weightB) return weightA - weightB;
+
+                  const modA = getMinMod(a[1].modulos);
+                  const modB = getMinMod(b[1].modulos);
+                  return modA - modB;
+                });
 
                 // Calculate total transferred for waterfall distribution
                 let totalTransferredForOps = 0;
