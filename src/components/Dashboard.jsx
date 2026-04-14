@@ -25,7 +25,15 @@ export default function Dashboard() {
   const getDayName = (dateStr) => {
     if (!dateStr) return '';
     try {
-      const date = new Date(dateStr);
+      // Parse as local time to avoid UTC date-only offset bug
+      let date;
+      if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
+        // Date-only string: parse as local midnight
+        const [y, m, d] = dateStr.trim().split('-').map(Number);
+        date = new Date(y, m - 1, d);
+      } else {
+        date = new Date(dateStr);
+      }
       if (isNaN(date.getTime())) return '';
       const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
       let d = days[date.getDay()];
@@ -562,35 +570,25 @@ export default function Dashboard() {
                   return modA - modB;
                 });
 
-                // Day-Aware Waterfall Pool — build from all modules in this row
-                const poolByModAndDay = {};
-                Object.keys(row.modules).forEach(modId => {
-                  poolByModAndDay[modId] = { ...(row.modules[modId]?.transfersByDay || {}) };
-                });
+                // Build total transferred pool for this row (filtered by modules)
+                let totalTransferredForOps = 0;
+                if (isAllModules) {
+                  Object.values(row.modules).forEach(m => { totalTransferredForOps += m.transferred; });
+                } else {
+                  selectedModules.forEach(modId => {
+                    const modData = row.modules[modId] || { transferred: 0 };
+                    totalTransferredForOps += modData.transferred;
+                  });
+                }
 
-                const getMatchDay = (dia) => {
-                  const norm = normalizeDay(dia);
-                  if (norm === 'SABADO' || norm === 'DOMINGO') return 'PROCESO';
-                  return norm;
-                };
-
+                // Waterfall: distribute total transfers across OPs in day-first order
+                let remaining = totalTransferredForOps;
                 const opWithTransfers = opEntries.map(([opName, data]) => {
                   const opPlanned = data.cantidad;
-                  let filledForOp = 0;
-
-                  // Waterfall strictly matching the dia and modulo of each planning line
-                  data.breakdown.forEach(item => {
-                    const dKey = getMatchDay(item.dia);
-                    const pool = poolByModAndDay[item.modulo]?.[dKey] || 0;
-                    const fill = Math.min(pool, item.cantidad);
-                    filledForOp += fill;
-                    if (poolByModAndDay[item.modulo] && poolByModAndDay[item.modulo][dKey] !== undefined) {
-                      poolByModAndDay[item.modulo][dKey] -= fill;
-                    }
-                  });
-
-                  const opPercent = opPlanned > 0 ? Math.min(100, (filledForOp / opPlanned) * 100) : 0;
-                  return { opName, data, filled: filledForOp, opPercent };
+                  const filled = Math.min(remaining, opPlanned);
+                  remaining = Math.max(0, remaining - opPlanned);
+                  const opPercent = opPlanned > 0 ? Math.min(100, (filled / opPlanned) * 100) : 0;
+                  return { opName, data, filled, opPercent };
                 });
                 return (
                   <React.Fragment key={idx}>
