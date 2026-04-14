@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 export default function Dashboard() {
   const { planificacion, transferencias, meta_diaria, getAvailableModules } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [moduleFilter, setModuleFilter] = React.useState('all');
+  const [selectedModules, setSelectedModules] = React.useState(['1', '2', '3', '4']);
   const [expandedRow, setExpandedRow] = React.useState(null);
   
   const dayOptions = [
@@ -44,7 +44,17 @@ export default function Dashboard() {
     );
   };
 
+  const toggleModule = (mod) => {
+    setSelectedModules(prev => 
+      prev.includes(mod) 
+        ? prev.filter(m => m !== mod) 
+        : [...prev, mod]
+    );
+  };
+
   const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias]);
+
+  const isAllModules = selectedModules.length === availableModules.length;
 
   const stationsData = useMemo(() => {
     // Build stations dynamically from available modules
@@ -125,10 +135,10 @@ export default function Dashboard() {
   }, [planificacion, transferencias, meta_diaria, availableModules]);
 
   const visibleModules = useMemo(() => (
-    moduleFilter === 'all' 
+    isAllModules
       ? availableModules 
-      : availableModules.filter(mod => mod === moduleFilter)
-  ), [availableModules, moduleFilter]);
+      : availableModules.filter(mod => selectedModules.includes(mod))
+  ), [availableModules, selectedModules]);
 
   const productionData = useMemo(() => {
     const products = {};
@@ -192,13 +202,15 @@ export default function Dashboard() {
     const baseData = Object.values(products).map(p => {
       let totalTransferred = 0;
       let totalPlanned = 0;
-      if (moduleFilter !== 'all') {
-        // Only count the filtered module
-        const mod = p.modules[moduleFilter];
-        if (mod) {
-          totalTransferred = mod.transferred;
-          totalPlanned = mod.planned;
-        }
+      if (!isAllModules) {
+        // Only count selected modules
+        selectedModules.forEach(modId => {
+          const mod = p.modules[modId];
+          if (mod) {
+            totalTransferred += mod.transferred;
+            totalPlanned += mod.planned;
+          }
+        });
       } else {
         Object.values(p.modules).forEach(mod => {
           totalTransferred += mod.transferred;
@@ -211,10 +223,12 @@ export default function Dashboard() {
 
     // Filtering
     let filtered = [...baseData];
-    if (moduleFilter !== 'all') {
+    if (!isAllModules) {
       filtered = filtered.filter(p => {
-        const mod = p.modules[moduleFilter];
-        return mod && (mod.planned > 0 || mod.transferred > 0);
+        return selectedModules.some(modId => {
+          const mod = p.modules[modId];
+          return mod && (mod.planned > 0 || mod.transferred > 0);
+        });
       });
     }
 
@@ -260,7 +274,7 @@ export default function Dashboard() {
       if (a.producto > b.producto) return 1;
       return nameA.localeCompare(nameB);
     });
-  }, [planificacion, transferencias, searchQuery, moduleFilter, availableModules, selectedDays]);
+  }, [planificacion, transferencias, searchQuery, selectedModules, availableModules, selectedDays]);
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
@@ -435,7 +449,35 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Table Controls */}
+        {/* Module Filter Bubbles */}
+        <div className="flex flex-col gap-3 mb-8">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] font-headline">Filtrar por M&#243;dulo</p>
+          <div className="flex flex-wrap gap-4">
+            {availableModules.map(mod => {
+              const isActive = selectedModules.includes(mod);
+              return (
+                <button
+                  key={mod}
+                  onClick={() => toggleModule(mod)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black transition-all shadow-sm border-2 ${
+                    isActive 
+                      ? 'bg-secondary border-secondary text-white shadow-secondary/30 scale-110' 
+                      : 'bg-surface-container-low border-transparent text-slate-400 hover:border-slate-200'
+                  }`}
+                >
+                  M{mod}
+                </button>
+              );
+            })}
+            <button
+               onClick={() => setSelectedModules(isAllModules ? [] : [...availableModules])}
+               className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors"
+            >
+              {isAllModules ? 'Deseleccionar Todo' : 'Seleccionar Todo'}
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-80 font-body">
@@ -447,20 +489,6 @@ export default function Dashboard() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </div>
-            <div className="relative w-full md:w-60 font-body">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">grid_view</span>
-              <select 
-                className="w-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/10 text-[10px] py-3.5 pl-10 pr-10 rounded-xl transition-all font-black text-primary font-headline uppercase tracking-[0.15em] appearance-none cursor-pointer"
-                value={moduleFilter}
-                onChange={(e) => setModuleFilter(e.target.value)}
-              >
-                <option value="all">FILTRAR POR MÓDULO</option>
-                {availableModules.map(mod => (
-                  <option key={mod} value={mod}>MÓDULO {mod}</option>
-                ))}
-              </select>
-              <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">expand_more</span>
             </div>
           </div>
           <div className="flex gap-3 w-full md:w-auto font-headline">
@@ -492,9 +520,9 @@ export default function Dashboard() {
                 const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
                 // Group opsDetail by OP name, filtered by module if applicable
                 const opsGrouped = {};
-                const filteredOps = moduleFilter === 'all' 
+                const filteredOps = isAllModules 
                   ? (row.opsDetail || []) 
-                  : (row.opsDetail || []).filter(d => d.modulo === moduleFilter);
+                  : (row.opsDetail || []).filter(d => selectedModules.includes(d.modulo));
                 filteredOps.forEach(d => {
                   if (!opsGrouped[d.op]) {
                     opsGrouped[d.op] = { cantidad: 0, dias: new Set(), modulos: new Set() };
@@ -507,11 +535,13 @@ export default function Dashboard() {
 
                 // Calculate total transferred for waterfall distribution
                 let totalTransferredForOps = 0;
-                if (moduleFilter === 'all') {
+                if (isAllModules) {
                   Object.values(row.modules).forEach(m => { totalTransferredForOps += m.transferred; });
                 } else {
-                  const modData = row.modules[moduleFilter] || { transferred: 0 };
-                  totalTransferredForOps = modData.transferred;
+                  selectedModules.forEach(modId => {
+                    const modData = row.modules[modId] || { transferred: 0 };
+                    totalTransferredForOps += modData.transferred;
+                  });
                 }
 
                 // Waterfall: distribute transfers across OPs in order
