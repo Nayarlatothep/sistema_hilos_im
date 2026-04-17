@@ -197,7 +197,7 @@ export default function Dashboard() {
 
       if (modKey) {
         if (!products[key].modules[modKey]) {
-          products[key].modules[modKey] = { planned: 0, transferred: 0 };
+          products[key].modules[modKey] = { planned: 0, transferred: 0, transferredByDay: {} };
         }
         products[key].modules[modKey].planned += parseFloat(p.cantidad || 0);
       }
@@ -223,9 +223,15 @@ export default function Dashboard() {
       const modKey = getModKey(t.modulo);
       if (modKey) {
         if (!products[key].modules[modKey]) {
-          products[key].modules[modKey] = { planned: 0, transferred: 0 };
+          products[key].modules[modKey] = { planned: 0, transferred: 0, transferredByDay: {} };
+        }
+        if (!products[key].modules[modKey].transferredByDay) {
+          products[key].modules[modKey].transferredByDay = {};
         }
         products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
+        
+        const dayKey = normalizeDay(tDia) || 'SIN DÍA';
+        products[key].modules[modKey].transferredByDay[dayKey] = (products[key].modules[modKey].transferredByDay[dayKey] || 0) + parseFloat(t.cantidad || 0);
       }
     });
 
@@ -553,26 +559,30 @@ export default function Dashboard() {
                                  return mA - mB;
                                });
 
-                               // Waterfall: distribute total transferred across sorted OPs
-                               let totalTransferred = 0;
-                               if (!isAllModules) {
-                                 selectedModules.forEach(modId => {
-                                   const mod = row.modules[modId];
-                                   if (mod) totalTransferred += mod.transferred;
-                                 });
-                               } else {
-                                 Object.values(row.modules).forEach(mod => {
-                                   totalTransferred += mod.transferred;
-                                 });
-                               }
+                               // Waterfall: distribute transfers per day
+                               const opsWithFill = [];
+                               const dayRemaining = {}; 
 
-                               let remaining = totalTransferred;
-                               const opsWithFill = sorted.map(op => {
+                               sorted.forEach(op => {
+                                 const dayKey = normalizeDay(op.dia) || 'SIN DÍA';
+                                 
+                                 if (dayRemaining[dayKey] === undefined) {
+                                   let dayTransferred = 0;
+                                   const activeModules = isAllModules ? availableModules : selectedModules;
+                                   activeModules.forEach(modId => {
+                                     const mod = row.modules[modId];
+                                     if (mod && mod.transferredByDay && mod.transferredByDay[dayKey]) {
+                                       dayTransferred += mod.transferredByDay[dayKey];
+                                     }
+                                   });
+                                   dayRemaining[dayKey] = dayTransferred;
+                                 }
+
                                  const planned = op.cantidad;
-                                 const filled = Math.min(remaining, planned);
-                                 remaining = Math.max(0, remaining - planned);
+                                 const filled = Math.min(dayRemaining[dayKey], planned);
+                                 dayRemaining[dayKey] = Math.max(0, dayRemaining[dayKey] - planned);
                                  const pct = planned > 0 ? Math.min(100, (filled / planned) * 100) : 0;
-                                 return { ...op, filled, pct };
+                                 opsWithFill.push({ ...op, filled, pct });
                                });
 
                                // Group by day
