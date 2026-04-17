@@ -283,7 +283,10 @@ export default function TransferForm() {
             <button 
               onClick={handleUpload}
               disabled={loading || localTransferencias.length === 0}
-              className="px-8 py-2 bg-secondary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-lg shadow-secondary/30 hover:bg-[#8f3400] active:scale-95 transition-all"
+              className={`px-8 py-2 bg-secondary text-white text-xs font-black uppercase tracking-widest rounded-lg transition-all
+                ${(loading || localTransferencias.length === 0) 
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' 
+                  : 'shadow-lg shadow-secondary/30 hover:bg-[#8f3400] active:scale-95'}`}
             >
               Sincronizar Registros
             </button>
