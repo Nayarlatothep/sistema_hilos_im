@@ -19,31 +19,33 @@ export default function Dashboard() {
   const isAllModules = selectedModules.length === availableModules.length;
 
   const stationsData = useMemo(() => {
-    // Build stations dynamically from available modules
     const stations = {};
     availableModules.forEach(mod => {
       stations[mod] = { planned: 0, transferred: 0 };
     });
 
-    planificacion.forEach(p => {
-      const pMod = String(p.modulo || '').trim();
-
-      const matched = ['1', '2', '3', '4'].find(m => 
-        pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
+    const getModKey = (pMod) => {
+      const s = String(pMod || '').trim().toUpperCase();
+      return ['1', '2', '3', '4'].find(m => 
+        s === m || 
+        s.includes(` ${m}`) || 
+        s.includes(`${m} `) || 
+        s.startsWith(`MODULO ${m}`) || 
+        s.startsWith(`MÓDULO ${m}`) ||
+        s.startsWith(`MOD. ${m}`) ||
+        s.startsWith(`MOD ${m}`)
       );
-      
+    };
+
+    planificacion.forEach(p => {
+      const matched = getModKey(p.modulo);
       if (matched) {
         stations[matched].planned += parseFloat(p.cantidad || 0);
       }
     });
 
     transferencias.forEach(t => {
-      const pMod = String(t.modulo || '').trim();
-
-      const matched = ['1', '2', '3', '4'].find(m => 
-        pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
-      );
-      
+      const matched = getModKey(t.modulo);
       if (matched) {
         stations[matched].transferred += parseFloat(t.cantidad || 0);
       }
@@ -66,8 +68,8 @@ export default function Dashboard() {
       const daysInSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       
       transferencias.forEach(t => {
-        const tMod = String(t.modulo || '').trim();
-        if (tMod === name) {
+        const matched = getModKey(t.modulo);
+        if (matched === name) {
           const date = new Date(t.fecha_transferencia);
           let dayIdx = date.getDay();
           if (dayIdx === 0 || dayIdx === 6) dayIdx = 5;
@@ -105,11 +107,31 @@ export default function Dashboard() {
   const productionData = useMemo(() => {
     const products = {};
 
+    const getProductKey = (item) => {
+      const prod = String(item.producto || '').trim().toLowerCase();
+      const col = String(item.nombre_color || '').trim().toLowerCase();
+      return `${prod}|${col}`;
+    };
+
+    const getModKey = (pMod) => {
+      const s = String(pMod || '').trim().toUpperCase();
+      return ['1', '2', '3', '4'].find(m => 
+        s === m || 
+        s.includes(` ${m}`) || 
+        s.includes(`${m} `) || 
+        s.startsWith(`MODULO ${m}`) || 
+        s.startsWith(`MÓDULO ${m}`) ||
+        s.startsWith(`MOD. ${m}`) ||
+        s.startsWith(`MOD ${m}`)
+      );
+    };
+
+    // First, map all planned items
     planificacion.forEach(p => {
-      const key = (p.sku || '').trim().toLowerCase();
+      const key = getProductKey(p);
       if (!products[key]) {
         products[key] = {
-          sku: p.sku,
+          sku: p.sku || p.producto,
           producto: p.producto,
           color: p.color,
           nombre_color: p.nombre_color,
@@ -117,11 +139,7 @@ export default function Dashboard() {
         };
       }
 
-      const pMod = String(p.modulo || '').trim();
-      const modKey = ['1', '2', '3', '4'].find(m => 
-        pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
-      );
-      
+      const modKey = getModKey(p.modulo);
       if (modKey) {
         if (!products[key].modules[modKey]) {
           products[key].modules[modKey] = { planned: 0, transferred: 0 };
@@ -130,20 +148,25 @@ export default function Dashboard() {
       }
     });
 
+    // Then, map all transfers (even those without planned entry)
     transferencias.forEach(t => {
-      const key = (t.sku || '').trim().toLowerCase();
-      if (products[key]) {
-        const pMod = String(t.modulo || '').trim();
-        const modKey = ['1', '2', '3', '4'].find(m => 
-          pMod === m || pMod.includes(` ${m}`) || pMod.includes(`${m} `) || pMod.startsWith(`Módulo ${m}`) || pMod.startsWith(`Modulo ${m}`)
-        );
-        
-        if (modKey) {
-          if (!products[key].modules[modKey]) {
-            products[key].modules[modKey] = { planned: 0, transferred: 0 };
-          }
-          products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
+      const key = getProductKey(t);
+      if (!products[key]) {
+        products[key] = {
+          sku: t.sku || t.producto,
+          producto: t.producto,
+          color: t.color,
+          nombre_color: t.nombre_color,
+          modules: {},
+        };
+      }
+
+      const modKey = getModKey(t.modulo);
+      if (modKey) {
+        if (!products[key].modules[modKey]) {
+          products[key].modules[modKey] = { planned: 0, transferred: 0 };
         }
+        products[key].modules[modKey].transferred += parseFloat(t.cantidad || 0);
       }
     });
 
