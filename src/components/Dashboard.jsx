@@ -37,14 +37,14 @@ export default function Dashboard() {
       );
     };
 
-    planificacion.forEach(p => {
+    (planificacion || []).forEach(p => {
       const matched = getModKey(p.modulo);
       if (matched) {
         stations[matched].planned += parseFloat(p.cantidad || 0);
       }
     });
 
-    transferencias.forEach(t => {
+    (transferencias || []).forEach(t => {
       const matched = getModKey(t.modulo);
       if (matched) {
         stations[matched].transferred += parseFloat(t.cantidad || 0);
@@ -67,7 +67,7 @@ export default function Dashboard() {
       };
       const daysInSpanish = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       
-      transferencias.forEach(t => {
+      (transferencias || []).forEach(t => {
         const matched = getModKey(t.modulo);
         if (matched === name) {
           const date = new Date(t.fecha_transferencia);
@@ -100,9 +100,9 @@ export default function Dashboard() {
 
   const visibleModules = useMemo(() => (
     isAllModules
-      ? availableModules 
-      : availableModules.filter(mod => selectedModules.includes(mod))
-  ), [availableModules, selectedModules]);
+      ? (availableModules || []) 
+      : (availableModules || []).filter(mod => selectedModules.includes(mod))
+  ), [availableModules, selectedModules, isAllModules]);
 
   const productionData = useMemo(() => {
     const products = {};
@@ -127,7 +127,7 @@ export default function Dashboard() {
     };
 
     // First, map all planned items
-    planificacion.forEach(p => {
+    (planificacion || []).forEach(p => {
       const key = getProductKey(p);
       if (!products[key]) {
         products[key] = {
@@ -159,7 +159,7 @@ export default function Dashboard() {
     });
 
     // Then, map all transfers (even those without planned entry)
-    transferencias.forEach(t => {
+    (transferencias || []).forEach(t => {
       const key = getProductKey(t);
       if (!products[key]) {
         products[key] = {
