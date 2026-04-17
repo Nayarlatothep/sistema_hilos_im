@@ -599,7 +599,6 @@ export default function Dashboard() {
                                  </div>
                                ));
                              })()}
-                             </div>
                           </div>
                         </td>
                       </tr>
