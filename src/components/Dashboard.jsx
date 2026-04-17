@@ -543,6 +543,7 @@ export default function Dashboard() {
                                const dayOrder = { 'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'MIÉRCOLES': 3, 'JUEVES': 4, 'VIERNES': 5, 'PROCESO': 6, 'SIN DÍA': 7 };
                                const getDayWeight = (d) => dayOrder[normalizeDay(d)] || dayOrder[d] || 99;
                                
+                               // Sort OPs by day then module
                                const sorted = [...row.ops].sort((a, b) => {
                                  const wA = getDayWeight(a.dia);
                                  const wB = getDayWeight(b.dia);
@@ -552,52 +553,123 @@ export default function Dashboard() {
                                  return mA - mB;
                                });
 
+                               // Waterfall: distribute total transferred across sorted OPs
+                               let totalTransferred = 0;
+                               if (!isAllModules) {
+                                 selectedModules.forEach(modId => {
+                                   const mod = row.modules[modId];
+                                   if (mod) totalTransferred += mod.transferred;
+                                 });
+                               } else {
+                                 Object.values(row.modules).forEach(mod => {
+                                   totalTransferred += mod.transferred;
+                                 });
+                               }
+
+                               let remaining = totalTransferred;
+                               const opsWithFill = sorted.map(op => {
+                                 const planned = op.cantidad;
+                                 const filled = Math.min(remaining, planned);
+                                 remaining = Math.max(0, remaining - planned);
+                                 const pct = planned > 0 ? Math.min(100, (filled / planned) * 100) : 0;
+                                 return { ...op, filled, pct };
+                               });
+
+                               // Group by day
                                const grouped = {};
-                               sorted.forEach(op => {
+                               opsWithFill.forEach(op => {
                                  const key = op.dia || 'Sin Día';
                                  if (!grouped[key]) grouped[key] = [];
                                  grouped[key].push(op);
                                });
 
-                               return Object.entries(grouped).map(([dayName, ops], gi) => (
-                                 <div key={dayName} className={gi > 0 ? 'mt-8 pt-8 border-t-2 border-dashed border-primary/10' : ''}>
-                                   <div className="flex items-center gap-3 mb-5">
-                                     <span className="material-symbols-outlined text-primary/30 text-sm">calendar_today</span>
-                                     <h5 className="text-[11px] font-black uppercase text-primary tracking-[0.15em] font-headline">{dayName}</h5>
-                                     <div className="flex-1 h-px bg-primary/10"></div>
-                                     <span className="text-[10px] font-bold text-slate-400">{ops.length} OP(s)</span>
+                               return Object.entries(grouped).map(([dayName, ops], gi) => {
+                                 const dayPlanned = ops.reduce((s, o) => s + o.cantidad, 0);
+                                 const dayFilled = ops.reduce((s, o) => s + o.filled, 0);
+                                 const dayPct = dayPlanned > 0 ? Math.min(100, (dayFilled / dayPlanned) * 100) : 0;
+                                 let dayBadgeColor = 'bg-slate-100 text-slate-500';
+                                 if (dayPct >= 100) dayBadgeColor = 'bg-emerald-100 text-emerald-700';
+                                 else if (dayPct > 0) dayBadgeColor = 'bg-amber-100 text-amber-700';
+
+                                 return (
+                                   <div key={dayName} className={gi > 0 ? 'mt-8 pt-8 border-t-2 border-dashed border-primary/10' : ''}>
+                                     <div className="flex items-center gap-3 mb-5">
+                                       <span className="material-symbols-outlined text-primary/30 text-sm">calendar_today</span>
+                                       <h5 className="text-[11px] font-black uppercase text-primary tracking-[0.15em] font-headline">{dayName}</h5>
+                                       <div className="flex-1 h-px bg-primary/10"></div>
+                                       <span className={`text-[10px] font-black px-2.5 py-1 rounded-full ${dayBadgeColor}`}>
+                                         {Math.round(dayFilled / divisor)} / {Math.round(dayPlanned / divisor)} hilos — {Math.round(dayPct)}%
+                                       </span>
+                                       <span className="text-[10px] font-bold text-slate-400">{ops.length} OP(s)</span>
+                                     </div>
+                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                       {ops.map((op, i) => {
+                                         let cardBorder = 'border-slate-100';
+                                         let statusIcon = 'pending';
+                                         let statusColor = 'text-slate-400';
+                                         let cardBg = 'bg-white';
+                                         if (op.pct >= 100) {
+                                           cardBorder = 'border-emerald-200';
+                                           cardBg = 'bg-emerald-50/50';
+                                           statusIcon = 'check_circle';
+                                           statusColor = 'text-emerald-500';
+                                         } else if (op.pct > 0) {
+                                           cardBorder = 'border-amber-200';
+                                           cardBg = 'bg-amber-50/30';
+                                           statusIcon = 'timelapse';
+                                           statusColor = 'text-amber-500';
+                                         }
+                                         const filledConos = Math.round(op.filled / divisor);
+                                         const plannedConos = Math.round(op.cantidad / divisor);
+
+                                         return (
+                                           <div key={i} className={`${cardBg} p-5 rounded-xl border ${cardBorder} shadow-sm hover:shadow-md transition-shadow`}>
+                                             <div className="flex justify-between items-start mb-3">
+                                               <div>
+                                                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest font-headline">OP Number</p>
+                                                 <p className="text-base font-black text-primary font-headline">{op.op}</p>
+                                               </div>
+                                               <span className={`material-symbols-outlined text-lg ${statusColor}`}>{statusIcon}</span>
+                                             </div>
+                                             
+                                             <div className="grid grid-cols-2 gap-3 mb-3">
+                                               <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
+                                                 <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Módulo</span>
+                                                 <span className="text-xs font-black text-secondary">{op.modulo}</span>
+                                               </div>
+                                               <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
+                                                 <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Día Plan</span>
+                                                 <span className="text-xs font-black text-primary">{op.dia}</span>
+                                               </div>
+                                             </div>
+
+                                             <div className="mt-3 pt-3 border-t border-slate-100">
+                                               <div className="flex justify-between items-center mb-2">
+                                                 <span className="text-[10px] font-bold text-slate-400">Transferido / Programado</span>
+                                               </div>
+                                               <p className="text-lg font-black text-primary tabular-nums">
+                                                 {filledConos.toLocaleString()} <span className="text-slate-300">/</span> {plannedConos.toLocaleString()}
+                                                 <span className="text-[10px] text-slate-400 font-medium ml-1">hilos</span>
+                                               </p>
+                                               <div className="w-full h-2 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                                                 <div 
+                                                   className={`h-full rounded-full transition-all duration-500 ${op.pct >= 100 ? 'bg-emerald-500' : op.pct > 0 ? 'bg-amber-400' : 'bg-slate-200'}`}
+                                                   style={{ width: `${Math.min(100, op.pct)}%` }}
+                                                 />
+                                               </div>
+                                               <div className="flex justify-end mt-1">
+                                                 <span className={`text-[10px] font-black tabular-nums ${op.pct >= 100 ? 'text-emerald-600' : op.pct > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                                                   {Math.round(op.pct)}%
+                                                 </span>
+                                               </div>
+                                             </div>
+                                           </div>
+                                         );
+                                       })}
+                                     </div>
                                    </div>
-                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                     {ops.map((op, i) => (
-                                       <div key={i} className="bg-white p-5 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
-                                         <div className="flex justify-between items-start mb-4">
-                                           <div>
-                                             <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest font-headline">OP Number</p>
-                                             <p className="text-base font-black text-primary font-headline">{op.op}</p>
-                                           </div>
-                                           <span className="material-symbols-outlined text-primary/20">tag</span>
-                                         </div>
-                                         
-                                         <div className="grid grid-cols-2 gap-4">
-                                           <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
-                                             <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Módulo</span>
-                                             <span className="text-xs font-black text-secondary">{op.modulo}</span>
-                                           </div>
-                                           <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
-                                             <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Día Plan</span>
-                                             <span className="text-xs font-black text-primary">{op.dia}</span>
-                                           </div>
-                                         </div>
-                                         
-                                         <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
-                                           <span className="text-[10px] font-bold text-slate-400">Cantidad</span>
-                                           <span className="text-sm font-black text-primary">{Math.round(op.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400">hilos</span></span>
-                                         </div>
-                                       </div>
-                                     ))}
-                                   </div>
-                                 </div>
-                               ));
+                                 );
+                               });
                              })()}
                           </div>
                         </td>
