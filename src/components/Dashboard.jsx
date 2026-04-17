@@ -6,7 +6,48 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedModules, setSelectedModules] = React.useState(['1', '2', '3', '4']);
   const [expandedRow, setExpandedRow] = React.useState(null);
-  
+
+  const dayOptions = [
+    { label: 'Lu', value: 'LUNES' },
+    { label: 'Ma', value: 'MARTES' },
+    { label: 'Mi', value: 'MIERCOLES' },
+    { label: 'Ju', value: 'JUEVES' },
+    { label: 'Vi', value: 'VIERNES' },
+    { label: 'Pr', value: 'PROCESO' },
+  ];
+  const [selectedDays, setSelectedDays] = React.useState(dayOptions.map(d => d.value));
+
+  const normalizeDay = (str) => {
+    if (!str) return '';
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+  };
+
+  const getDayName = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const str = String(dateStr).trim();
+      const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) {
+        const date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+        const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+        let d = days[date.getDay()];
+        if (d === 'SABADO' || d === 'DOMINGO') return 'PROCESO';
+        return d;
+      }
+      return '';
+    } catch (e) { return ''; }
+  };
+
+  const isAllDays = selectedDays.length === dayOptions.length;
+
+  const toggleDay = (dayValue) => {
+    setSelectedDays(prev =>
+      prev.includes(dayValue)
+        ? prev.filter(d => d !== dayValue)
+        : [...prev, dayValue]
+    );
+  };
+
   const toggleModule = (mod) => {
     setSelectedModules(prev => 
       prev.includes(mod) 
@@ -129,6 +170,9 @@ export default function Dashboard() {
 
     // First, map all planned items
     (planificacion || []).forEach(p => {
+      const pDia = normalizeDay(p.dia);
+      if (!isAllDays && !selectedDays.includes(pDia)) return;
+
       const key = getProductKey(p);
       if (!products[key]) {
         products[key] = {
@@ -161,6 +205,9 @@ export default function Dashboard() {
 
     // Then, map all transfers (even those without planned entry)
     (transferencias || []).forEach(t => {
+      const tDia = getDayName(t.fecha_transferencia);
+      if (!isAllDays && !selectedDays.includes(tDia)) return;
+
       const key = getProductKey(t);
       if (!products[key]) {
         products[key] = {
@@ -239,7 +286,7 @@ export default function Dashboard() {
       if (pA !== pB) return pA - pB;
       return nameA.localeCompare(nameB);
     });
-  }, [planificacion, transferencias, searchQuery, selectedModules, availableModules]);
+  }, [planificacion, transferencias, searchQuery, selectedModules, availableModules, selectedDays, isAllDays]);
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
@@ -356,6 +403,34 @@ export default function Dashboard() {
           select { -webkit-appearance: none !important; appearance: none !important; }
         `}} />
         
+        <div className="flex flex-col gap-3 mb-8">
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] font-headline">Filtrar por D&#237;a de Planificaci&#243;n</p>
+          <div className="flex flex-wrap gap-4">
+            {dayOptions.map(day => {
+              const isActive = selectedDays.includes(day.value);
+              return (
+                <button
+                  key={day.value}
+                  onClick={() => toggleDay(day.value)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black transition-all shadow-sm border-2 ${
+                    isActive
+                      ? 'bg-primary border-primary text-white shadow-primary/30 scale-110'
+                      : 'bg-surface-container-low border-transparent text-slate-400 hover:border-slate-200'
+                  }`}
+                >
+                  {day.label}
+                </button>
+              );
+            })}
+            <button
+               onClick={() => setSelectedDays(isAllDays ? [] : dayOptions.map(d => d.value))}
+               className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors"
+            >
+              {isAllDays ? 'Deseleccionar Todo' : 'Seleccionar Todo'}
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col gap-3 mb-8">
           <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] font-headline">Filtrar por M&#243;dulo</p>
           <div className="flex flex-wrap gap-4">
