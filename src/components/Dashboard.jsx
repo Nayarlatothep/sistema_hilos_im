@@ -136,10 +136,20 @@ export default function Dashboard() {
           color: p.color,
           nombre_color: p.nombre_color,
           modules: {},
+          ops: []
         };
       }
 
       const modKey = getModKey(p.modulo);
+      
+      // Store OP detail
+      products[key].ops.push({
+        op: p.op || 'Sin OP',
+        modulo: modKey || String(p.modulo || 'Sin Módulo'),
+        dia: p.dia || 'Sin Día',
+        cantidad: parseFloat(p.cantidad || 0)
+      });
+
       if (modKey) {
         if (!products[key].modules[modKey]) {
           products[key].modules[modKey] = { planned: 0, transferred: 0 };
@@ -402,33 +412,91 @@ export default function Dashboard() {
             <tbody className="divide-y divide-slate-50">
               {productionData.map((row, idx) => {
                 const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
+                const isExpanded = expandedRow === idx;
+
                 return (
-                  <tr key={idx} className={`hover:bg-surface-container-low transition-colors font-body ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''}`}>
-                    <td className="py-6 px-4">
-                      <p className="text-sm font-black text-primary font-headline">{row.producto}</p>
-                    </td>
-                    <td className="py-6 px-4 text-center">
-                      <span className="text-base font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
-                    </td>
-                    <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
-                    {visibleModules.map(mod => {
-                      const modData = row.modules[mod] || { planned: 0, transferred: 0 };
-                      return (
-                        <td key={mod} className="py-6 px-4 text-right text-xs font-medium tabular-nums">
-                          {Math.round(modData.transferred / divisor).toLocaleString()} / {Math.round(modData.planned / divisor).toLocaleString()}
+                  <React.Fragment key={idx}>
+                    <tr 
+                      onClick={() => setExpandedRow(isExpanded ? null : idx)}
+                      className={`hover:bg-surface-container-low transition-all cursor-pointer font-body group ${idx % 2 === 1 ? 'bg-surface-container-low/30' : ''} ${isExpanded ? 'bg-primary/5' : ''}`}
+                    >
+                      <td className="py-6 px-4">
+                        <div className="flex items-center gap-3">
+                          <span className={`material-symbols-outlined text-primary/40 transition-transform duration-300 ${isExpanded ? 'rotate-90 text-primary' : ''}`}>
+                            chevron_right
+                          </span>
+                          <p className="text-sm font-black text-primary font-headline group-hover:text-secondary transition-colors underline-offset-4 group-hover:underline">{row.producto}</p>
+                        </div>
+                      </td>
+                      <td className="py-6 px-4 text-center">
+                        <span className="text-base font-mono font-bold text-slate-500 uppercase tracking-tight">{row.color || '-'}</span>
+                      </td>
+                      <td className="py-6 px-4"><span className="text-xs font-semibold text-slate-700">{row.nombre_color}</span></td>
+                      {visibleModules.map(mod => {
+                        const modData = row.modules[mod] || { planned: 0, transferred: 0 };
+                        return (
+                          <td key={mod} className="py-6 px-4 text-right text-xs font-medium tabular-nums">
+                            {Math.round(modData.transferred / divisor).toLocaleString()} / {Math.round(modData.planned / divisor).toLocaleString()}
+                          </td>
+                        );
+                      })}
+                      <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
+                        {Math.round(row.totalTransferred / divisor).toLocaleString()}
+                      </td>
+                      <td className="py-6 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-xs font-black text-secondary tabular-nums">{Math.round(row.percent)}%</span>
+                          <div className={`w-1.5 h-1.5 rounded-full ${row.percent >= 100 ? 'bg-emerald-500' : row.percent >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
+                        </div>
+                      </td>
+                    </tr>
+                    
+                    {isExpanded && (
+                      <tr className="bg-primary/[0.02] border-l-4 border-primary">
+                        <td colSpan={visibleModules.length + 5} className="py-8 px-12">
+                          <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+                             <h4 className="text-[10px] font-black uppercase text-secondary tracking-[0.2em] mb-6 font-headline flex items-center gap-2">
+                               <span className="material-symbols-outlined text-sm">list_alt</span>
+                               Detalle de Órdenes de Producción (OP) por Módulo y Día
+                             </h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                               {row.ops.length > 0 ? (
+                                  row.ops.map((op, i) => (
+                                    <div key={i} className="bg-white p-5 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+                                      <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest font-headline">OP Number</p>
+                                          <p className="text-base font-black text-primary font-headline">{op.op}</p>
+                                        </div>
+                                        <span className="material-symbols-outlined text-primary/20">tag</span>
+                                      </div>
+                                      
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
+                                          <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Módulo</span>
+                                          <span className="text-xs font-black text-secondary">{op.modulo}</span>
+                                        </div>
+                                        <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
+                                          <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Día Plan</span>
+                                          <span className="text-xs font-black text-primary">{op.dia}</span>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+                                        <span className="text-[10px] font-bold text-slate-400">Cantidad</span>
+                                        <span className="text-sm font-black text-primary">{Math.round(op.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400">hilos</span></span>
+                                      </div>
+                                    </div>
+                                  ))
+                               ) : (
+                                  <p className="text-xs text-slate-400 italic">No hay detalles de OP disponibles.</p>
+                               )}
+                             </div>
+                          </div>
                         </td>
-                      );
-                    })}
-                    <td className="py-6 px-4 text-right text-sm font-bold text-primary tabular-nums">
-                      {Math.round(row.totalTransferred / divisor).toLocaleString()}
-                    </td>
-                    <td className="py-6 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="text-xs font-black text-secondary tabular-nums">{Math.round(row.percent)}%</span>
-                        <div className={`w-1.5 h-1.5 rounded-full ${row.percent >= 100 ? 'bg-emerald-500' : row.percent >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}></div>
-                      </div>
-                    </td>
-                  </tr>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </tbody>
