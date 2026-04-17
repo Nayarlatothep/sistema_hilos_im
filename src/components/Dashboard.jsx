@@ -536,38 +536,69 @@ export default function Dashboard() {
                                <span className="material-symbols-outlined text-sm">list_alt</span>
                                Detalle de Órdenes de Producción (OP) por Módulo y Día
                              </h4>
-                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                               {row.ops.length > 0 ? (
-                                  row.ops.map((op, i) => (
-                                    <div key={i} className="bg-white p-5 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
-                                      <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest font-headline">OP Number</p>
-                                          <p className="text-base font-black text-primary font-headline">{op.op}</p>
-                                        </div>
-                                        <span className="material-symbols-outlined text-primary/20">tag</span>
-                                      </div>
-                                      
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
-                                          <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Módulo</span>
-                                          <span className="text-xs font-black text-secondary">{op.modulo}</span>
-                                        </div>
-                                        <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
-                                          <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Día Plan</span>
-                                          <span className="text-xs font-black text-primary">{op.dia}</span>
-                                        </div>
-                                      </div>
-                                      
-                                      <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
-                                        <span className="text-[10px] font-bold text-slate-400">Cantidad</span>
-                                        <span className="text-sm font-black text-primary">{Math.round(op.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400">hilos</span></span>
-                                      </div>
-                                    </div>
-                                  ))
-                               ) : (
-                                  <p className="text-xs text-slate-400 italic">No hay detalles de OP disponibles.</p>
-                               )}
+                             {(() => {
+                               if (!row.ops || row.ops.length === 0) {
+                                 return <p className="text-xs text-slate-400 italic">No hay detalles de OP disponibles.</p>;
+                               }
+                               const dayOrder = { 'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'MIÉRCOLES': 3, 'JUEVES': 4, 'VIERNES': 5, 'PROCESO': 6, 'SIN DÍA': 7 };
+                               const getDayWeight = (d) => dayOrder[normalizeDay(d)] || dayOrder[d] || 99;
+                               
+                               const sorted = [...row.ops].sort((a, b) => {
+                                 const wA = getDayWeight(a.dia);
+                                 const wB = getDayWeight(b.dia);
+                                 if (wA !== wB) return wA - wB;
+                                 const mA = parseInt(a.modulo) || 99;
+                                 const mB = parseInt(b.modulo) || 99;
+                                 return mA - mB;
+                               });
+
+                               const grouped = {};
+                               sorted.forEach(op => {
+                                 const key = op.dia || 'Sin Día';
+                                 if (!grouped[key]) grouped[key] = [];
+                                 grouped[key].push(op);
+                               });
+
+                               return Object.entries(grouped).map(([dayName, ops], gi) => (
+                                 <div key={dayName} className={gi > 0 ? 'mt-8 pt-8 border-t-2 border-dashed border-primary/10' : ''}>
+                                   <div className="flex items-center gap-3 mb-5">
+                                     <span className="material-symbols-outlined text-primary/30 text-sm">calendar_today</span>
+                                     <h5 className="text-[11px] font-black uppercase text-primary tracking-[0.15em] font-headline">{dayName}</h5>
+                                     <div className="flex-1 h-px bg-primary/10"></div>
+                                     <span className="text-[10px] font-bold text-slate-400">{ops.length} OP(s)</span>
+                                   </div>
+                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                     {ops.map((op, i) => (
+                                       <div key={i} className="bg-white p-5 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+                                         <div className="flex justify-between items-start mb-4">
+                                           <div>
+                                             <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest font-headline">OP Number</p>
+                                             <p className="text-base font-black text-primary font-headline">{op.op}</p>
+                                           </div>
+                                           <span className="material-symbols-outlined text-primary/20">tag</span>
+                                         </div>
+                                         
+                                         <div className="grid grid-cols-2 gap-4">
+                                           <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
+                                             <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Módulo</span>
+                                             <span className="text-xs font-black text-secondary">{op.modulo}</span>
+                                           </div>
+                                           <div className="bg-surface-container-low p-2.5 rounded-lg flex flex-col gap-0.5">
+                                             <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Día Plan</span>
+                                             <span className="text-xs font-black text-primary">{op.dia}</span>
+                                           </div>
+                                         </div>
+                                         
+                                         <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+                                           <span className="text-[10px] font-bold text-slate-400">Cantidad</span>
+                                           <span className="text-sm font-black text-primary">{Math.round(op.cantidad / divisor).toLocaleString()} <span className="text-[10px] text-slate-400">hilos</span></span>
+                                         </div>
+                                       </div>
+                                     ))}
+                                   </div>
+                                 </div>
+                               ));
+                             })()}
                              </div>
                           </div>
                         </td>
