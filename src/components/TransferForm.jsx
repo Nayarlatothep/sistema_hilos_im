@@ -126,6 +126,10 @@ export default function TransferForm() {
     }
   };
 
+  const handleDeleteLocal = (id) => {
+    setLocalTransferencias(prev => prev.filter(t => t.id !== id));
+  };
+
   return (
     <div className="flex flex-col gap-10 max-w-5xl mx-auto">
       <section className="font-headline">
@@ -295,16 +299,17 @@ export default function TransferForm() {
                 <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Color</th>
                 <th className="px-8 py-4 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Mod</th>
                 <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Yardage</th>
+                <th className="px-8 py-4 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-body">
               {localTransferencias.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-8 py-20 text-center text-slate-300 italic text-sm">No session records found.</td>
+                  <td colSpan="6" className="px-8 py-20 text-center text-slate-300 italic text-sm">No session records found.</td>
                 </tr>
               ) : (
                 localTransferencias.map(t => (
-                  <tr key={t.id} className="hover:bg-primary-fixed/5 transition-colors">
+                  <tr key={t.id} className="hover:bg-primary-fixed/5 transition-colors group">
                     <td className="px-8 py-4 text-xs font-medium text-slate-400 tabular-nums">{t.fecha_transferencia?.split('T')[0]}</td>
                     <td className="px-8 py-4">
                       <p className="text-sm font-black text-primary font-headline">{t.producto}</p>
@@ -321,6 +326,15 @@ export default function TransferForm() {
                       <p className="text-sm font-black text-secondary tabular-nums">{t.yardas?.toLocaleString()} YDS</p>
                       <p className="text-[10px] text-slate-400 font-bold">{t.cantidad} Units</p>
                     </td>
+                    <td className="px-8 py-4 text-center">
+                      <button 
+                        onClick={() => handleDeleteLocal(t.id)}
+                        className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all rounded-lg group-hover:opacity-100"
+                        title="Borrar registro"
+                      >
+                        <span className="material-symbols-outlined text-xl">delete</span>
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -328,6 +342,7 @@ export default function TransferForm() {
           </table>
         </div>
       </section>
+
     </div>
   );
 }
