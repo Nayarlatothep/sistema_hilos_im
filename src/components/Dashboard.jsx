@@ -5,6 +5,7 @@ export default function Dashboard() {
   const { planificacion, transferencias, meta_diaria, getAvailableModules } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedModules, setSelectedModules] = React.useState(['1', '2', '3', '4']);
+  const [expandedRow, setExpandedRow] = React.useState(null);
   
   const toggleModule = (mod) => {
     setSelectedModules(prev => 
