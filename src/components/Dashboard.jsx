@@ -168,6 +168,7 @@ export default function Dashboard() {
           color: t.color,
           nombre_color: t.nombre_color,
           modules: {},
+          ops: []
         };
       }
 
