@@ -183,15 +183,17 @@ export default function TransferForm() {
                           className="px-6 py-4 hover:bg-primary/5 cursor-pointer border-b border-slate-50 last:border-0 flex flex-col gap-0.5"
                         >
                           <p className="text-sm font-black text-primary font-headline">{item.producto}</p>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{item.nombre_color}</span>
-                            {item.class_abc && (
-                              <span className="bg-slate-200 text-slate-900 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter">ABC: {item.class_abc}</span>
-                            )}
+                          <div className="flex justify-between items-start gap-4">
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-tight">{item.nombre_color}</span>
+                            <div className="flex flex-col items-end gap-1 shrink-0">
+                              {item.class_abc && (
+                                <span className="bg-slate-200 text-slate-900 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter">ABC: {item.class_abc}</span>
+                              )}
+                              <p className="text-[9px] text-slate-900 font-black whitespace-nowrap">
+                                {item.cod_articulo} - {item.cantidad_conos}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-[9px] text-slate-300 font-medium mt-1">
-                            {item.cod_articulo} - {item.cantidad_conos}
-                          </p>
                         </div>
                       ))
                     ) : (
