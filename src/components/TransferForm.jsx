@@ -183,13 +183,15 @@ export default function TransferForm() {
                           className="px-6 py-4 hover:bg-primary/5 cursor-pointer border-b border-slate-50 last:border-0 flex flex-col gap-0.5"
                         >
                           <p className="text-sm font-black text-primary font-headline">{item.producto}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-between">
-                            <span>{item.nombre_color}</span>
-                            {item.class_abc && (
-                              <span className="bg-secondary/10 text-secondary px-2 py-0.5 rounded text-[9px]">ABC: {item.class_abc}</span>
-                            )}
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                            {item.nombre_color}
                           </p>
-                          <p className="text-[9px] text-slate-300 font-medium mt-0.5">
+                          {item.class_abc && (
+                            <div className="mt-1">
+                              <span className="bg-slate-200 text-slate-900 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter">ABC: {item.class_abc}</span>
+                            </div>
+                          )}
+                          <p className="text-[9px] text-slate-300 font-medium mt-1">
                             {item.cod_articulo} - {item.cantidad_kyd}
                           </p>
                         </div>
