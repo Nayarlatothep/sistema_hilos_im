@@ -33,7 +33,7 @@ export default function TransferForm() {
     return maestro_hilos.map(m => ({
       sku: m.sku || m.articulo || '',
       producto: m.articulo || '',
-      color: m.color || '',
+      color: m.cod_color || m.color || '',
       nombre_color: m.nombre_color || '',
       planned: 0,
       transferred: 0
