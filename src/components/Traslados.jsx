@@ -282,12 +282,6 @@ export default function Traslados() {
                 </th>
                 <th className="px-6 py-5">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-sm text-primary/60">straighten</span>
-                    <span>CANTIDAD (Kyds)</span>
-                  </div>
-                </th>
-                <th className="px-6 py-5">
-                  <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary/60">precision_manufacturing</span>
                     <span>MÓDULO</span>
                   </div>
@@ -302,6 +296,12 @@ export default function Traslados() {
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary/60">sell</span>
                     <span>NOMBRE COLOR</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5 text-right">
+                  <div className="flex items-center gap-2 justify-end">
+                    <span className="material-symbols-outlined text-sm text-primary/60">straighten</span>
+                    <span>Kyds</span>
                   </div>
                 </th>
                 <th className="px-6 py-5 text-right pr-8">
@@ -346,11 +346,7 @@ export default function Traslados() {
                           <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
                         </div>
                       </td>
-                      <td className={`px-6 py-5 ${isDbDone ? 'line-through decoration-slate-400 opacity-50' : ''}`}>
-                        <span className="text-sm font-black text-slate-700">
-                          {t.cantidad?.toLocaleString()}
-                        </span>
-                      </td>
+
                       <td className="px-6 py-5">
                         <span className={`px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-black font-headline ${isDbDone ? 'line-through opacity-50' : ''}`}>
                           MOD {t.modulo || '-'}
@@ -364,6 +360,11 @@ export default function Traslados() {
                       <td className="px-6 py-5">
                         <span className={`px-3 py-1 bg-surface-container rounded-full text-xs font-medium uppercase font-body ${isDbDone ? 'line-through' : ''}`}>
                           {t.nombre_color}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right pr-4 font-body">
+                         <span className={`text-md font-extrabold text-slate-700 font-headline ${isDbDone ? 'line-through decoration-slate-400 opacity-50' : ''}`}>
+                          {t.cantidad?.toLocaleString()}
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right pr-8 font-body">
