@@ -340,17 +340,7 @@ export default function Dashboard() {
       <section>
         <p className="text-sm font-bold text-secondary uppercase tracking-[0.2em] mb-2 font-headline">Real-Time Performance</p>
         <div className="flex justify-between items-end">
-          <div className="flex items-center gap-6">
-            <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">KPI Producción</h2>
-            <button 
-              onClick={handleRefresh}
-              className={`p-2 bg-primary rounded-lg text-white hover:bg-primary/90 transition-all active:scale-95 flex items-center justify-center shadow-md ${isRefreshing ? 'animate-spin opacity-70' : ''}`}
-              title="Refrescar datos"
-              disabled={isRefreshing}
-            >
-              <span className="material-symbols-outlined text-xl">refresh</span>
-            </button>
-          </div>
+          <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">KPI Producción</h2>
           <div className="text-right">
             <p className="text-on-surface-variant text-[10px] font-bold uppercase font-headline">Última Actualización</p>
             <p className="font-bold text-primary font-body">{timestamp}</p>
@@ -493,7 +483,7 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-80 font-body">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
               <input 
@@ -504,6 +494,14 @@ export default function Dashboard() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            <button 
+              onClick={handleRefresh}
+              className="p-2.5 bg-primary rounded-xl text-white hover:bg-primary/90 transition-all active:scale-95 flex items-center justify-center shadow-md disabled:opacity-50"
+              title="Refrescar datos"
+              disabled={isRefreshing}
+            >
+              <span className="material-symbols-outlined text-xl">refresh</span>
+            </button>
           </div>
         </div>
 
