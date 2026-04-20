@@ -341,9 +341,12 @@ export default function Traslados() {
                         {formatDate(t.fecha_transferencia)}
                       </td>
                       <td className={`px-6 py-5 ${isDbDone ? 'line-through decoration-slate-400' : ''}`}>
-                        <div className="flex flex-col font-body">
-                          <span className="font-bold">{t.producto}</span>
                           <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
+                          {t.comentario && (
+                            <span className="text-[10px] text-amber-600 font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded w-fit italic leading-tight">
+                              "{t.comentario}"
+                            </span>
+                          )}
                         </div>
                       </td>
 

@@ -19,7 +19,8 @@ export default function TransferForm() {
     sku: '',
     nombre_color: '',
     modulo: '',
-    cantidad: ''
+    cantidad: '',
+    comentario: ''
   });
 
   const [localTransferencias, setLocalTransferencias] = useState([]);
@@ -84,12 +85,13 @@ export default function TransferForm() {
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
       cantidad: qty,
-      yardas: qty * (selectedItem.cantidad_kyd || 0)
+      yardas: qty * (selectedItem.cantidad_kyd || 0),
+      comentario: formData.comentario
     };
 
     setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
     setMsg({ type: 'success', text: `Registered locally.` });
-    setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '' });
+    setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '', comentario: '' });
     setFilterText('');
     setTimeout(() => setMsg(null), 3000);
   };
@@ -105,7 +107,8 @@ export default function TransferForm() {
       color: t.color,
       nombre_color: t.nombre_color,
       modulo: t.modulo,
-      cantidad: t.yardas
+      cantidad: t.yardas,
+      comentario: t.comentario
     }));
 
     const res = await addMultipleTransferencias(recordsToUpload);
@@ -252,6 +255,19 @@ export default function TransferForm() {
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">UNS</span>
               </div>
             </div>
+
+            <div className="flex flex-col gap-2 md:col-span-2">
+              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">comment</span> Observaciones / Tracking
+              </label>
+              <input 
+                type="text" 
+                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
+                placeholder="Ej: Distribución para Preparados, Partes Traseras, etc."
+                value={formData.comentario}
+                onChange={(e) => setFormData({...formData, comentario: e.target.value})}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-4 border-t border-slate-100 pt-8">
@@ -324,6 +340,11 @@ export default function TransferForm() {
                     <td className="px-8 py-4">
                       <p className="text-sm font-black text-primary font-headline">{t.producto}</p>
                       <p className="text-[10px] text-slate-400">SKU: {t.sku}</p>
+                      {t.comentario && (
+                        <p className="text-[10px] text-amber-600 font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded w-fit italic">
+                          "{t.comentario}"
+                        </p>
+                      )}
                     </td>
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-2">
