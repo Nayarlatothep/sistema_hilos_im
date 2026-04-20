@@ -36,6 +36,8 @@ export default function TransferForm() {
       color: m.cod_color || m.color || '',
       nombre_color: m.nombre_color || '',
       class_abc: m.class_abc || '',
+      cod_articulo: m.cod_articulo || '',
+      cantidad_kyd: m.cantidad_kyd || '',
       planned: 0,
       transferred: 0
     })).sort((a, b) => (a.producto || '').localeCompare(b.producto || ''));
@@ -186,6 +188,9 @@ export default function TransferForm() {
                             {item.class_abc && (
                               <span className="bg-secondary/10 text-secondary px-2 py-0.5 rounded text-[9px]">ABC: {item.class_abc}</span>
                             )}
+                          </p>
+                          <p className="text-[9px] text-slate-300 font-medium mt-0.5">
+                            {item.cod_articulo} - {item.cantidad_kyd}
                           </p>
                         </div>
                       ))
