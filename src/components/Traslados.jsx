@@ -282,6 +282,12 @@ export default function Traslados() {
                 </th>
                 <th className="px-6 py-5">
                   <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-primary/60">precision_manufacturing</span>
+                    <span>MÓDULO</span>
+                  </div>
+                </th>
+                <th className="px-6 py-5">
+                  <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary/60">palette</span>
                     <span>COLOR</span>
                   </div>
@@ -333,6 +339,11 @@ export default function Traslados() {
                           <span className="font-bold">{t.producto}</span>
                           <span className="text-xs text-on-surface-variant font-body">ID: {t.id}</span>
                         </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={`px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-black font-headline ${isDbDone ? 'line-through opacity-50' : ''}`}>
+                          MOD {t.modulo || '-'}
+                        </span>
                       </td>
                       <td className="px-6 py-5">
                         <span className={`text-base font-mono font-bold text-slate-500 uppercase tracking-tight ${isDbDone ? 'line-through decoration-slate-400' : ''}`}>
