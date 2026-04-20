@@ -549,8 +549,13 @@ export default function Dashboard() {
                                const dayOrder = { 'LUNES': 1, 'MARTES': 2, 'MIERCOLES': 3, 'MIÉRCOLES': 3, 'JUEVES': 4, 'VIERNES': 5, 'PROCESO': 6, 'SIN DÍA': 7 };
                                const getDayWeight = (d) => dayOrder[normalizeDay(d)] || dayOrder[d] || 99;
                                
+                               // Filter OPs by selected modules to keep consistency with the global filter
+                               const filteredOps = isAllModules 
+                                 ? row.ops 
+                                 : row.ops.filter(op => selectedModules.includes(String(op.modulo)));
+
                                // Sort OPs by day then module
-                               const sorted = [...row.ops].sort((a, b) => {
+                               const sorted = [...filteredOps].sort((a, b) => {
                                  const wA = getDayWeight(a.dia);
                                  const wB = getDayWeight(b.dia);
                                  if (wA !== wB) return wA - wB;
@@ -559,28 +564,23 @@ export default function Dashboard() {
                                  return mA - mB;
                                });
 
-                               // Waterfall: distribute transfers per day
+                               // Waterfall: distribute transfers per day AND module
                                const opsWithFill = [];
-                               const dayRemaining = {}; 
+                               const modDayRemaining = {}; 
 
                                sorted.forEach(op => {
                                  const dayKey = normalizeDay(op.dia) || 'SIN DÍA';
+                                 const modKey = String(op.modulo).trim();
+                                 const cacheKey = `${dayKey}|${modKey}`;
                                  
-                                 if (dayRemaining[dayKey] === undefined) {
-                                   let dayTransferred = 0;
-                                   const activeModules = isAllModules ? availableModules : selectedModules;
-                                   activeModules.forEach(modId => {
-                                     const mod = row.modules[modId];
-                                     if (mod && mod.transferredByDay && mod.transferredByDay[dayKey]) {
-                                       dayTransferred += mod.transferredByDay[dayKey];
-                                     }
-                                   });
-                                   dayRemaining[dayKey] = dayTransferred;
+                                 if (modDayRemaining[cacheKey] === undefined) {
+                                   const modData = row.modules[modKey];
+                                   modDayRemaining[cacheKey] = (modData && modData.transferredByDay) ? (modData.transferredByDay[dayKey] || 0) : 0;
                                  }
 
                                  const planned = op.cantidad;
-                                 const filled = Math.min(dayRemaining[dayKey], planned);
-                                 dayRemaining[dayKey] = Math.max(0, dayRemaining[dayKey] - planned);
+                                 const filled = Math.min(modDayRemaining[cacheKey], planned);
+                                 modDayRemaining[cacheKey] = Math.max(0, modDayRemaining[cacheKey] - planned);
                                  const pct = planned > 0 ? Math.min(100, (filled / planned) * 100) : 0;
                                  opsWithFill.push({ ...op, filled, pct });
                                });
