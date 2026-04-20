@@ -4,215 +4,237 @@ import * as XLSX from 'xlsx';
 import { useStore } from '../store/useStore';
 
 export default function DataIngestion() {
-  const [dataToUpload, setDataToUpload] = useState([]);
-  const [errorRows, setErrorRows] = useState([]);
+  const [planData, setPlanData] = useState([]);
+  const [maestroData, setMaestroData] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   
-  const { uploadPlanificacion, clearPlanificacion, loading } = useStore();
+  const { 
+    uploadPlanificacion, 
+    clearPlanificacion, 
+    uploadMaestroHilos, 
+    clearMaestroHilos,
+    loading 
+  } = useStore();
 
+  const processPlanFile = (json) => {
+    // User confirms CSV headers match Supabase table columns exactly
+    const processed = json.map(row => {
+      const entry = { ...row };
+      // Fix quantity type just in case
+      const qtyKey = Object.keys(entry).find(k => k.toLowerCase() === 'cantidad');
+      if (qtyKey) entry[qtyKey] = parseInt(entry[qtyKey], 10);
+      return entry;
+    }).filter(row => Object.values(row).some(v => v !== null && v !== ''));
+
+    setPlanData(processed);
+    if (processed.length > 0) {
+      setSuccessMsg(`Planificación: ${processed.length} registros listos para subir.`);
+    } else {
+      setErrorMsg('El archivo de planificación está vacío o no es válido.');
+    }
+  };
+
+  const processMaestroFile = (json) => {
+    // User confirms CSV headers match Supabase table columns exactly
+    const processed = json.filter(row => Object.values(row).some(v => v !== null && v !== ''));
+    setMaestroData(processed);
+    if (processed.length > 0) {
+      setSuccessMsg(`Maestro Hilos: ${processed.length} registros detectados.`);
+    } else {
+      setErrorMsg('El archivo de maestro de hilos está vacío.');
+    }
+  };
+
+  const handleUploadPlan = async () => {
+    if (planData.length === 0) return;
+    const res = await uploadPlanificacion(planData);
+    if (res) {
+      setPlanData([]);
+      setSuccessMsg('Planificación guardada en la base de datos.');
+    } else {
+      setErrorMsg('Error al guardar planificación. Revise los nombres de columnas.');
+    }
+  };
+
+  const handleUploadMaestro = async () => {
+    if (maestroData.length === 0) return;
+    const res = await uploadMaestroHilos(maestroData);
+    if (res) {
+      setMaestroData([]);
+      setSuccessMsg('Maestro de hilos actualizado correctamente.');
+    } else {
+      setErrorMsg('Error al actualizar maestro. Revise los nombres de columnas.');
+    }
+  };
+
+  const handleClearPlan = async () => {
+    if (window.confirm('¿Borrar TODA la planificación?')) {
+      await clearPlanificacion();
+      setSuccessMsg('Planificación borrada.');
+    }
+  };
+
+  const handleClearMaestro = async () => {
+    if (window.confirm('¿Borrar TODO el maestro de hilos?')) {
+      await clearMaestroHilos();
+      setSuccessMsg('Maestro de hilos borrado.');
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-12 max-w-[1600px] mx-auto p-4">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-5xl font-black text-primary font-headline tracking-tighter uppercase leading-none">Carga de Datos Directa</h1>
+        <p className="text-secondary font-bold text-xs uppercase tracking-[0.3em]">Sincronización Campo por Campo con la Base de Datos</p>
+      </header>
+
+      {(successMsg || errorMsg) && (
+        <div className={`p-4 rounded-xl border-l-4 shadow-sm animate-in fade-in slide-in-from-top-2 ${
+          successMsg ? 'bg-emerald-50 border-emerald-500 text-emerald-800' : 'bg-rose-50 border-rose-500 text-rose-800'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined">{successMsg ? 'check_circle' : 'error'}</span>
+              <p className="text-sm font-bold uppercase tracking-tight">{successMsg || errorMsg}</p>
+            </div>
+            <button onClick={() => { setSuccessMsg(null); setErrorMsg(null); }} className="opacity-50 hover:opacity-100">
+              <span className="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* Section Planificación */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-xl font-black text-primary font-headline uppercase tracking-tight">Plan Costura</h2>
+              <button onClick={handleClearPlan} title="Borrar Tabla" className="text-rose-400 hover:text-rose-600 transition-colors">
+                <span className="material-symbols-outlined">delete_forever</span>
+              </button>
+            </div>
+            <div className="p-8">
+              <DropzoneSection onDataParsed={processPlanFile} icon="table_chart" color="bg-primary" label="Plan de Costura" />
+            </div>
+          </div>
+          {planData.length > 0 && (
+            <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 animate-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm font-black text-primary uppercase">{planData.length} Registros listos</p>
+                <button onClick={handleUploadPlan} disabled={loading} className="px-6 py-2 bg-primary text-white text-xs font-black uppercase rounded-lg shadow-lg active:scale-95 transition-all">
+                  {loading ? 'Subiendo...' : 'Confirmar Carga'}
+                </button>
+              </div>
+              <div className="max-h-60 overflow-auto custom-scrollbar">
+                <table className="w-full text-[10px] text-left">
+                  <thead className="sticky top-0 bg-white shadow-sm">
+                    <tr>
+                      {Object.keys(planData[0] || {}).slice(0, 5).map(k => (
+                        <th key={k} className="p-2 border-b uppercase text-slate-400">{k}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {planData.slice(0, 10).map((row, i) => (
+                      <tr key={i} className="border-b border-primary/5 hover:bg-white">
+                        {Object.values(row).slice(0, 5).map((v, j) => (
+                          <td key={j} className="p-2 whitespace-nowrap">{String(v)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Section Maestro Hilos */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col">
+            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+              <h2 className="text-xl font-black text-secondary font-headline uppercase tracking-tight">Maestro de Hilos</h2>
+              <button onClick={handleClearMaestro} title="Borrar Maestro" className="text-rose-400 hover:text-rose-600 transition-colors">
+                <span className="material-symbols-outlined">delete_forever</span>
+              </button>
+            </div>
+            <div className="p-8">
+              <DropzoneSection onDataParsed={processMaestroFile} icon="inventory_2" color="bg-secondary" label="Maestro de Hilos" />
+            </div>
+          </div>
+          {maestroData.length > 0 && (
+            <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 animate-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm font-black text-amber-900 uppercase">{maestroData.length} SKUs detectados</p>
+                <button onClick={handleUploadMaestro} disabled={loading} className="px-6 py-2 bg-secondary text-white text-xs font-black uppercase rounded-lg shadow-lg active:scale-95 transition-all">
+                  {loading ? 'Actualizando...' : 'Procesar Maestro'}
+                </button>
+              </div>
+              <div className="max-h-60 overflow-auto custom-scrollbar">
+                <table className="w-full text-[10px] text-left">
+                  <thead className="sticky top-0 bg-amber-100 shadow-sm">
+                    <tr>
+                      {Object.keys(maestroData[0] || {}).slice(0, 5).map(k => (
+                        <th key={k} className="p-2 border-b uppercase text-amber-700">{k}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {maestroData.slice(0, 10).map((row, i) => (
+                      <tr key={i} className="border-b border-amber-200/30 hover:bg-white">
+                        {Object.values(row).slice(0, 5).map((v, j) => (
+                          <td key={j} className="p-2 whitespace-nowrap">{String(v)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+      `}} />
+    </div>
+  );
+}
+
+function DropzoneSection({ onDataParsed, icon, color, label }) {
   const onDrop = useCallback((acceptedFiles) => {
-    setErrorMsg(null);
-    setSuccessMsg(null);
-    setDataToUpload([]);
-    setErrorRows([]);
-    
     const file = acceptedFiles[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const data = e.target.result;
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet);
-
-        const validData = [];
-        const invalidData = [];
-
-        json.forEach((row, index) => {
-          const parsedRow = {
-            sku: row.SKU || row.sku || '',
-            semana: row.Semana || row.semana || '',
-            producto: row.Producto || row.producto || '',
-            color: row.Color || row.color || '',
-            nombre_color: row.Nombre_Color || row.nombre_color || row.NombreColor || '',
-            modulo: row.Modulo || row.modulo || row.Modulos || row.modulos || '',
-            cantidad: parseInt(row.Cantidad || row.cantidad, 10),
-            op: row.OP || row.op || row.Op || '',
-            dia: row.DIA || row.dia || row.Dia || '',
-          };
-
-          if (parsedRow.producto && parsedRow.nombre_color && !isNaN(parsedRow.cantidad)) {
-            validData.push(parsedRow);
-          } else {
-            invalidData.push(parsedRow);
-          }
-        });
-
-        if (validData.length === 0) {
-          setErrorMsg('No se encontraron registros válidos. Revise las columnas del Excel.');
-        } else {
-          setDataToUpload(validData);
-          setSuccessMsg(`Validación exitosa. ${validData.length} registros listos.`);
-        }
-        
-        setErrorRows(invalidData);
-      } catch (err) {
-        setErrorMsg('Error leyendo el archivo Excel.');
-      }
+        const JSONData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        onDataParsed(JSONData);
+      } catch (err) { console.error(err); }
     };
     reader.readAsBinaryString(file);
-  }, []);
+  }, [onDataParsed]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls'],
-      'text/csv': ['.csv']
-    },
-    maxFiles: 1
+    onDrop, accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'], 'application/vnd.ms-excel': ['.xls'], 'text/csv': ['.csv'] }, maxFiles: 1
   });
 
-  const handleProcessAll = async () => {
-    if (dataToUpload.length === 0) return;
-    const res = await uploadPlanificacion(dataToUpload);
-    if (res) {
-      setDataToUpload([]);
-      setErrorRows([]);
-      setSuccessMsg('Datos cargados exitosamente.');
-      setErrorMsg(null);
-    } else {
-      setErrorMsg('Error de base de datos. Verifique conexión y RLS');
-    }
-  };
-
-  const handleClearTable = async () => {
-    if (window.confirm('¿Desea BORRAR TODA la planificación de la base de datos?')) {
-      const success = await clearPlanificacion();
-      if (success) setSuccessMsg('Tabla de planificación limpiada.');
-    }
-  };
-
-  const totalRecords = dataToUpload.length + errorRows.length;
-
   return (
-    <div className="flex flex-col gap-10">
-      <section>
-        <div className="flex justify-between items-center mb-6">
-          <div className="font-headline">
-            <h1 className="text-4xl font-black text-primary tracking-tighter uppercase">Ingreso de Planificación</h1>
-            <p className="text-on-surface-variant font-medium mt-2 text-xs uppercase tracking-widest">Carga de archivos semanales y sincronización de datos.</p>
-          </div>
-          <button 
-            onClick={handleClearTable}
-            className="px-6 py-2 bg-rose-500/10 text-rose-600 text-xs font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all rounded-full shadow-sm"
-          >
-            Clear Database
-          </button>
-        </div>
-
-        <div 
-          {...getRootProps()} 
-          className={`relative border-2 border-dashed rounded-xl p-16 text-center transition-all cursor-pointer ${
-            isDragActive ? 'border-secondary bg-secondary-container/10' : 'border-outline-variant/30 bg-surface-container-lowest hover:border-secondary hover:bg-surface-container-low'
-          }`}
-        >
-          <input {...getInputProps()} />
-          <div className="mb-4 inline-flex p-5 rounded-full bg-primary-fixed-dim/20 text-primary">
-            <span className="material-symbols-outlined text-5xl">cloud_upload</span>
-          </div>
-          <h2 className="text-xl font-bold text-primary font-headline">Arrastre y suelte archivos de producción</h2>
-          <p className="text-on-surface-variant mt-2 mb-6 font-body text-sm">Formatos soportados: .xlsx, .xls, .csv</p>
-          <div className="inline-block px-8 py-3 bg-primary text-white text-sm font-bold rounded-lg shadow-lg hover:bg-[#0a1a2e] transition-all uppercase tracking-widest">
-            Buscar en mi equipo
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-4">
-          {successMsg && (
-            <div className="flex items-center gap-3 p-4 bg-emerald-50 text-emerald-700 rounded-lg border-l-4 border-emerald-500 shadow-sm font-medium">
-              <span className="material-symbols-outlined">check_circle</span>
-              {successMsg}
-            </div>
-          )}
-          {errorMsg && (
-            <div className="flex items-center gap-3 p-4 bg-rose-50 text-rose-700 rounded-lg border-l-4 border-rose-500 shadow-sm font-medium">
-              <span className="material-symbols-outlined">error</span>
-              {errorMsg}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {(dataToUpload.length > 0 || errorRows.length > 0) && (
-        <section className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-          <div className="bg-surface-container-low/50 px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
-            <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">Data Preview</h3>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => { setDataToUpload([]); setErrorRows([]); }}
-                className="text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors uppercase tracking-widest"
-              >
-                Clear Preview
-              </button>
-              <button 
-                disabled={loading || dataToUpload.length === 0}
-                onClick={handleProcessAll}
-                className="px-8 py-2 bg-secondary text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-lg shadow-secondary/30 hover:bg-[#8f3400] active:scale-95 transition-all"
-              >
-                {loading ? 'Processing...' : 'Upload to Supabase'}
-              </button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto min-h-[300px]">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-surface-container-low/30 border-b border-outline-variant/20 font-headline">
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">HILO</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">OP</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">PRODUCTO</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">COLOR / DESC</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">MÓDULO</th>
-                  <th className="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-on-surface-variant">DÍA</th>
-                  <th className="px-8 py-4 text-right text-[10px] font-black uppercase tracking-widest text-on-surface-variant">CANTIDAD</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-body">
-                {dataToUpload.map((row, i) => (
-                  <tr key={`valid-${i}`} className="hover:bg-primary-fixed/5 transition-colors">
-                    <td className="px-8 py-4 text-sm font-medium text-slate-400 tabular-nums">{row.sku || '-'}</td>
-                    <td className="px-8 py-4 text-sm font-bold text-secondary">{row.op || '-'}</td>
-                    <td className="px-8 py-4 text-sm font-black text-primary font-headline">{row.producto}</td>
-                    <td className="px-8 py-4 text-sm text-on-surface-variant">{row.color} - {row.nombre_color}</td>
-                    <td className="px-8 py-4 text-sm text-slate-500">{row.modulo || 'N/A'}</td>
-                    <td className="px-8 py-4 text-sm text-slate-500">{row.dia || '-'}</td>
-                    <td className="px-8 py-4 text-sm font-black text-primary text-right tabular-nums">{row.cantidad.toLocaleString()}</td>
-                  </tr>
-                ))}
-                {errorRows.map((row, i) => (
-                  <tr key={`error-${i}`} className="bg-rose-50/50">
-                    <td className="px-8 py-4 text-sm font-medium text-rose-400 italic" colSpan="6">
-                      Invalid record found: {row.producto || 'Missing data'}
-                    </td>
-                    <td className="px-8 py-4 text-sm font-bold text-rose-600 text-right uppercase tracking-widest">Error</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="bg-surface-container-low/30 px-8 py-4 flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest font-headline">
-            <span>Scan detected {totalRecords} entries</span>
-            <span className="text-secondary">{dataToUpload.length} ready for upload</span>
-          </div>
-        </section>
-      )}
+    <div {...getRootProps()} className={`h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer ${isDragActive ? 'border-primary bg-primary/5 shadow-inner' : 'border-slate-200 hover:border-primary/30 hover:bg-slate-50'}`}>
+      <input {...getInputProps()} />
+      <div className={`mb-4 p-4 rounded-full ${color} text-white shadow-xl`}>
+        <span className="material-symbols-outlined text-4xl">{icon}</span>
+      </div>
+      <p className="text-sm font-black text-slate-800 uppercase">Cargar archivo de {label}</p>
+      <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest text-center px-4">Asegúrese que los nombres de las columnas coincidan con la base de datos</p>
     </div>
   );
 }
-

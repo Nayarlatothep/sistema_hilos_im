@@ -5,6 +5,7 @@ export const useStore = create((set, get) => ({
   planificacion: [],
   transferencias: [],
   meta_diaria: [],
+  maestro_hilos: [],
   loading: false,
   error: null,
 
@@ -45,6 +46,18 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  fetchMaestroHilos: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('maestro_hilos')
+      .select('*');
+    if (error) {
+      set({ error: error.message, loading: false });
+    } else {
+      set({ maestro_hilos: data, loading: false });
+    }
+  },
+
   uploadPlanificacion: async (records) => {
     set({ loading: true, error: null });
     const { data, error } = await supabase
@@ -56,6 +69,21 @@ export const useStore = create((set, get) => ({
       return null;
     } else {
       set({ planificacion: [...get().planificacion, ...data], loading: false });
+      return data;
+    }
+  },
+
+  uploadMaestroHilos: async (records) => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('maestro_hilos')
+      .insert(records)
+      .select();
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      set({ maestro_hilos: [...get().maestro_hilos, ...data], loading: false });
       return data;
     }
   },
@@ -104,6 +132,22 @@ export const useStore = create((set, get) => ({
       return false;
     } else {
       set({ planificacion: [], loading: false });
+      return true;
+    }
+  },
+
+  clearMaestroHilos: async () => {
+    set({ loading: true, error: null });
+    const { error } = await supabase
+      .from('maestro_hilos')
+      .delete()
+      .neq('id', 0);
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return false;
+    } else {
+      set({ maestro_hilos: [], loading: false });
       return true;
     }
   },
