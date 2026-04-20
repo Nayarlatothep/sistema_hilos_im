@@ -190,7 +190,7 @@ export default function TransferForm() {
                                 <span className="bg-slate-200 text-slate-900 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter">ABC: {item.class_abc}</span>
                               )}
                               <p className="text-[9px] text-slate-900 font-black whitespace-nowrap">
-                                {item.cod_articulo} - {item.cantidad_conos}
+                                {item.cod_articulo} - {item.cantidad_conos}Kyds
                               </p>
                             </div>
                           </div>
