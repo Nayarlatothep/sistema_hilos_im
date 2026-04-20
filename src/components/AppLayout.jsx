@@ -53,7 +53,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
               >
-                Traslado a Almacén de Producción
+                Transferencias
               </a>
             </nav>
           </div>
@@ -95,7 +95,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
           onClick={() => onTabChange('dashboard-transfer')}
         >
           <span className="material-symbols-outlined text-2xl">local_shipping</span>
-          <span className="text-[10px] font-bold uppercase text-center">Traslado</span>
+          <span className="text-[10px] font-bold uppercase text-center">Transferencias</span>
         </div>
         <div 
           className={`flex flex-col items-center gap-1 ${currentTab === 'upload' ? 'text-secondary' : 'text-white/40'}`}
