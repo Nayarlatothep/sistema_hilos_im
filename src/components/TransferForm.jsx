@@ -2,7 +2,17 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function TransferForm() {
-  const { planificacion, transferencias, addMultipleTransferencias, fetchTransferencias, clearTransferencias, loading, getAvailableModules } = useStore();
+  const { 
+    planificacion, 
+    transferencias, 
+    maestro_hilos,
+    fetchMaestroHilos,
+    addMultipleTransferencias, 
+    fetchTransferencias, 
+    clearTransferencias, 
+    loading, 
+    getAvailableModules 
+  } = useStore();
   const availableModules = React.useMemo(() => getAvailableModules(), [planificacion, transferencias]);
   
   const [formData, setFormData] = useState({
@@ -15,37 +25,20 @@ export default function TransferForm() {
   const [localTransferencias, setLocalTransferencias] = useState([]);
   const [msg, setMsg] = useState(null);
 
+  useEffect(() => {
+    fetchMaestroHilos();
+  }, [fetchMaestroHilos]);
+
   const inventoryData = useMemo(() => {
-    const dataMap = {};
-    planificacion.forEach(p => {
-      const key = `${p.producto} - ${p.nombre_color}`;
-      if (!dataMap[key]) {
-        dataMap[key] = {
-          sku: p.sku || p.producto,
-          producto: p.producto,
-          color: p.color,
-          nombre_color: p.nombre_color,
-          planned: 0,
-          transferred: 0
-        };
-      }
-      dataMap[key].planned += parseInt(p.cantidad || 0, 10);
-    });
-
-    transferencias.forEach(t => {
-      const key = `${t.producto} - ${t.nombre_color}`;
-      if (dataMap[key]) {
-        dataMap[key].transferred += parseInt(t.cantidad || 0, 10);
-      }
-    });
-
-    return Object.values(dataMap).sort((a, b) => {
-      const prodA = String(a.producto || '');
-      const prodB = String(b.producto || '');
-      if (prodA !== prodB) return prodA.localeCompare(prodB);
-      return (a.nombre_color || '').localeCompare(b.nombre_color || '');
-    });
-  }, [planificacion, transferencias]);
+    return maestro_hilos.map(m => ({
+      sku: m.sku || m.articulo || '',
+      producto: m.articulo || '',
+      color: m.color || '',
+      nombre_color: m.nombre_color || '',
+      planned: 0,
+      transferred: 0
+    })).sort((a, b) => (a.producto || '').localeCompare(b.producto || ''));
+  }, [maestro_hilos]);
 
   const selectedItem = useMemo(() => {
     return inventoryData.find(item => item.sku === formData.sku);
