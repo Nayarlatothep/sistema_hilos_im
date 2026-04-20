@@ -2,7 +2,15 @@ import React, { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Dashboard() {
-  const { planificacion, transferencias, meta_diaria, getAvailableModules } = useStore();
+  const { 
+    planificacion, 
+    transferencias, 
+    meta_diaria, 
+    getAvailableModules,
+    fetchPlanificacion,
+    fetchTransferencias,
+    fetchMetaDiaria 
+  } = useStore();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedModules, setSelectedModules] = React.useState(['1', '2', '3', '4']);
   const [expandedRow, setExpandedRow] = React.useState(null);
@@ -16,6 +24,17 @@ export default function Dashboard() {
     { label: 'Pr', value: 'PROCESO' },
   ];
   const [selectedDays, setSelectedDays] = React.useState(dayOptions.map(d => d.value));
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      fetchTransferencias(),
+      fetchPlanificacion(),
+      fetchMetaDiaria()
+    ]);
+    setIsRefreshing(false);
+  };
 
   const normalizeDay = (str) => {
     if (!str) return '';
@@ -321,7 +340,17 @@ export default function Dashboard() {
       <section>
         <p className="text-sm font-bold text-secondary uppercase tracking-[0.2em] mb-2 font-headline">Real-Time Performance</p>
         <div className="flex justify-between items-end">
-          <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">KPI Producción</h2>
+          <div className="flex items-center gap-6">
+            <h2 className="text-5xl font-black font-headline text-primary tracking-tighter">KPI Producción</h2>
+            <button 
+              onClick={handleRefresh}
+              className={`p-2 bg-primary rounded-lg text-white hover:bg-primary/90 transition-all active:scale-95 flex items-center justify-center shadow-md ${isRefreshing ? 'animate-spin opacity-70' : ''}`}
+              title="Refrescar datos"
+              disabled={isRefreshing}
+            >
+              <span className="material-symbols-outlined text-xl">refresh</span>
+            </button>
+          </div>
           <div className="text-right">
             <p className="text-on-surface-variant text-[10px] font-bold uppercase font-headline">Última Actualización</p>
             <p className="font-bold text-primary font-body">{timestamp}</p>
