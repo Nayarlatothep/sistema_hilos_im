@@ -38,6 +38,7 @@ export default function TransferForm() {
       class_abc: m.class_abc || '',
       cod_articulo: m.cod_articulo || '',
       cantidad_conos: m.cantidad_conos || m.cantidad_kyd || '',
+      cantidad_kyd: parseFloat(m.cantidad_kyd || 0),
       planned: 0,
       transferred: 0
     })).sort((a, b) => (a.producto || '').localeCompare(b.producto || ''));
@@ -83,7 +84,7 @@ export default function TransferForm() {
       nombre_color: selectedItem.nombre_color,
       modulo: formData.modulo,
       cantidad: qty,
-      yardas: (selectedItem.producto === '60 08 180' || selectedItem.producto === '60 08 0180') ? qty * 1225 : qty * 3000
+      yardas: qty * (selectedItem.cantidad_kyd || 0)
     };
 
     setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
