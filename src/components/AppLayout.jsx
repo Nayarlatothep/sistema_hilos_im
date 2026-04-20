@@ -46,7 +46,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                 href="#"
                 onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
               >
-                INGRESO PLAN COSTURA
+                INGRESO ARCHIVOS
               </a>
               <a 
                 className={`${currentTab === 'dashboard-transfer' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
@@ -102,7 +102,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
           onClick={() => onTabChange('upload')}
         >
           <span className="material-symbols-outlined text-2xl">factory</span>
-          <span className="text-[10px] font-bold uppercase text-center">PLAN</span>
+          <span className="text-[10px] font-bold uppercase text-center">ARCHIVOS</span>
         </div>
         <div className="flex flex-col items-center gap-1 text-white/20">
           <span className="material-symbols-outlined text-2xl">monitoring</span>
