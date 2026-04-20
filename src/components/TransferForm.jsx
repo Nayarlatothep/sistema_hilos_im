@@ -334,7 +334,7 @@ export default function TransferForm() {
                     <td className="px-8 py-4 text-center text-sm font-black text-primary">{t.modulo}</td>
                     <td className="px-8 py-4 text-right">
                       <p className="text-sm font-black text-secondary tabular-nums">{t.yardas?.toLocaleString()} Kyds</p>
-                      <p className="text-[10px] text-slate-400 font-bold">{t.cantidad} Units</p>
+                      <p className="text-[10px] text-slate-400 font-bold">{t.cantidad} Conos</p>
                     </td>
                     <td className="px-8 py-4 text-center">
                       <button 
