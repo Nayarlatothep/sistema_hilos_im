@@ -26,6 +26,11 @@ export default function TransferForm() {
   const [localTransferencias, setLocalTransferencias] = useState([]);
   const [msg, setMsg] = useState(null);
 
+  const [entregaTipo, setEntregaTipo] = useState('individual'); // 'individual' | 'proceso'
+  const [procesoSelected, setProcesoSelected] = useState('');
+
+  const procesosList = ['Preparados', 'Partes Traseras', 'Empaque', 'Distribución Total'];
+
   useEffect(() => {
     fetchMaestroHilos();
   }, [fetchMaestroHilos]);
@@ -76,23 +81,77 @@ export default function TransferForm() {
       return;
     }
 
-    const nuevoRegistro = {
-      id: Date.now(),
-      sku: `${selectedItem.producto}${selectedItem.color}`,
-      fecha_transferencia: new Date().toISOString(),
-      producto: selectedItem.producto,
-      color: selectedItem.color,
-      nombre_color: selectedItem.nombre_color,
-      modulo: formData.modulo,
-      cantidad: qty,
-      yardas: qty * (selectedItem.cantidad_kyd || 0),
-      comentario: formData.comentario
-    };
+    let registrosNuevos = [];
 
-    setLocalTransferencias([nuevoRegistro, ...localTransferencias]);
-    setMsg({ type: 'success', text: `Registered locally.` });
-    setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '', comentario: '' });
-    setFilterText('');
+    if (entregaTipo === 'individual') {
+      if (!formData.modulo) {
+        alert('Seleccione un módulo.');
+        return;
+      }
+      registrosNuevos.push({
+        id: Date.now(),
+        sku: `${selectedItem.producto}${selectedItem.color}`,
+        fecha_transferencia: new Date().toISOString(),
+        producto: selectedItem.producto,
+        color: selectedItem.color,
+        nombre_color: selectedItem.nombre_color,
+        modulo: formData.modulo,
+        cantidad: qty,
+        yardas: qty * (selectedItem.cantidad_kyd || 0),
+        comentario: formData.comentario
+      });
+    } else {
+      // MODO PROCESO: Distribución automática
+      if (!procesoSelected) {
+        alert('Seleccione un proceso para distribuir.');
+        return;
+      }
+
+      // Buscar módulos que necesiten este hilo en la planificación
+      // Normalización para comparación robusta
+      const normalize = (s) => String(s || '').trim().toUpperCase();
+      const targetProd = normalize(selectedItem.producto);
+      const targetColor = normalize(selectedItem.color);
+
+      const modulesPlanned = planificacion.filter(p => 
+        normalize(p.producto) === targetProd && 
+        normalize(p.color) === targetColor
+      ).map(p => String(p.modulo).trim()).filter(Boolean);
+
+      const uniqueModules = Array.from(new Set(modulesPlanned));
+
+      if (uniqueModules.length === 0) {
+        alert(`No hay planificación activa para ${selectedItem.producto} en ningún módulo. No se puede realizar la distribución automática.`);
+        return;
+      }
+
+      const qtyPerMod = Math.floor(qty / uniqueModules.length);
+      const remainder = qty % uniqueModules.length;
+
+      uniqueModules.forEach((modId, index) => {
+          // El remanente se suma al primero (o se distribuye) para no perder unidades
+          const finalQty = qtyPerMod + (index === 0 ? remainder : 0);
+          if (finalQty === 0) return;
+
+          registrosNuevos.push({
+            id: Date.now() + index,
+            sku: `${selectedItem.producto}${selectedItem.color}`,
+            fecha_transferencia: new Date().toISOString(),
+            producto: selectedItem.producto,
+            color: selectedItem.color,
+            nombre_color: selectedItem.nombre_color,
+            modulo: modId,
+            cantidad: finalQty,
+            yardas: finalQty * (selectedItem.cantidad_kyd || 0),
+            comentario: `[PROCESO: ${procesoSelected}] ${formData.comentario}`.trim()
+          });
+      });
+    }
+
+    setLocalTransferencias([...registrosNuevos, ...localTransferencias]);
+    setMsg({ type: 'success', text: `Registrado: ${registrosNuevos.length} entrada(s).` });
+    setFormData({ sku: formData.sku, nombre_color: formData.nombre_color, modulo: '', cantidad: '', comentario: '' });
+    // setFilterText(''); // Keep filter for faster repeated entries if needed? No, better clear
     setTimeout(() => setMsg(null), 3000);
   };
 
@@ -224,24 +283,7 @@ export default function TransferForm() {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">grid_view</span> Módulo
-              </label>
-              <select 
-                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
-                value={formData.modulo}
-                onChange={(e) => setFormData({...formData, modulo: e.target.value})}
-                required
-              >
-                <option value="" disabled>Seleccione Módulo</option>
-                {availableModules.map(mod => (
-                  <option key={mod} value={mod}>Módulo {mod}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">circle</span> Cantidad (Unidades)
+                <span className="material-symbols-outlined text-sm">circle</span> Cantidad Total (Conos)
               </label>
               <div className="relative">
                 <input 
@@ -252,21 +294,91 @@ export default function TransferForm() {
                   onChange={(e) => setFormData({...formData, cantidad: e.target.value})}
                   required
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">UNS</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">CONOS</span>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 md:col-span-2">
-              <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">comment</span> Observaciones / Tracking
-              </label>
-              <input 
-                type="text" 
-                className="w-full bg-surface-container-low border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-4 px-4 rounded-t-lg font-body"
-                placeholder="Ej: Distribución para Preparados, Partes Traseras, etc."
-                value={formData.comentario}
-                onChange={(e) => setFormData({...formData, comentario: e.target.value})}
-              />
+            <div className="flex flex-col gap-4 md:col-span-2 bg-primary/5 p-6 rounded-xl border border-primary/10">
+               <div className="flex items-center gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="entregaTipo" 
+                      checked={entregaTipo === 'individual'} 
+                      onChange={() => setEntregaTipo('individual')}
+                      className="w-4 h-4 text-primary focus:ring-primary/20"
+                    />
+                    <span className={`text-xs font-black uppercase tracking-widest ${entregaTipo === 'individual' ? 'text-primary' : 'text-slate-400'}`}>Individual</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input 
+                      type="radio" 
+                      name="entregaTipo" 
+                      checked={entregaTipo === 'proceso'} 
+                      onChange={() => setEntregaTipo('proceso')}
+                      className="w-4 h-4 text-primary focus:ring-primary/20"
+                    />
+                    <span className={`text-xs font-black uppercase tracking-widest ${entregaTipo === 'proceso' ? 'text-primary' : 'text-slate-400'}`}>Por Proceso (Distribución)</span>
+                  </label>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {entregaTipo === 'individual' ? (
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm">grid_view</span> Módulo Destino
+                      </label>
+                      <select 
+                        className="w-full bg-white border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 px-4 rounded-t-lg font-body"
+                        value={formData.modulo}
+                        onChange={(e) => setFormData({...formData, modulo: e.target.value})}
+                      >
+                        <option value="" disabled>Seleccione Módulo</option>
+                        {availableModules.map(mod => (
+                          <option key={mod} value={mod}>Módulo {mod}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm">account_tree</span> Proceso de Reparto
+                      </label>
+                      <select 
+                        className="w-full bg-white border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 px-4 rounded-t-lg font-body"
+                        value={procesoSelected}
+                        onChange={(e) => setProcesoSelected(e.target.value)}
+                      >
+                        <option value="" disabled>Seleccione Proceso</option>
+                        {procesosList.map(proc => (
+                          <option key={proc} value={proc}>{proc}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">comment</span> Observaciones Adicionales
+                    </label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-white border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 px-4 rounded-t-lg font-body"
+                      placeholder="Nota opcional..."
+                      value={formData.comentario}
+                      onChange={(e) => setFormData({...formData, comentario: e.target.value})}
+                    />
+                  </div>
+               </div>
+               
+               {entregaTipo === 'proceso' && selectedItem && (
+                 <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center gap-3 animate-pulse">
+                    <span className="material-symbols-outlined text-blue-600 text-sm">info</span>
+                    <p className="text-[10px] text-blue-800 font-bold uppercase tracking-tight">
+                      El sistema dividirá los {formData.cantidad || '0'} conos entre todos los módulos activos en el plan para {selectedItem.producto}.
+                    </p>
+                 </div>
+               )}
             </div>
           </div>
 
