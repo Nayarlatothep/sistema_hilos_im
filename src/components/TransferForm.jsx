@@ -333,7 +333,7 @@ export default function TransferForm() {
                       onChange={() => setEntregaTipo('individual')}
                       className="w-4 h-4 text-primary focus:ring-primary/20"
                     />
-                    <span className={`text-xs font-black uppercase tracking-widest ${entregaTipo === 'individual' ? 'text-primary' : 'text-slate-400'}`}>Individual</span>
+                    <span className={`text-xs font-black uppercase tracking-widest ${entregaTipo === 'individual' ? 'text-primary' : 'text-slate-400'}`}>MODULOS</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <input 
@@ -343,7 +343,7 @@ export default function TransferForm() {
                       onChange={() => setEntregaTipo('proceso')}
                       className="w-4 h-4 text-primary focus:ring-primary/20"
                     />
-                    <span className={`text-xs font-black uppercase tracking-widest ${entregaTipo === 'proceso' ? 'text-primary' : 'text-slate-400'}`}>Por Proceso (Distribución)</span>
+                    <span className={`text-xs font-black uppercase tracking-widest ${entregaTipo === 'proceso' ? 'text-primary' : 'text-slate-400'}`}>POR AREA DE PRODUCCION</span>
                   </label>
                </div>
 
@@ -367,7 +367,7 @@ export default function TransferForm() {
                   ) : (
                     <div className="flex flex-col gap-2">
                       <label className="text-xs font-black uppercase tracking-widest text-on-surface-variant font-headline flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">account_tree</span> Proceso de Reparto
+                        <span className="material-symbols-outlined text-sm">account_tree</span> Area de Produccion
                       </label>
                       <select 
                         className="w-full bg-white border-none border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-sm py-3 px-4 rounded-t-lg font-body"
