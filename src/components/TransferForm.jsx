@@ -65,12 +65,27 @@ export default function TransferForm() {
 
   const filteredItems = useMemo(() => {
     const q = filterText.toLowerCase().trim();
-    const isSelectedMatch = selectedItem && `${selectedItem.producto} - ${selectedItem.nombre_color}` === filterText;
-    if (!q || isSelectedMatch) return inventoryData;
-    return inventoryData.filter(item => 
-      String(item.producto).toLowerCase().includes(q) || 
-      String(item.nombre_color).toLowerCase().includes(q)
-    );
+    
+    // Don't show options if the query is empty
+    if (!q) return [];
+
+    // Check if the query matches the currently selected item label exactly to avoid showing the dropdown again
+    const isSelectedMatch = selectedItem && `${selectedItem.producto} - ${selectedItem.nombre_color}`.toLowerCase() === q;
+    if (isSelectedMatch) return [];
+
+    const words = q.split(/\s+/);
+    return inventoryData.filter(item => {
+      const searchableText = `
+        ${item.producto} 
+        ${item.nombre_color} 
+        ${item.color} 
+        ${item.cod_articulo} 
+        ${item.sku}
+      `.toLowerCase();
+      
+      // All words in the query must be found in the searchable text (AND logic)
+      return words.every(word => searchableText.includes(word));
+    }).slice(0, 50); // Limit results for performance
   }, [inventoryData, filterText, selectedItem]);
 
   const handleSubmit = async (e) => {
