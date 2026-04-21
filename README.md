@@ -58,14 +58,17 @@ La plataforma fue diseñada para ser operada por personal de planta y supervisor
 
 ## ✨ Características Principales
 
-- 📊 **Dashboard KPI en tiempo real** — Tarjetas de cumplimiento por módulo con indicadores de color (verde/amarillo/rojo)
-- 📈 **Meta diaria por módulo** — Resumen Lunes-Viernes de cumplimiento vs. meta configurada en Supabase
-- 📦 **Registro de traslados** — Formulario para documentar transferencias de hilos entre almacenes con cálculo automático de yardaje
-- 📋 **Reporte de traslados** — Tabla interactiva con filtros, estado procesado/pendiente, actualización en lote y **botón de refresco manual**
-- 📤 **Ingesta de datos (Excel)** — Carga masiva de planificación desde archivos `.xlsx`, `.xls`, o `.csv` con validación previa
-- 🔄 **Módulos dinámicos** — El sistema detecta automáticamente módulos nuevos (4, 5, N...) sin necesidad de cambios de código
-- 📱 **PWA-ready** — Configuración de Progressive Web App para instalación en dispositivos móviles
-- 🎨 **Material Design 3** — Paleta de colores basada en Material You con tipografía Manrope/Inter
+- 📈 **Modos de Entrega Inteligentes** — Selección entre entrega **Individual** (a un módulo) o **Por Proceso** (distribución automática basada en la planificación activa).
+- 🔍 **Buscador de Alta Precisión** — Nuevo motor de búsqueda Hilo-Color con lógica "AND" (múltiples palabras), búsqueda en SKU/Colores y filtrado dinámico.
+- 📐 **Cálculo de Yardaje Avanzado** — Conversión automática: `Conos × Kiloyardas (médula) × 1000` con respaldos inteligentes por tipo de producto.
+- 📊 **Dashboard KPI en tiempo real** — Tarjetas de cumplimiento por módulo con indicadores de color (verde/amarillo/rojo).
+- 📈 **Meta diaria por módulo** — Resumen Lunes-Viernes de cumplimiento vs. meta configurada en Supabase.
+- 📦 **Registro de traslados** — Formulario para documentar transferencias de hilos entre almacenes con bitácora de sesión.
+- 📋 **Reporte de traslados** — Tabla interactiva con filtros, estado procesado/pendiente y actualización en lote.
+- 📤 **Ingesta de datos (Excel)** — Carga masiva de planificación y maestro de hilos con validación previa.
+- 🔄 **Módulos dinámicos** — El sistema detecta automáticamente módulos nuevos sin necesidad de cambios de código.
+- 📱 **PWA-ready** — Configuración para instalación en dispositivos móviles.
+- 🎨 **Material Design 3** — Estética premium con tipografía Manrope e Inter.
 
 ---
 
@@ -76,26 +79,8 @@ La plataforma fue diseñada para ser operada por personal de planta y supervisor
 |------------|---------|-----------|
 | **React** | 18.2 | Librería de UI con hooks y componentes funcionales |
 | **Vite** | 5.1 | Build tool y dev server con HMR instantáneo |
-| **Zustand** | 4.5 | State management minimalista (~1KB) |
-| **TailwindCSS** | CDN | Utility-first CSS framework (cargado vía CDN) |
-| **Stitches** | 1.2.8 | CSS-in-JS para design tokens (configuración base) |
-| **Lucide React** | 0.321 | Librería de íconos (disponible pero usa Material Symbols) |
-| **SheetJS (xlsx)** | 0.18.5 | Parseo de archivos Excel/CSV para ingesta de datos |
-| **react-dropzone** | 14.2.3 | Zona de drag-and-drop para upload de archivos |
-
-### Backend / Base de Datos
-| Tecnología | Propósito |
-|------------|-----------|
-| **Supabase** | Backend-as-a-Service (PostgreSQL, Auth, RLS, Realtime) |
-| **PostgreSQL** | Base de datos relacional alojada en Supabase |
-
-### Infraestructura
-| Tecnología | Propósito |
-|------------|-----------|
-| **Vercel** | Hosting y CI/CD automático desde GitHub |
-| **Vite PWA Plugin** | Service worker y manifest para modo offline |
-| **Google Fonts** | Tipografías Manrope (headings) e Inter (body) |
-| **Material Symbols** | Íconos de Google Material Design |
+| **Zustand** | 4.5 | State management para persistencia y estados globales |
+| **TailwindCSS** | CDN | Estilizado dinámico y diseño responsive |
 
 ---
 
@@ -104,41 +89,18 @@ La plataforma fue diseñada para ser operada por personal de planta y supervisor
 ```mermaid
 graph TB
     subgraph "Cliente (Browser)"
-        A["index.html<br/>Tailwind Config + Fonts"] --> B["main.jsx<br/>React Entry Point"]
-        B --> C["App.jsx<br/>Tab Router + Error Boundary"]
-        C --> D["AppLayout.jsx<br/>Header + Navigation + Footer"]
+        A["index.html"] --> B["main.jsx"]
+        B --> C["App.jsx"]
+        C --> D["Dashboard.jsx<br/>KPI & Waterfall"]
+        C --> E["TransferForm.jsx<br/>Individual/Proceso"]
+        C --> F["Traslados.jsx<br/>Reportes"]
         
-        C --> E["Dashboard.jsx<br/>KPI Producción"]
-        C --> F["TransferForm.jsx<br/>Traslado a Almacén"]
-        C --> G["Traslados.jsx<br/>Reporte Traslados"]
-        C --> H["DataIngestion.jsx<br/>Upload Excel"]
-        
-        I["useStore.js<br/>Zustand Store"] -.->|state| E
-        I -.->|state| F
-        I -.->|state| G
-        I -.->|state| H
+        G["useStore.js"] -.-> D
+        G -.-> E
+        G -.-> F
     end
     
     subgraph "Supabase Cloud"
-        J["planificacion_produccion<br/>125 registros"]
-        K["transferencias_realizadas<br/>68 registros"]
-        L["meta_diaria_plancostura<br/>Metas por día/módulo"]
-    end
-    
-    I -->|"supabaseClient.js<br/>CRUD Operations"| J
-    I -->|"supabaseClient.js"| K
-    I -->|"supabaseClient.js"| L
-    
-    subgraph "Deployment"
-        M["GitHub<br/>Repositorio"] -->|"Auto Deploy"| N["Vercel<br/>Production"]
-    end
-    
-    style E fill:#22c55e,color:#fff
-    style F fill:#f59e0b,color:#fff
-    style G fill:#3b82f6,color:#fff
-    style H fill:#8b5cf6,color:#fff
-```
-
 ### Flujo de Datos
 
 ```mermaid
