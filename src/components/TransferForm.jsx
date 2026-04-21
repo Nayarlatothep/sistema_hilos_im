@@ -156,8 +156,12 @@ export default function TransferForm() {
 
     setLocalTransferencias([...registrosNuevos, ...localTransferencias]);
     setMsg({ type: 'success', text: `Registrado: ${registrosNuevos.length} entrada(s).` });
-    setFormData({ sku: formData.sku, nombre_color: formData.nombre_color, modulo: '', cantidad: '', comentario: '' });
-    // setFilterText(''); // Keep filter for faster repeated entries if needed? No, better clear
+    
+    // Clear all fields as requested by the user
+    setFormData({ sku: '', nombre_color: '', modulo: '', cantidad: '', comentario: '' });
+    setFilterText('');
+    setProcesoSelected('');
+    
     setTimeout(() => setMsg(null), 3000);
   };
 
