@@ -38,8 +38,8 @@ export default function TransferForm() {
   const inventoryData = useMemo(() => {
     return maestro_hilos.map(m => {
       const prod = String(m.articulo || '').trim();
-      // Default yardage logic similar to Dashboard.jsx
-      const defaultKyd = (prod.includes('60 08 180') || prod.includes('60 08 0180')) ? 1225 : 3000;
+      // Default unit values (in Kyds)
+      const defaultKyd = (prod.includes('60 08 180') || prod.includes('60 08 0180')) ? 1.225 : 3;
       
       return {
         sku: m.sku || m.articulo || '',
@@ -88,7 +88,8 @@ export default function TransferForm() {
     }
 
     let registrosNuevos = [];
-    const yardsPerCone = selectedItem.cantidad_kyd || 3000;
+    const kydValue = selectedItem.cantidad_kyd || 3;
+    const totalYardage = qty * kydValue * 1000;
 
     if (entregaTipo === 'individual') {
       if (!formData.modulo) {
@@ -104,7 +105,7 @@ export default function TransferForm() {
         nombre_color: selectedItem.nombre_color,
         modulo: formData.modulo,
         cantidad: qty,
-        yardas: qty * yardsPerCone,
+        yardas: totalYardage,
         comentario: formData.comentario
       });
     } else {
@@ -147,7 +148,7 @@ export default function TransferForm() {
             nombre_color: selectedItem.nombre_color,
             modulo: modId,
             cantidad: finalQty,
-            yardas: finalQty * yardsPerCone,
+            yardas: finalQty * kydValue * 1000,
             comentario: `[PROCESO: ${procesoSelected}] ${formData.comentario}`.trim()
           });
       });
