@@ -431,7 +431,7 @@ export default function TransferForm() {
 
       <section className="bg-surface-container-lowest border border-outline-variant/10 rounded-xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
         <div className="bg-surface-container-low/50 px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
-          <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">Bitácora de Sesión</h3>
+          <h3 className="text-lg font-black font-headline text-primary uppercase tracking-tight">BITACORA DE HILOS</h3>
           <div className="flex gap-4">
             <button 
               onClick={handleClearTrans}
