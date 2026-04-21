@@ -36,18 +36,24 @@ export default function TransferForm() {
   }, [fetchMaestroHilos]);
 
   const inventoryData = useMemo(() => {
-    return maestro_hilos.map(m => ({
-      sku: m.sku || m.articulo || '',
-      producto: m.articulo || '',
-      color: m.cod_color || m.color || '',
-      nombre_color: m.nombre_color || '',
-      class_abc: m.class_abc || '',
-      cod_articulo: m.cod_articulo || '',
-      cantidad_conos: m.cantidad_conos || m.cantidad_kyd || '',
-      cantidad_kyd: parseFloat(m.cantidad_kyd || 0),
-      planned: 0,
-      transferred: 0
-    })).sort((a, b) => (a.producto || '').localeCompare(b.producto || ''));
+    return maestro_hilos.map(m => {
+      const prod = String(m.articulo || '').trim();
+      // Default yardage logic similar to Dashboard.jsx
+      const defaultKyd = (prod.includes('60 08 180') || prod.includes('60 08 0180')) ? 1225 : 3000;
+      
+      return {
+        sku: m.sku || m.articulo || '',
+        producto: m.articulo || '',
+        color: m.cod_color || m.color || '',
+        nombre_color: m.nombre_color || '',
+        class_abc: m.class_abc || '',
+        cod_articulo: m.cod_articulo || '',
+        cantidad_conos: m.cantidad_conos || m.cantidad_kyd || defaultKyd,
+        cantidad_kyd: parseFloat(m.cantidad_kyd || m.cantidad_conos || defaultKyd),
+        planned: 0,
+        transferred: 0
+      };
+    }).sort((a, b) => (a.producto || '').localeCompare(b.producto || ''));
   }, [maestro_hilos]);
 
   const selectedItem = useMemo(() => {
@@ -82,6 +88,7 @@ export default function TransferForm() {
     }
 
     let registrosNuevos = [];
+    const yardsPerCone = selectedItem.cantidad_kyd || 3000;
 
     if (entregaTipo === 'individual') {
       if (!formData.modulo) {
@@ -97,7 +104,7 @@ export default function TransferForm() {
         nombre_color: selectedItem.nombre_color,
         modulo: formData.modulo,
         cantidad: qty,
-        yardas: qty * (selectedItem.cantidad_kyd || 0),
+        yardas: qty * yardsPerCone,
         comentario: formData.comentario
       });
     } else {
@@ -108,7 +115,6 @@ export default function TransferForm() {
       }
 
       // Buscar módulos que necesiten este hilo en la planificación
-      // Normalización para comparación robusta
       const normalize = (s) => String(s || '').trim().toUpperCase();
       const targetProd = normalize(selectedItem.producto);
       const targetColor = normalize(selectedItem.color);
@@ -129,7 +135,6 @@ export default function TransferForm() {
       const remainder = qty % uniqueModules.length;
 
       uniqueModules.forEach((modId, index) => {
-          // El remanente se suma al primero (o se distribuye) para no perder unidades
           const finalQty = qtyPerMod + (index === 0 ? remainder : 0);
           if (finalQty === 0) return;
 
@@ -142,7 +147,7 @@ export default function TransferForm() {
             nombre_color: selectedItem.nombre_color,
             modulo: modId,
             cantidad: finalQty,
-            yardas: finalQty * (selectedItem.cantidad_kyd || 0),
+            yardas: finalQty * yardsPerCone,
             comentario: `[PROCESO: ${procesoSelected}] ${formData.comentario}`.trim()
           });
       });
