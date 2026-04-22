@@ -310,6 +310,14 @@ export default function TransferForm() {
                   </div>
                 )}
               </div>
+              {selectedItem && (
+                <div className="mt-2 flex items-center justify-center gap-2 animate-in fade-in duration-300">
+                  <div className={`w-2 h-2 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
+                  <span className={`text-[11px] font-black uppercase tracking-[0.15em] ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {isPlanned ? 'REQUERIDO EN PROGRAMA' : 'NO REQUERIDO EN PROGRAMA'}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -322,14 +330,6 @@ export default function TransferForm() {
                 readOnly 
                 placeholder="Auto-detección"
               />
-              {selectedItem && (
-                <div className="mt-2 flex items-center justify-center gap-2 animate-in fade-in duration-300">
-                  <div className={`w-2 h-2 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
-                  <span className={`text-[11px] font-black uppercase tracking-[0.15em] ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {isPlanned ? 'REQUERIDO EN PROGRAMA' : 'NO REQUERIDO EN PROGRAMA'}
-                  </span>
-                </div>
-              )}
             </div>
 
             <div className="flex flex-col gap-2">
