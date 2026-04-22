@@ -100,13 +100,22 @@ export default function TransferForm() {
         return words.every(word => searchableText.includes(word));
       })
       .sort((a, b) => {
-        // Sort primary by class_abc (A, B, C...)
-        const valA = String(a.class_abc || 'Z').toUpperCase();
-        const valB = String(b.class_abc || 'Z').toUpperCase();
-        if (valA < valB) return -1;
-        if (valA > valB) return 1;
+        const valA = String(a.class_abc || '').toUpperCase();
+        const valB = String(b.class_abc || '').toUpperCase();
 
-        // Sort secondary by product name
+        // Rule 1: PERMANENTE goes first
+        const isPermA = valA.includes('PERMANENTE');
+        const isPermB = valB.includes('PERMANENTE');
+        if (isPermA && !isPermB) return -1;
+        if (!isPermA && isPermB) return 1;
+
+        // Rule 2: Normal ABC sort (A, B, C...)
+        const sortValA = valA || 'ZZZ'; // Empty values to the very end
+        const sortValB = valB || 'ZZZ';
+        if (sortValA < sortValB) return -1;
+        if (sortValA > sortValB) return 1;
+
+        // Rule 3: Secondary sort by product name
         const nameA = String(a.producto || '').toUpperCase();
         const nameB = String(b.producto || '').toUpperCase();
         return nameA.localeCompare(nameB);
