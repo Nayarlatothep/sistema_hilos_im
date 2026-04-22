@@ -72,6 +72,30 @@ export default function TransferForm() {
     );
   }, [selectedItem, planificacion]);
 
+  const plannedDetails = useMemo(() => {
+    if (!selectedItem) return [];
+    const normalize = (s) => String(s || '').trim().toUpperCase();
+    const targetProd = normalize(selectedItem.producto);
+    const targetColor = normalize(selectedItem.color);
+
+    const matches = planificacion.filter(p => 
+      normalize(p.producto) === targetProd && 
+      normalize(p.color) === targetColor
+    );
+
+    // Get unique combinations of OP and Modulo
+    const unique = [];
+    const seen = new Set();
+    matches.forEach(m => {
+      const key = `${m.op}-${m.modulo}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push({ op: m.op, modulo: m.modulo });
+      }
+    });
+    return unique;
+  }, [selectedItem, planificacion]);
+
   const [filterText, setFilterText] = useState('');
   const [showOptions, setShowOptions] = useState(false);
 
@@ -323,11 +347,27 @@ export default function TransferForm() {
                 placeholder="Auto-detección"
               />
               {selectedItem && (
-                <div className="mt-2 flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {isPlanned ? 'REQUERIDO EN PROGRAMA' : 'NO REQUERIDO EN PROGRAMA'}
-                  </span>
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {isPlanned ? 'REQUERIDO EN PROGRAMA' : 'NO REQUERIDO EN PROGRAMA'}
+                    </span>
+                  </div>
+                  
+                  {isPlanned && plannedDetails.length > 0 && (
+                    <div className="flex flex-col gap-1 border-l-2 border-slate-200 pl-3 mt-1">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Detalle de Planificación:</p>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1">
+                        {plannedDetails.map((det, i) => (
+                          <span key={i} className="text-[10px] font-bold text-black flex items-center gap-1">
+                            <span className="text-slate-400">OP:</span> {det.op} 
+                            <span className="text-slate-400 ml-1">Mod:</span> {det.modulo}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
