@@ -178,30 +178,40 @@ export default function TransferForm() {
       const uniqueModules = Array.from(new Set(modulesPlanned));
 
       if (uniqueModules.length === 0) {
-        alert(`No hay planificación activa para ${selectedItem.producto} en ningún módulo. No se puede realizar la distribución automática.`);
-        return;
+        registrosNuevos.push({
+          id: Date.now(),
+          sku: `${selectedItem.producto}${selectedItem.color}`,
+          fecha_transferencia: new Date().toISOString(),
+          producto: selectedItem.producto,
+          color: selectedItem.color,
+          nombre_color: selectedItem.nombre_color,
+          modulo: 'MATERIAL EXTRA',
+          cantidad: qty,
+          yardas: totalYardage,
+          comentario: `[EXTRA] ${formData.comentario}`.trim()
+        });
+      } else {
+        const qtyPerMod = Math.floor(qty / uniqueModules.length);
+        const remainder = qty % uniqueModules.length;
+
+        uniqueModules.forEach((modId, index) => {
+            const finalQty = qtyPerMod + (index === 0 ? remainder : 0);
+            if (finalQty === 0) return;
+
+            registrosNuevos.push({
+              id: Date.now() + index,
+              sku: `${selectedItem.producto}${selectedItem.color}`,
+              fecha_transferencia: new Date().toISOString(),
+              producto: selectedItem.producto,
+              color: selectedItem.color,
+              nombre_color: selectedItem.nombre_color,
+              modulo: modId,
+              cantidad: finalQty,
+              yardas: finalQty * kydValue * 1000,
+              comentario: `[PROCESO: ${procesoSelected}] ${formData.comentario}`.trim()
+            });
+        });
       }
-
-      const qtyPerMod = Math.floor(qty / uniqueModules.length);
-      const remainder = qty % uniqueModules.length;
-
-      uniqueModules.forEach((modId, index) => {
-          const finalQty = qtyPerMod + (index === 0 ? remainder : 0);
-          if (finalQty === 0) return;
-
-          registrosNuevos.push({
-            id: Date.now() + index,
-            sku: `${selectedItem.producto}${selectedItem.color}`,
-            fecha_transferencia: new Date().toISOString(),
-            producto: selectedItem.producto,
-            color: selectedItem.color,
-            nombre_color: selectedItem.nombre_color,
-            modulo: modId,
-            cantidad: finalQty,
-            yardas: finalQty * kydValue * 1000,
-            comentario: `[PROCESO: ${procesoSelected}] ${formData.comentario}`.trim()
-          });
-      });
     }
 
     setLocalTransferencias([...registrosNuevos, ...localTransferencias]);

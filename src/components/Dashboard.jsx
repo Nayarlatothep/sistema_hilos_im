@@ -167,6 +167,7 @@ export default function Dashboard() {
 
   const productionData = useMemo(() => {
     const products = {};
+    const extraProducts = {}; // For MATERIAL EXTRA transfers
 
     const getProductKey = (item) => {
       const prod = String(item.producto || '').trim().toLowerCase();
@@ -251,6 +252,17 @@ export default function Dashboard() {
         
         const dayKey = normalizeDay(tDia) || 'SIN DÍA';
         products[key].modules[modKey].transferredByDay[dayKey] = (products[key].modules[modKey].transferredByDay[dayKey] || 0) + parseFloat(t.cantidad || 0);
+      } else if (String(t.modulo || '').toUpperCase().includes('MATERIAL EXTRA')) {
+        // Handle EXTRA transfers separately
+        if (!extraProducts[key]) {
+          extraProducts[key] = {
+            producto: t.producto,
+            color: t.color,
+            nombre_color: t.nombre_color,
+            transferred: 0
+          };
+        }
+        extraProducts[key].transferred += parseFloat(t.cantidad || 0);
       }
     });
 
@@ -297,7 +309,7 @@ export default function Dashboard() {
       'black a&e': 1, 'black ae': 1, 'navy 2025': 2, 'blanco': 3, 'princeton orange': 4, 'princeton': 4, 'princenton': 4, 'lucerne blue': 5, 'navy #3': 6, 'navy # 3': 6, 'light navy': 7
     };
 
-    return filtered.sort((a, b) => {
+    const mainData = filtered.sort((a, b) => {
       const isGimpA = String(a.producto || "").includes("HILO ANECOT GIMP SOFT T-180");
       const isGimpB = String(b.producto || "").includes("HILO ANECOT GIMP SOFT T-180");
       if (isGimpA && !isGimpB) return 1;
@@ -311,7 +323,15 @@ export default function Dashboard() {
       if (pA !== pB) return pA - pB;
       return nameA.localeCompare(nameB);
     });
+
+    return {
+      main: mainData,
+      extra: Object.values(extraProducts)
+    };
   }, [planificacion, transferencias, searchQuery, selectedModules, availableModules, selectedDays, isAllDays]);
+
+  const productionDataList = productionData.main;
+  const extraProductionData = productionData.extra;
 
   const now = new Date();
   const timestamp = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.toLocaleDateString()}`;
@@ -520,7 +540,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {productionData.map((row, idx) => {
+              {productionDataList.map((row, idx) => {
                 const divisor = (row.producto.includes('60 08 180') || row.producto.includes('60 08 0180')) ? 1225 : 3000;
                 const isExpanded = expandedRow === idx;
 
@@ -719,8 +739,54 @@ export default function Dashboard() {
           </table>
         </div>
 
+        {/* SECTION: HILOS SIN REQUERIMIENTO (EXTRA) */}
+        {extraProductionData.length > 0 && (
+          <div className="mt-12 bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-rose-50/30">
+              <div className="flex items-center gap-4">
+                <div className="bg-rose-500 p-2 rounded-lg text-white">
+                  <span className="material-symbols-outlined">warning</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-primary font-headline uppercase tracking-tight">Hilos sin Requerimiento / Extras</h2>
+                  <p className="text-[10px] font-bold text-rose-600 uppercase tracking-widest mt-1">Material transferido que no figura en la planificación actual</p>
+                </div>
+              </div>
+              <div className="bg-rose-100 px-4 py-1 rounded-full">
+                <span className="text-[10px] font-black text-rose-700 uppercase">{extraProductionData.length} SKUs</span>
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[10px] font-black uppercase tracking-[0.2em] border-b border-rose-100 bg-rose-50/10">
+                    <th className="py-4 px-8">Producto</th>
+                    <th className="py-4 px-8 text-center">Color</th>
+                    <th className="py-4 px-8">Nombre Color</th>
+                    <th className="py-4 px-8 text-right">Cant. Transferida (Conos)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-rose-50">
+                  {extraProductionData.map((item, i) => (
+                    <tr key={i} className="hover:bg-rose-50/20 transition-colors">
+                      <td className="py-5 px-8 font-black text-primary">{item.producto}</td>
+                      <td className="py-5 px-8 text-center font-mono font-bold text-slate-500">{item.color}</td>
+                      <td className="py-5 px-8 font-semibold text-slate-700">{item.nombre_color}</td>
+                      <td className="py-5 px-8 text-right font-black text-rose-600 tabular-nums">
+                        {Math.round(item.transferred / ((item.producto.includes('180') || item.producto.includes('0180')) ? 1225 : 3000)).toLocaleString()} Conos
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
         <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-6">
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest font-headline">Global Production Overview | {productionData.length} Product Lines Active</p>
+          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest font-headline">Global Production Overview | {productionDataList.length} Product Lines Active</p>
           <div className="flex items-center gap-4 font-headline">
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-500">
               <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Optimal
