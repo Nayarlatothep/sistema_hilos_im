@@ -418,6 +418,7 @@ export default function TransferForm() {
                         onChange={(e) => setFormData({...formData, modulo: e.target.value})}
                       >
                         <option value="" disabled>Seleccione Módulo</option>
+                        <option value="MATERIAL EXTRA">MATERIAL EXTRA (FUERA DE PLAN)</option>
                         {availableModules.map(mod => (
                           <option key={mod} value={mod}>Módulo {mod}</option>
                         ))}
@@ -545,7 +546,12 @@ export default function TransferForm() {
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 rounded-full shadow-sm ring-1 ring-slate-100" style={{ backgroundColor: t.color }}></div>
-                        <span className="text-xs font-semibold text-slate-600">{t.nombre_color}</span>
+                        <div className="flex flex-col gap-0.5">
+                          {String(t.modulo || '').includes('EXTRA') && (
+                            <span className="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter w-fit">EXTRA</span>
+                          )}
+                          <span className="text-xs font-semibold text-slate-600">{t.nombre_color}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-8 py-4 text-center text-sm font-black text-primary">{t.modulo}</td>
