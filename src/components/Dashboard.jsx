@@ -783,8 +783,7 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-      </div>
-
+      
         <div className="flex justify-between items-center mt-6 border-t border-slate-100 pt-6">
           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest font-headline">Global Production Overview | {productionDataList.length} Product Lines Active</p>
           <div className="flex items-center gap-4 font-headline">
