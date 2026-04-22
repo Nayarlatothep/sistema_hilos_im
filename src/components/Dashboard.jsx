@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Dashboard() {
@@ -11,9 +11,9 @@ export default function Dashboard() {
     fetchTransferencias,
     fetchMetaDiaria 
   } = useStore();
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedModules, setSelectedModules] = React.useState(['1', '2', '3', '4']);
-  const [expandedRow, setExpandedRow] = React.useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedModules, setSelectedModules] = useState(['1', '2', '3', '4']);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const dayOptions = [
     { label: 'Lu', value: 'LUNES' },
@@ -23,8 +23,8 @@ export default function Dashboard() {
     { label: 'Vi', value: 'VIERNES' },
     { label: 'Pr', value: 'PROCESO' },
   ];
-  const [selectedDays, setSelectedDays] = React.useState(dayOptions.map(d => d.value));
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [selectedDays, setSelectedDays] = useState(dayOptions.map(d => d.value));
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);

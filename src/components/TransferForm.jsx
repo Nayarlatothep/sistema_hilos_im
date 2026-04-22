@@ -13,7 +13,7 @@ export default function TransferForm() {
     loading, 
     getAvailableModules 
   } = useStore();
-  const availableModules = React.useMemo(() => getAvailableModules(), [planificacion, transferencias]);
+  const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias]);
   
   const [formData, setFormData] = useState({
     sku: '',
@@ -204,7 +204,13 @@ export default function TransferForm() {
   };
 
   const handleClearTrans = async () => {
-    if (window.confirm("Borrar tabla permanente?")) {
+    const password = window.prompt("Ingrese la contraseña de seguridad para borrar la tabla:");
+    if (password !== "shim2022+") {
+      alert("Contraseña incorrecta. Operación cancelada.");
+      return;
+    }
+
+    if (window.confirm("¿Está seguro de que desea borrar la tabla permanente? Esta acción no se puede deshacer.")) {
       const res = await clearTransferencias();
       if (res) fetchTransferencias();
     }

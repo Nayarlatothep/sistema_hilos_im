@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function Traslados() {
@@ -21,11 +21,11 @@ export default function Traslados() {
     ]);
   };
 
-  const [dateFilter, setDateFilter] = React.useState('');
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [localChecks, setLocalChecks] = React.useState([]);
+  const [dateFilter, setDateFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [localChecks, setLocalChecks] = useState([]);
 
-  const filteredTransferencias = React.useMemo(() => {
+  const filteredTransferencias = useMemo(() => {
     let data = [...transferencias]; // Create a copy for sorting
     
     if (dateFilter) {
@@ -68,7 +68,7 @@ export default function Traslados() {
     return Math.round(qty / 3000);
   };
 
-  const stats = React.useMemo(() => {
+  const stats = useMemo(() => {
     const totalStock = filteredTransferencias.reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
     const totalRequerida = planificacion.reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
     const cumplimiento = totalRequerida > 0 ? (totalStock / totalRequerida) * 100 : 0;

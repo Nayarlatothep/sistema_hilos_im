@@ -69,14 +69,24 @@ export default function DataIngestion() {
   };
 
   const handleClearPlan = async () => {
-    if (window.confirm('¿Borrar TODA la planificación?')) {
+    const password = window.prompt("Ingrese la contraseña de seguridad para borrar la planificación:");
+    if (password !== "shim2022+") {
+      alert("Contraseña incorrecta.");
+      return;
+    }
+    if (window.confirm('¿Está seguro de que desea borrar TODA la planificación? Esta acción es irreversible.')) {
       await clearPlanificacion();
       setSuccessMsg('Planificación borrada.');
     }
   };
 
   const handleClearMaestro = async () => {
-    if (window.confirm('¿Borrar TODO el maestro de hilos?')) {
+    const password = window.prompt("Ingrese la contraseña de seguridad para borrar el maestro de hilos:");
+    if (password !== "shim2022+") {
+      alert("Contraseña incorrecta.");
+      return;
+    }
+    if (window.confirm('¿Está seguro de que desea borrar TODO el maestro de hilos?')) {
       await clearMaestroHilos();
       setSuccessMsg('Maestro de hilos borrado.');
     }
