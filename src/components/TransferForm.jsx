@@ -86,18 +86,32 @@ export default function TransferForm() {
     if (isSelectedMatch) return [];
 
     const words = q.split(/\s+/);
-    return inventoryData.filter(item => {
-      const searchableText = `
-        ${item.producto} 
-        ${item.nombre_color} 
-        ${item.color} 
-        ${item.cod_articulo} 
-        ${item.sku}
-      `.toLowerCase();
-      
-      // All words in the query must be found in the searchable text (AND logic)
-      return words.every(word => searchableText.includes(word));
-    }).slice(0, 50); // Limit results for performance
+    return inventoryData
+      .filter(item => {
+        const searchableText = `
+          ${item.producto} 
+          ${item.nombre_color} 
+          ${item.color} 
+          ${item.cod_articulo} 
+          ${item.sku}
+        `.toLowerCase();
+        
+        // All words in the query must be found in the searchable text (AND logic)
+        return words.every(word => searchableText.includes(word));
+      })
+      .sort((a, b) => {
+        // Sort primary by class_abc (A, B, C...)
+        const valA = String(a.class_abc || 'Z').toUpperCase();
+        const valB = String(b.class_abc || 'Z').toUpperCase();
+        if (valA < valB) return -1;
+        if (valA > valB) return 1;
+
+        // Sort secondary by product name
+        const nameA = String(a.producto || '').toUpperCase();
+        const nameB = String(b.producto || '').toUpperCase();
+        return nameA.localeCompare(nameB);
+      })
+      .slice(0, 50); // Limit results for performance
   }, [inventoryData, filterText, selectedItem]);
 
   const handleSubmit = async (e) => {
