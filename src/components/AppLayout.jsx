@@ -112,7 +112,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
 
       <footer className="bg-primary text-white py-8 px-8 mt-auto hidden md:block">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center opacity-80">
-          <p className="text-xs">&copy; 2024 Intermoda S.A. Sistema de Control de Producción v3.0</p>
+          <p className="text-xs">&copy; 2024 Intermoda S.A. Sistema de Control de Producción v4.0</p>
           <div className="flex gap-6 text-xs mt-4 md:mt-0">
             <a href="#" className="hover:text-secondary-container">System Status</a>
             <a href="#" className="hover:text-secondary-container">Technical Support</a>
