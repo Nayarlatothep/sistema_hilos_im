@@ -60,6 +60,18 @@ export default function TransferForm() {
     return inventoryData.find(item => item.sku === formData.sku);
   }, [inventoryData, formData.sku]);
 
+  const isPlanned = useMemo(() => {
+    if (!selectedItem) return null;
+    const normalize = (s) => String(s || '').trim().toUpperCase();
+    const targetProd = normalize(selectedItem.producto);
+    const targetColor = normalize(selectedItem.color);
+
+    return planificacion.some(p => 
+      normalize(p.producto) === targetProd && 
+      normalize(p.color) === targetColor
+    );
+  }, [selectedItem, planificacion]);
+
   const [filterText, setFilterText] = useState('');
   const [showOptions, setShowOptions] = useState(false);
 
@@ -310,6 +322,14 @@ export default function TransferForm() {
                 readOnly 
                 placeholder="Auto-detección"
               />
+              {selectedItem && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {isPlanned ? 'REQUERIDO EN PROGRAMA' : 'NO REQUERIDO EN PROGRAMA'}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
