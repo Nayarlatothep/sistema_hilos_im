@@ -323,9 +323,9 @@ export default function TransferForm() {
                 placeholder="Auto-detección"
               />
               {selectedItem && (
-                <div className="mt-4 flex flex-col items-center justify-center gap-3 p-6 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm animate-in zoom-in-95 duration-300">
-                  <div className={`w-3 h-3 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.4)]'}`}></div>
-                  <span className={`text-sm font-black uppercase tracking-[0.2em] text-center ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
+                <div className="mt-2 flex items-center justify-center gap-2 animate-in fade-in duration-300">
+                  <div className={`w-2 h-2 rounded-full ${isPlanned ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
+                  <span className={`text-[11px] font-black uppercase tracking-[0.15em] ${isPlanned ? 'text-emerald-600' : 'text-rose-600'}`}>
                     {isPlanned ? 'REQUERIDO EN PROGRAMA' : 'NO REQUERIDO EN PROGRAMA'}
                   </span>
                 </div>
