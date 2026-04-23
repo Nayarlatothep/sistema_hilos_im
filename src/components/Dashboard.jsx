@@ -252,7 +252,7 @@ export default function Dashboard() {
         
         const dayKey = normalizeDay(tDia) || 'SIN DÍA';
         products[key].modules[modKey].transferredByDay[dayKey] = (products[key].modules[modKey].transferredByDay[dayKey] || 0) + parseFloat(t.cantidad || 0);
-      } else if (String(t.modulo || '').toUpperCase().includes('MATERIAL EXTRA')) {
+      } else if (String(t.modulo) === '0' || String(t.modulo || '').toUpperCase().includes('MATERIAL EXTRA')) {
         // Handle EXTRA transfers separately
         if (!extraProducts[key]) {
           extraProducts[key] = {
