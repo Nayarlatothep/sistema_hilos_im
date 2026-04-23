@@ -19,7 +19,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
             <nav className="flex items-center gap-8">
               <div className="relative group">
                 <button 
-                  className={`${(currentTab === 'dashboard-monitor' || currentTab === 'traslados') ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest flex items-center gap-2`}
+                  className={`${(currentTab === 'dashboard-monitor' || currentTab === 'traslados' || currentTab === 'devolucion') ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest flex items-center gap-2`}
                 >
                   DASHBOARDS
                   <span className="material-symbols-outlined text-[14px]">expand_more</span>
@@ -38,6 +38,13 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                     onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
                   >
                     Traslados
+                  </a>
+                  <a 
+                    href="#"
+                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'devolucion' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('devolucion'); }}
+                  >
+                    Devolución
                   </a>
                 </div>
               </div>
@@ -104,9 +111,12 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
           <span className="material-symbols-outlined text-2xl">factory</span>
           <span className="text-[10px] font-bold uppercase text-center">ARCHIVOS</span>
         </div>
-        <div className="flex flex-col items-center gap-1 text-white/20">
-          <span className="material-symbols-outlined text-2xl">monitoring</span>
-          <span className="text-[10px] font-bold uppercase">Stats</span>
+        <div 
+          className={`flex flex-col items-center gap-1 ${currentTab === 'devolucion' ? 'text-secondary' : 'text-white/40'}`}
+          onClick={() => onTabChange('devolucion')}
+        >
+          <span className="material-symbols-outlined text-2xl">keyboard_return</span>
+          <span className="text-[10px] font-bold uppercase text-center">Devolución</span>
         </div>
       </nav>
 

@@ -5,6 +5,7 @@ import { useStore } from './store/useStore';
 import Dashboard from './components/Dashboard';
 import TransferForm from './components/TransferForm';
 import Traslados from './components/Traslados';
+import Devolucion from './components/Devolucion';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, loading, error } = useStore();
@@ -21,6 +22,7 @@ function App() {
       case 'dashboard-monitor': return <Dashboard />;
       case 'dashboard-transfer': return <TransferForm />;
       case 'traslados': return <Traslados />;
+      case 'devolucion': return <Devolucion />;
       case 'upload': return <DataIngestion />;
       default: return <Dashboard />;
     }
