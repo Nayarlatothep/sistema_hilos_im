@@ -4,8 +4,8 @@ import DataIngestion from './components/DataIngestion';
 import { useStore } from './store/useStore';
 import Dashboard from './components/Dashboard';
 import TransferForm from './components/TransferForm';
-import Traslados from './components/Traslados';
 import Devolucion from './components/Devolucion';
+import ReporteLotes from './components/ReporteLotes';
 import IngresoLotes from './components/IngresoLotes';
 
 function App() {
@@ -22,13 +22,22 @@ function App() {
 
   const renderContent = () => {
     switch (currentTab) {
-      case 'dashboard-monitor': return <Dashboard />;
-      case 'dashboard-transfer': return <TransferForm />;
-      case 'traslados': return <Traslados />;
-      case 'devolucion': return <Devolucion />;
-      case 'lotes': return <IngresoLotes />;
-      case 'upload': return <DataIngestion />;
-      default: return <Dashboard />;
+      case 'dashboard-monitor':
+        return <Dashboard />;
+      case 'dashboard-transfer':
+        return <TransferForm />;
+      case 'traslados':
+        return <Traslados />;
+      case 'devolucion':
+        return <Devolucion />;
+      case 'lotes':
+        return <IngresoLotes />;
+      case 'reporte-lotes':
+        return <ReporteLotes />;
+      case 'upload':
+        return <DataIngestion />;
+      default:
+        return <Dashboard />;
     }
   };
 

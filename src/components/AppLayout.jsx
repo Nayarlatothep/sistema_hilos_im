@@ -76,6 +76,12 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                   >
                     Lotes Ingresados
                   </a>
+                  <a href="#"
+                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'reporte-lotes' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('reporte-lotes'); }}
+                  >
+                    Reporte de lotes
+                  </a>
                 </div>
               </div>
             </nav>

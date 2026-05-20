@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabaseClient';
 
+
 export const useStore = create((set, get) => ({
   planificacion: [],
   transferencias: [],
@@ -8,6 +9,7 @@ export const useStore = create((set, get) => ({
   maestro_hilos: [],
   lotes: [],
   materiales_color: [],
+  lotes_material_color: [],
   lotes_procesados: [],
   loading: false,
   error: null,
@@ -292,6 +294,19 @@ export const useStore = create((set, get) => ({
     const updated = current.filter(l => l.id !== id);
     set({ lotes_procesados: updated });
     localStorage.setItem('sistema_hilos_lotes_procesados', JSON.stringify(updated));
+  },
+
+  // Fetch lotes_material_color data
+  fetchLoteMaterialColor: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('lote_material_color')
+      .select('*');
+    if (error) {
+      set({ error: error.message, loading: false });
+    } else {
+      set({ lotes_material_color: data, loading: false });
+    }
   },
 
   loadLotesProcesados: () => {
