@@ -496,6 +496,20 @@ export default function IngresoLotes() {
                   type="date"
                   value={fechaManu}
                   onChange={(e) => setFechaManu(e.target.value)}
+                  onClick={(e) => {
+                    try {
+                      e.target.showPicker();
+                    } catch (err) {
+                      console.warn("showPicker not supported", err);
+                    }
+                  }}
+                  onFocus={(e) => {
+                    try {
+                      e.target.showPicker();
+                    } catch (err) {
+                      console.warn("showPicker not supported", err);
+                    }
+                  }}
                   className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold font-mono text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all cursor-pointer"
                   required
                 />
