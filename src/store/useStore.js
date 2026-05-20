@@ -305,5 +305,25 @@ export const useStore = create((set, get) => ({
     } catch (e) {
       console.error("Error loading lotes procesados", e);
     }
+  },
+
+  uploadLoteMaterialColor: async (records) => {
+    set({ loading: true, error: null });
+    // Strip frontend ID and original database managed columns if present
+    const recordsToInsert = records.map(({ id, created_at, updated_at, ...rest }) => rest);
+
+    const { data, error } = await supabase
+      .from('lote_material_color')
+      .insert(recordsToInsert)
+      .select();
+
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      set({ lotes_procesados: [], loading: false });
+      localStorage.removeItem('sistema_hilos_lotes_procesados');
+      return data;
+    }
   }
 }));

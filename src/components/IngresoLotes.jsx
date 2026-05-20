@@ -9,6 +9,7 @@ export default function IngresoLotes() {
     addLoteProcesado, 
     removeLoteProcesado, 
     loadLotesProcesados,
+    uploadLoteMaterialColor,
     loading, 
     error 
   } = useStore();
@@ -96,6 +97,20 @@ export default function IngresoLotes() {
     addLoteProcesado(newProcessedLote);
     setShowModal(false);
     setSelectedMaterial(null);
+  };
+
+  // Sync session log to Supabase table lote_material_color
+  const handleSyncToDatabase = async () => {
+    if (lotes_procesados.length === 0) return;
+    const confirmUpload = window.confirm(`¿Desea subir los ${lotes_procesados.length} registros de producción de hilos a la base de datos permanente en Supabase (tabla lote_material_color)?`);
+    if (!confirmUpload) return;
+
+    const result = await uploadLoteMaterialColor(lotes_procesados);
+    if (result) {
+      alert("¡Éxito! Los lotes han sido registrados en Supabase y la bitácora local ha sido actualizada.");
+    } else {
+      alert("Hubo un error al registrar los lotes. Por favor, intente de nuevo.");
+    }
   };
 
   // Filters
@@ -320,14 +335,27 @@ export default function IngresoLotes() {
       {/* SECTION 2: Registro de Lotes de Producción (Procesados) */}
       <div className="flex flex-col gap-4 mt-4">
         
-        <div className="flex items-center justify-between px-1">
+        <div className="flex items-center justify-between flex-wrap gap-2 px-1">
           <h3 className="text-xs font-black text-primary uppercase tracking-widest font-headline flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-400">inventory</span>
             Bitácora de Lotes de Producción Procesados (Sesión Local)
           </h3>
-          <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
-            {filteredProcessed.length} lotes listos
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              {filteredProcessed.length} lotes listos
+            </span>
+            <button
+              onClick={handleSyncToDatabase}
+              disabled={loading || lotes_procesados.length === 0}
+              className={`px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold font-headline text-[10px] tracking-wider uppercase shadow-md shadow-emerald-500/10 active:scale-95 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed`}
+              title="Sincronizar y Guardar registros en la tabla lote_material_color de Supabase"
+            >
+              <span className={`material-symbols-outlined text-[14px] ${loading ? 'animate-spin' : ''}`}>
+                {loading ? 'sync' : 'cloud_upload'}
+              </span>
+              {loading ? 'Subiendo...' : 'Actualizar Tabla'}
+            </button>
+          </div>
         </div>
 
         {/* Search Bar Processed */}
