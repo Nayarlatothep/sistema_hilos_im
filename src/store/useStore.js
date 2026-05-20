@@ -7,6 +7,7 @@ export const useStore = create((set, get) => ({
   meta_diaria: [],
   maestro_hilos: [],
   lotes: [],
+  materiales_color: [],
   loading: false,
   error: null,
 
@@ -56,6 +57,18 @@ export const useStore = create((set, get) => ({
       set({ error: error.message, loading: false });
     } else {
       set({ maestro_hilos: data, loading: false });
+    }
+  },
+
+  fetchMaterialesColor: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('materiales_color')
+      .select('*');
+    if (error) {
+      set({ error: error.message, loading: false });
+    } else {
+      set({ materiales_color: data, loading: false });
     }
   },
 

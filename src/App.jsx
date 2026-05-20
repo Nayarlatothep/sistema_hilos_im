@@ -9,13 +9,14 @@ import Devolucion from './components/Devolucion';
 import IngresoLotes from './components/IngresoLotes';
 
 function App() {
-  const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, loading, error } = useStore();
+  const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, fetchMaterialesColor, loading, error } = useStore();
   const [currentTab, setCurrentTab] = useState('dashboard-monitor');
 
   useEffect(() => {
     fetchPlanificacion();
     fetchTransferencias();
     fetchMetaDiaria();
+    fetchMaterialesColor();
   }, []);
 
   const renderContent = () => {
