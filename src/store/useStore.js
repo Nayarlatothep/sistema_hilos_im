@@ -6,6 +6,7 @@ export const useStore = create((set, get) => ({
   transferencias: [],
   meta_diaria: [],
   maestro_hilos: [],
+  lotes: [],
   loading: false,
   error: null,
 
@@ -230,6 +231,38 @@ export const useStore = create((set, get) => ({
       );
       set({ transferencias: updatedTransferencias, loading: false });
       return data;
+    }
+  },
+
+  addLote: (lote) => {
+    const currentLotes = get().lotes || [];
+    const updatedLotes = [lote, ...currentLotes];
+    set({ lotes: updatedLotes });
+    localStorage.setItem('sistema_hilos_lotes', JSON.stringify(updatedLotes));
+  },
+
+  removeLote: (id) => {
+    const currentLotes = get().lotes || [];
+    const updatedLotes = currentLotes.filter(l => l.id !== id);
+    set({ lotes: updatedLotes });
+    localStorage.setItem('sistema_hilos_lotes', JSON.stringify(updatedLotes));
+  },
+
+  loadLotes: () => {
+    try {
+      const stored = localStorage.getItem('sistema_hilos_lotes');
+      if (stored) {
+        set({ lotes: JSON.parse(stored) });
+      } else {
+        const mockLotes = [
+          { id: '1', codigo_lote: 'LOT-260520-01', sku: '60 03 045', color: 'BLACK A&E', proveedor: 'A&E Threads', conos: 150, yardas_por_cono: 3000, total_yardas: 450000, fecha_ingreso: '2026-05-20', observaciones: 'Ingreso inicial para lote de producción principal.' },
+          { id: '2', codigo_lote: 'LOT-260520-02', sku: '60 08 180', color: 'NAVY 2026', proveedor: 'Coats Cadena', conos: 80, yardas_por_cono: 1225, total_yardas: 98000, fecha_ingreso: '2026-05-20', observaciones: 'Hilaza de textura especial.' }
+        ];
+        set({ lotes: mockLotes });
+        localStorage.setItem('sistema_hilos_lotes', JSON.stringify(mockLotes));
+      }
+    } catch (e) {
+      console.error("Error loading lotes", e);
     }
   }
 }));

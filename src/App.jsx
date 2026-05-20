@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import TransferForm from './components/TransferForm';
 import Traslados from './components/Traslados';
 import Devolucion from './components/Devolucion';
+import IngresoLotes from './components/IngresoLotes';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, loading, error } = useStore();
@@ -23,6 +24,7 @@ function App() {
       case 'dashboard-transfer': return <TransferForm />;
       case 'traslados': return <Traslados />;
       case 'devolucion': return <Devolucion />;
+      case 'lotes': return <IngresoLotes />;
       case 'upload': return <DataIngestion />;
       default: return <Dashboard />;
     }

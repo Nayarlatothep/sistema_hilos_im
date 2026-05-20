@@ -62,6 +62,13 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
               >
                 Transferencias
               </a>
+              <a 
+                className={`${currentTab === 'lotes' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
+                href="#"
+                onClick={(e) => { e.preventDefault(); onTabChange('lotes'); }}
+              >
+                Ingreso Lotes
+              </a>
             </nav>
           </div>
           
@@ -117,6 +124,13 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         >
           <span className="material-symbols-outlined text-2xl">keyboard_return</span>
           <span className="text-[10px] font-bold uppercase text-center">Devolución</span>
+        </div>
+        <div 
+          className={`flex flex-col items-center gap-1 ${currentTab === 'lotes' ? 'text-secondary' : 'text-white/40'}`}
+          onClick={() => onTabChange('lotes')}
+        >
+          <span className="material-symbols-outlined text-2xl">layers</span>
+          <span className="text-[10px] font-bold uppercase text-center">Lotes</span>
         </div>
       </nav>
 
