@@ -8,6 +8,7 @@ export const useStore = create((set, get) => ({
   maestro_hilos: [],
   lotes: [],
   materiales_color: [],
+  lotes_procesados: [],
   loading: false,
   error: null,
 
@@ -276,6 +277,59 @@ export const useStore = create((set, get) => ({
       }
     } catch (e) {
       console.error("Error loading lotes", e);
+    }
+  },
+
+  addLoteProcesado: (lote) => {
+    const current = get().lotes_procesados || [];
+    const updated = [lote, ...current];
+    set({ lotes_procesados: updated });
+    localStorage.setItem('sistema_hilos_lotes_procesados', JSON.stringify(updated));
+  },
+
+  removeLoteProcesado: (id) => {
+    const current = get().lotes_procesados || [];
+    const updated = current.filter(l => l.id !== id);
+    set({ lotes_procesados: updated });
+    localStorage.setItem('sistema_hilos_lotes_procesados', JSON.stringify(updated));
+  },
+
+  loadLotesProcesados: () => {
+    try {
+      const stored = localStorage.getItem('sistema_hilos_lotes_procesados');
+      if (stored) {
+        set({ lotes_procesados: JSON.parse(stored) });
+      } else {
+        // Sample processed items that are beautifully matching standard materials_color structures
+        const mockProcessed = [
+          { 
+            id: 'p1', 
+            sku: '60 03 045', 
+            color: '5401', 
+            nombre_color: 'BLACK A&E', 
+            producto: '60 03 045', 
+            modulo: '1',
+            PC: 'PC-2026-001', 
+            Cantidad: 150000, 
+            Fecha_manu: '2026-05-20' 
+          },
+          { 
+            id: 'p2', 
+            sku: '60 08 180', 
+            color: 'W32535', 
+            nombre_color: 'Navy 2026', 
+            producto: '60 08 180', 
+            modulo: '2',
+            PC: 'PC-2026-002', 
+            Cantidad: 98000, 
+            Fecha_manu: '2026-05-20' 
+          }
+        ];
+        set({ lotes_procesados: mockProcessed });
+        localStorage.setItem('sistema_hilos_lotes_procesados', JSON.stringify(mockProcessed));
+      }
+    } catch (e) {
+      console.error("Error loading lotes procesados", e);
     }
   }
 }));
