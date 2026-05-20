@@ -62,13 +62,22 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
               >
                 Transferencias
               </a>
-              <a 
-                className={`${currentTab === 'lotes' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
-                href="#"
-                onClick={(e) => { e.preventDefault(); onTabChange('lotes'); }}
-              >
-                Ingreso Lotes
-              </a>
+              <div className="relative group">
+                <button className={`${currentTab === 'lotes' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`}
+                  type="button"
+                >
+                  LOTES
+                  <span className="material-symbols-outlined text-[14px] ml-1">expand_more</span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-[#001731] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] py-2">
+                  <a href="#"
+                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'lotes' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('lotes'); }}
+                  >
+                    Lotes Ingresados
+                  </a>
+                </div>
+              </div>
             </nav>
           </div>
           
