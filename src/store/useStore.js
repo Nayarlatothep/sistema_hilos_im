@@ -311,15 +311,20 @@ export const useStore = create((set, get) => ({
     set({ loading: true, error: null });
     
     // Map records to match Supabase's lote_material_color schema precisely
-    const recordsToInsert = records.map(record => ({
-      articulo: record.articulo || record.ARTICULO || record.sku || record.SKU || record.producto || record.cod_articulo || '',
-      nombre: record.nombre || record.NOMBRE || record.nombre_color || '',
-      idcolor: record.idcolor || record.IDCOLOR || record.id_color || record.color_code || '',
-      color: record.color || record.COLOR || '',
-      pc: record.pc || record.PC || '',
-      cantidad: parseFloat(record.cantidad) || parseFloat(record.CANTIDAD) || parseFloat(record.Cantidad) || 0,
-      Fecha_manufactura: record.Fecha_manufactura || record.Fecha_manu || record.fecha_manu || record.fecha_manufactura || record['FECHA MANU'] || null
-    }));
+    const recordsToInsert = records.map(record => {
+      const rawPc = String(record.pc || record.PC || '').trim();
+      const formattedPc = rawPc ? (rawPc.toUpperCase().startsWith('PC-') ? rawPc : `PC-000${rawPc}`) : '';
+      
+      return {
+        articulo: record.articulo || record.ARTICULO || record.sku || record.SKU || record.producto || record.cod_articulo || '',
+        nombre: record.nombre || record.NOMBRE || record.nombre_color || '',
+        idcolor: record.idcolor || record.IDCOLOR || record.id_color || record.color_code || '',
+        color: record.color || record.COLOR || '',
+        pc: formattedPc,
+        cantidad: parseFloat(record.cantidad) || parseFloat(record.CANTIDAD) || parseFloat(record.Cantidad) || 0,
+        fecha_manufactura: record.fecha_manufactura || record.Fecha_manufactura || record.Fecha_manu || record.fecha_manu || record['FECHA MANU'] || null
+      };
+    });
 
     const { data, error } = await supabase
       .from('lote_material_color')

@@ -70,10 +70,9 @@ export default function IngresoLotes() {
   // Open modal to duplicate a row
   const handleOpenDuplicationModal = (item) => {
     setSelectedMaterial(item);
-    // Suggest a sequential PC code
-    const dateCode = new Date().toISOString().split('T')[0].replace(/-/g, '').slice(2);
-    const seq = String(lotes_procesados.length + 1).padStart(3, '0');
-    setPcCode(`PC-${dateCode}-${seq}`);
+    // Suggest a sequential PC code as a simple number (formatted as PC-000x in display/db)
+    const seq = String(lotes_procesados.length + 1);
+    setPcCode(seq);
     setQuantity('');
     setShowModal(true);
   };
@@ -141,7 +140,9 @@ export default function IngresoLotes() {
       const pc = l.PC || 'N/A';
       freqs[pc] = (freqs[pc] || 0) + 1;
     });
-    return Object.entries(freqs).sort((a, b) => b[1] - a[1])[0][0];
+    const topPc = Object.entries(freqs).sort((a, b) => b[1] - a[1])[0][0];
+    const rawPc = String(topPc).trim();
+    return rawPc.toUpperCase().startsWith('PC-') ? rawPc : `PC-000${rawPc}`;
   };
 
   const uniqueSkusProcesados = new Set(lotes_procesados.map(l => l.sku || l.producto || l.material).filter(Boolean)).size;
@@ -171,8 +172,10 @@ export default function IngresoLotes() {
     }
 
     // PC Column Highlight
-    if (colName === 'PC') {
-      return <span className="text-xs font-mono font-black text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">{value}</span>;
+    if (colName === 'PC' || colName === 'pc') {
+      const rawPc = String(value).trim();
+      const formattedPc = rawPc.toUpperCase().startsWith('PC-') ? rawPc : `PC-000${rawPc}`;
+      return <span className="text-xs font-mono font-black text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">{formattedPc}</span>;
     }
 
     // Text
@@ -463,7 +466,7 @@ export default function IngresoLotes() {
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">CÓDIGO PC (PROD. CONTROL) *</label>
                 <input 
                   type="text"
-                  placeholder="Ej. PC-2026-105"
+                  placeholder="Ej. 105"
                   value={pcCode}
                   onChange={(e) => setPcCode(e.target.value)}
                   className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold font-mono text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all"
