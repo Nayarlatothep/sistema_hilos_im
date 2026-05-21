@@ -7,6 +7,7 @@ import TransferForm from './components/TransferForm';
 import Devolucion from './components/Devolucion';
 import ReporteLotes from './components/ReporteLotes';
 import IngresoLotes from './components/IngresoLotes';
+import Traslados from './components/Traslados';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, fetchMaterialesColor, loadLotesProcesados, loading, error } = useStore();

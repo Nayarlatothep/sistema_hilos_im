@@ -28,31 +28,34 @@ export default function Traslados() {
   const filteredTransferencias = useMemo(() => {
     let data = [...(transferencias || [])]; // Create a copy safely
     
+    // Remove any null/undefined entries just in case
+    data = data.filter(Boolean);
+
     if (dateFilter) {
-      data = data.filter(t => t.fecha_transferencia?.startsWith(dateFilter));
+      data = data.filter(t => String(t.fecha_transferencia || '').startsWith(dateFilter));
     }
     
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       data = data.filter(t => 
-        t.producto?.toLowerCase().includes(q) || 
-        t.nombre_color?.toLowerCase().includes(q) ||
-        t.color?.toLowerCase().includes(q)
+        String(t.producto || '').toLowerCase().includes(q) || 
+        String(t.nombre_color || '').toLowerCase().includes(q) ||
+        String(t.color || '').toLowerCase().includes(q)
       );
     }
 
     // Sorting: Estado 0/NULL first (at the top), Estado 1 at the bottom.
     // Secondary: Newest date first.
     data.sort((a, b) => {
-      const estA = a.estado_transferencia || 0;
-      const estB = b.estado_transferencia || 0;
+      const estA = a?.estado_transferencia || 0;
+      const estB = b?.estado_transferencia || 0;
 
       if (estA !== estB) {
         return estA - estB; // 0 comes before 1
       }
       
-      const dateA = new Date(a.fecha_transferencia || 0).getTime();
-      const dateB = new Date(b.fecha_transferencia || 0).getTime();
+      const dateA = new Date(a?.fecha_transferencia || 0).getTime();
+      const dateB = new Date(b?.fecha_transferencia || 0).getTime();
       return dateB - dateA; // Newest first
     });
     
@@ -69,8 +72,8 @@ export default function Traslados() {
   };
 
   const stats = useMemo(() => {
-    const totalStock = (filteredTransferencias || []).reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
-    const totalRequerida = (planificacion || []).reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
+    const totalStock = (filteredTransferencias || []).reduce((acc, t) => acc + adjustQuantity(t?.producto, t?.cantidad), 0);
+    const totalRequerida = (planificacion || []).reduce((acc, p) => acc + adjustQuantity(p?.producto, p?.cantidad), 0);
     const cumplimiento = totalRequerida > 0 ? (totalStock / totalRequerida) * 100 : 0;
 
     let color = 'text-rose-500'; // Rojo crítico
@@ -105,11 +108,11 @@ export default function Traslados() {
 
     const moduleStats = moduleList.map(modId => {
       const toolReq = (planificacion || [])
-        .filter(p => getModKey(p.modulo) === modId)
-        .reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
+        .filter(p => getModKey(p?.modulo) === modId)
+        .reduce((acc, p) => acc + adjustQuantity(p?.producto, p?.cantidad), 0);
       const toolTrans = (transferencias || [])
-        .filter(t => getModKey(t.modulo) === modId)
-        .reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
+        .filter(t => getModKey(t?.modulo) === modId)
+        .reduce((acc, t) => acc + adjustQuantity(t?.producto, t?.cantidad), 0);
       const prc = toolReq > 0 ? (toolTrans / toolReq) * 100 : 0;
       
       let badgeColor = 'bg-rose-500';
