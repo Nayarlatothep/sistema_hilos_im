@@ -66,7 +66,7 @@ export default function TransferForm() {
     const targetProd = normalize(selectedItem.producto);
     const targetColor = normalize(selectedItem.color);
 
-    return planificacion.some(p => 
+    return (planificacion || []).some(p => 
       normalize(p.producto) === targetProd && 
       normalize(p.color) === targetColor
     );
@@ -170,7 +170,7 @@ export default function TransferForm() {
       const targetProd = normalize(selectedItem.producto);
       const targetColor = normalize(selectedItem.color);
 
-      const modulesPlanned = planificacion.filter(p => 
+      const modulesPlanned = (planificacion || []).filter(p => 
         normalize(p.producto) === targetProd && 
         normalize(p.color) === targetColor
       ).map(p => String(p.modulo).trim()).filter(Boolean);

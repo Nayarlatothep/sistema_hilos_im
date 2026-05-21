@@ -130,11 +130,11 @@ export default function IngresoLotes() {
   });
 
   // KPI Computations for processed lots
-  const totalLotesProcesados = lotes_procesados.length;
-  const totalCantidadProcesada = lotes_procesados.reduce((sum, item) => sum + (parseFloat(item.Cantidad) || 0), 0);
+  const totalLotesProcesados = (lotes_procesados || []).length;
+  const totalCantidadProcesada = (lotes_procesados || []).reduce((sum, item) => sum + (parseFloat(item.Cantidad) || 0), 0);
   
   const getDominantPc = () => {
-    if (lotes_procesados.length === 0) return 'Ninguno';
+    if (!lotes_procesados || lotes_procesados.length === 0) return 'Ninguno';
     const freqs = {};
     lotes_procesados.forEach(l => {
       const pc = l.PC || 'N/A';
@@ -145,7 +145,7 @@ export default function IngresoLotes() {
     return rawPc.toUpperCase().startsWith('PC-') ? rawPc : `PC-000${rawPc}`;
   };
 
-  const uniqueSkusProcesados = new Set(lotes_procesados.map(l => l.sku || l.producto || l.material).filter(Boolean)).size;
+  const uniqueSkusProcesados = new Set((lotes_procesados || []).map(l => l.sku || l.producto || l.material).filter(Boolean)).size;
 
   // Render cell content beautifully
   const renderCellContent = (value, colName) => {

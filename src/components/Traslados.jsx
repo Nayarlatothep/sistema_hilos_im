@@ -26,7 +26,7 @@ export default function Traslados() {
   const [localChecks, setLocalChecks] = useState([]);
 
   const filteredTransferencias = useMemo(() => {
-    let data = [...transferencias]; // Create a copy for sorting
+    let data = [...(transferencias || [])]; // Create a copy safely
     
     if (dateFilter) {
       data = data.filter(t => t.fecha_transferencia?.startsWith(dateFilter));
@@ -69,8 +69,8 @@ export default function Traslados() {
   };
 
   const stats = useMemo(() => {
-    const totalStock = filteredTransferencias.reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
-    const totalRequerida = planificacion.reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
+    const totalStock = (filteredTransferencias || []).reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
+    const totalRequerida = (planificacion || []).reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
     const cumplimiento = totalRequerida > 0 ? (totalStock / totalRequerida) * 100 : 0;
 
     let color = 'text-rose-500'; // Rojo crítico
@@ -89,18 +89,26 @@ export default function Traslados() {
     }
 
     // Dynamic module discovery — no hardcoded list
-    const moduleList = getAvailableModules();
-    const normalizeModule = (m) => {
-      if (!m) return null;
-      return String(m).trim();
+    const moduleList = getAvailableModules() || [];
+    const getModKey = (pMod) => {
+      const s = String(pMod || '').trim().toUpperCase();
+      return ['1', '2', '3', '4'].find(m => 
+        s === m || 
+        s.includes(` ${m}`) || 
+        s.includes(`${m} `) || 
+        s.startsWith(`MODULO ${m}`) || 
+        s.startsWith(`MÓDULO ${m}`) ||
+        s.startsWith(`MOD. ${m}`) ||
+        s.startsWith(`MOD ${m}`)
+      );
     };
 
     const moduleStats = moduleList.map(modId => {
-      const toolReq = planificacion
-        .filter(p => normalizeModule(p.modulo) === modId)
+      const toolReq = (planificacion || [])
+        .filter(p => getModKey(p.modulo) === modId)
         .reduce((acc, p) => acc + adjustQuantity(p.producto, p.cantidad), 0);
-      const toolTrans = transferencias
-        .filter(t => normalizeModule(t.modulo) === modId)
+      const toolTrans = (transferencias || [])
+        .filter(t => getModKey(t.modulo) === modId)
         .reduce((acc, t) => acc + adjustQuantity(t.producto, t.cantidad), 0);
       const prc = toolReq > 0 ? (toolTrans / toolReq) * 100 : 0;
       
