@@ -417,10 +417,10 @@ export default function IndicadorVencimiento() {
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-              <div className="relative max-w-md">
+              <div className="relative w-full">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
                 <input 
-                  className="w-full pl-9 pr-4 py-2 border border-outline-variant rounded-lg bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" 
+                  className="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-md bg-white text-on-surface font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none shadow-sm" 
                   placeholder="Buscar por artículo o nombre..." 
                   type="text"
                   value={searchQuery}
