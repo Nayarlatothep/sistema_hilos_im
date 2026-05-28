@@ -60,14 +60,54 @@
               "secondary-fixed": "#ffdbce",
               "surface-tint": "#456084",
               "outline-variant": "#c4c6cf",
-              "error": "#ba1a1a"
+              "error": "#ba1a1a",
+              "info": "#0284c7",
+              "info-bg": "#e0f2fe",
+              "danger": "#dc2626",
+              "danger-bg": "#fee2e2",
+              "warning": "#f97316",
+              "warning-bg": "#ffedd5",
+              "success": "#16a34a",
+              "success-bg": "#dcfce7"
             },
             fontFamily: {
               "headline": ["Manrope"],
               "body": ["Inter"],
-              "label": ["Inter"]
+              "label": ["Inter"],
+              "display-kpi-mobile": ["Inter"],
+              "display-kpi": ["Inter"],
+              "body-md": ["Inter"],
+              "headline-lg": ["Inter"],
+              "data-mono": ["Inter"],
+              "label-sm": ["Inter"],
+              "headline-md": ["Inter"],
+              "body-lg": ["Inter"]
+            },
+            fontSize: {
+              "display-kpi-mobile": ["28px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }],
+              "display-kpi": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+              "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+              "headline-lg": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+              "data-mono": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+              "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+              "headline-md": ["18px", { lineHeight: "28px", fontWeight: "600" }],
+              "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }]
             },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            spacing: {
+              "md": "16px",
+              "xs": "4px",
+              "gutter": "20px",
+              "xl": "32px",
+              "base": "4px",
+              "lg": "24px",
+              "sm": "8px",
+              "container-max": "1440px"
+            },
+            boxShadow: {
+              'card': '0 2px 4px rgba(0, 0, 0, 0.05)',
+              'modal': '0 10px 20px rgba(0, 0, 0, 0.1)',
+            }
           },
         },
       }
@@ -79,6 +119,12 @@
       body {
         background-color: #f8f9fa;
         color: #191c1d;
+      }
+      .card-base {
+        background-color: theme('colors.surface-container-lowest');
+        border-radius: theme('borderRadius.xl');
+        border: 1px solid theme('colors.outline-variant');
+        box-shadow: theme('boxShadow.card');
       }
     </style>
   </head>

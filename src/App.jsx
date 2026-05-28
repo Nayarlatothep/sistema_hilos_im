@@ -8,6 +8,7 @@ import Devolucion from './components/Devolucion';
 import ReporteLotes from './components/ReporteLotes';
 import IngresoLotes from './components/IngresoLotes';
 import Traslados from './components/Traslados';
+import IndicadorVencimiento from './components/IndicadorVencimiento';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, fetchMaterialesColor, loadLotesProcesados, loading, error } = useStore();
@@ -27,6 +28,8 @@ function App() {
         return <Dashboard />;
       case 'dashboard-transfer':
         return <TransferForm />;
+      case 'dashboard-vencimiento':
+        return <IndicadorVencimiento />;
       case 'traslados':
         return <Traslados />;
       case 'devolucion':
