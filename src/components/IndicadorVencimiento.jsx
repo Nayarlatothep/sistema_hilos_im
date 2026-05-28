@@ -303,26 +303,27 @@ export default function IndicadorVencimiento() {
                 </div>
               )}
               {actionRequiredAlerts.slice(0, 5).map((alert, idx) => (
-                <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-label-sm text-label-sm font-bold text-on-surface">{alert.nombre || 'N/A'}</span>
-                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[10px] font-bold px-2 py-0.5 rounded-full`}>
+                <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex flex-col justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
+                  <div className="w-full">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <span className="font-label-md text-label-md font-bold text-on-surface flex-1">{alert.nombre || 'N/A'}</span>
+                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger text-on-danger' : 'bg-warning text-on-warning'} text-[11px] font-bold px-3 py-1 rounded shadow-sm whitespace-nowrap tracking-wide`}>
                         {alert.status}
                       </span>
                     </div>
                     <p className="font-body-md text-[12px] text-on-surface-variant">Art: {alert.articulo} | Color: {alert.color}</p>
-                    <p className="font-body-md text-[12px] text-on-surface-variant mt-0.5">Lote: {alert.pc} | Manufacturado: {alert.fecha_manufactura ? new Date(alert.fecha_manufactura).toISOString().split('T')[0] : 'N/A'}</p>
-                    <div className={`mt-2 font-data-mono text-[12px] ${alert.status === 'Obsoleto' ? 'text-danger' : 'text-warning'} flex items-center gap-1`}>
-                      <span className="material-symbols-outlined text-[14px]">
+                    <p className="font-body-md text-[12px] text-on-surface-variant mt-0.5">Lote: {alert.pc} | Manu: {alert.fecha_manufactura ? new Date(alert.fecha_manufactura).toISOString().split('T')[0] : 'N/A'}</p>
+                    <div className={`mt-2 font-data-mono text-[13px] ${alert.status === 'Obsoleto' ? 'text-danger' : 'text-warning'} flex items-center gap-1 font-bold`}>
+                      <span className="material-symbols-outlined text-[16px]">
                         {alert.status === 'Obsoleto' ? 'event_busy' : 'schedule'}
                       </span> 
-                      {alert.status === 'Obsoleto' ? 'Vencido:' : 'Vence:'} {alert.expirationDate ? alert.expirationDate.toISOString().split('T')[0] : 'N/A'} ({alert.daysRemaining} días)
+                      {alert.status === 'Obsoleto' ? 'Vencido:' : 'Vence:'} {alert.expirationDate ? alert.expirationDate.toISOString().split('T')[0] : 'N/A'} 
+                      <span className="ml-1 opacity-80 font-normal">({alert.daysRemaining} días)</span>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-data-mono text-data-mono font-bold text-lg">{alert.cantidad.toLocaleString()}</div>
-                    <div className="font-label-sm text-[10px] text-on-surface-variant">Cant.</div>
+                  <div className="mt-4 pt-3 border-t border-outline-variant flex justify-between items-end w-full">
+                    <span className="font-label-sm text-on-surface-variant">Cantidad Total</span>
+                    <div className="font-data-mono font-bold text-xl text-primary">{alert.cantidad.toLocaleString()}</div>
                   </div>
                 </div>
               ))}
