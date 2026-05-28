@@ -305,9 +305,9 @@ export default function IndicadorVencimiento() {
               {actionRequiredAlerts.slice(0, 5).map((alert, idx) => (
                 <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex flex-col justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
                   <div className="w-full">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="font-label-md text-label-md font-bold text-on-surface flex-1">{alert.nombre || 'N/A'}</span>
-                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger text-on-danger' : 'bg-warning text-on-warning'} text-[11px] font-bold px-3 py-1 rounded shadow-sm whitespace-nowrap tracking-wide`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-label-md text-label-md font-bold text-on-surface">{alert.nombre || 'N/A'}</span>
+                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[12px] font-bold px-2.5 py-0.5 rounded-full`}>
                         {alert.status}
                       </span>
                     </div>
