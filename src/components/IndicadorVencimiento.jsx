@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
   const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, loading } = useStore();
+  const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
 
   useEffect(() => {
     fetchLoteMaterialColor();
@@ -278,7 +279,7 @@ export default function IndicadorVencimiento() {
                   No hay alertas de vencimiento en este momento.
                 </div>
               )}
-              {actionRequiredAlerts.map((alert, idx) => (
+              {actionRequiredAlerts.slice(0, 5).map((alert, idx) => (
                 <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -303,7 +304,12 @@ export default function IndicadorVencimiento() {
               ))}
             </div>
             <div className="p-3 bg-surface-container-low border-t border-outline-variant text-center">
-              <button className="font-label-sm text-primary hover:underline">Ver todas las alertas</button>
+              <button 
+                className="font-label-sm text-primary hover:underline"
+                onClick={() => setShowAllAlertsModal(true)}
+              >
+                Ver todas las alertas
+              </button>
             </div>
           </div>
         </div>
@@ -393,6 +399,68 @@ export default function IndicadorVencimiento() {
           </table>
         </div>
       </div>
+
+      {/* All Alerts Modal */}
+      {showAllAlertsModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
+          <div className="bg-surface-container-lowest rounded-xl shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div className="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low rounded-t-xl">
+              <div>
+                <h3 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                  <span className="material-symbols-outlined text-warning">warning</span> Todas las Alertas de Vencimiento
+                </h3>
+                <p className="font-body-md text-on-surface-variant mt-1">Mostrando el detalle de todos los artículos obsoletos o en riesgo.</p>
+              </div>
+              <button onClick={() => setShowAllAlertsModal(false)} className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-highest">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="p-md flex-1 overflow-y-auto bg-surface">
+              {actionRequiredAlerts.length === 0 ? (
+                <div className="p-8 text-center text-on-surface-variant font-body-md">
+                  No hay alertas de vencimiento en este momento.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {actionRequiredAlerts.map((alert, idx) => (
+                    <div key={idx} className={`p-4 border border-outline-variant rounded-lg hover:shadow-md transition-shadow bg-surface-container-lowest flex flex-col justify-between ${alert.status === 'Obsoleto' ? 'border-danger/30 bg-danger/5' : ''}`}>
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-label-sm text-label-sm font-bold text-on-surface truncate flex-1">{alert.nombre || 'N/A'}</span>
+                          <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0`}>
+                            {alert.status}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 mb-4 bg-surface-container-low p-2 rounded text-[12px] font-data-mono">
+                          <div><span className="text-on-surface-variant">Art:</span> {alert.articulo}</div>
+                          <div><span className="text-on-surface-variant">Color:</span> {alert.color}</div>
+                          <div><span className="text-on-surface-variant">Vida útil:</span> {alert.shelflife} días</div>
+                          <div><span className="text-on-surface-variant">Manu:</span> {alert.earliestManufacture ? alert.earliestManufacture.toISOString().split('T')[0] : 'N/A'}</div>
+                        </div>
+
+                        <div className={`mt-2 font-data-mono text-[13px] font-bold ${alert.status === 'Obsoleto' ? 'text-danger' : 'text-warning'} flex items-center gap-1`}>
+                          <span className="material-symbols-outlined text-[16px]">
+                            {alert.status === 'Obsoleto' ? 'event_busy' : 'schedule'}
+                          </span> 
+                          {alert.status === 'Obsoleto' ? 'Vencido:' : 'Vence:'} {alert.expirationDate ? alert.expirationDate.toISOString().split('T')[0] : 'N/A'} 
+                          <span className="ml-1 opacity-80">({alert.daysRemaining} días)</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-outline-variant flex justify-between items-end">
+                        <span className="font-label-sm text-on-surface-variant">Cantidad Total</span>
+                        <div className="font-data-mono font-bold text-xl text-primary">{alert.cantidad.toLocaleString()}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
