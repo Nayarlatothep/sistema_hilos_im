@@ -27,15 +27,17 @@ export default function IndicadorVencimiento() {
     const groups = {};
 
     lotes_material_color.forEach(lote => {
-      const key = `${lote.articulo}-${lote.idcolor}`;
+      const key = `${lote.articulo}-${lote.idcolor}-${lote.pc}`;
       if (!groups[key]) {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
         groups[key] = {
+          pc: lote.pc,
           articulo: lote.articulo,
           nombre: lote.nombre,
           color: lote.color,
+          fecha_manufactura: lote.fecha_manufactura,
           cantidad: 0,
           shelflife: shelflife,
           earliestManufacture: null,
@@ -310,6 +312,7 @@ export default function IndicadorVencimiento() {
                       </span>
                     </div>
                     <p className="font-body-md text-[12px] text-on-surface-variant">Art: {alert.articulo} | Color: {alert.color}</p>
+                    <p className="font-body-md text-[12px] text-on-surface-variant mt-0.5">Lote: {alert.pc} | Manufacturado: {alert.fecha_manufactura ? new Date(alert.fecha_manufactura).toISOString().split('T')[0] : 'N/A'}</p>
                     <div className={`mt-2 font-data-mono text-[12px] ${alert.status === 'Obsoleto' ? 'text-danger' : 'text-warning'} flex items-center gap-1`}>
                       <span className="material-symbols-outlined text-[14px]">
                         {alert.status === 'Obsoleto' ? 'event_busy' : 'schedule'}
@@ -480,8 +483,9 @@ export default function IndicadorVencimiento() {
                         <div className="grid grid-cols-2 gap-2 mb-4 bg-surface-container-low p-2 rounded text-[12px] font-data-mono">
                           <div><span className="text-on-surface-variant">Art:</span> {alert.articulo}</div>
                           <div><span className="text-on-surface-variant">Color:</span> {alert.color}</div>
+                          <div><span className="text-on-surface-variant">Lote:</span> {alert.pc}</div>
                           <div><span className="text-on-surface-variant">Vida útil:</span> {alert.shelflife} días</div>
-                          <div><span className="text-on-surface-variant">Manu:</span> {alert.earliestManufacture ? alert.earliestManufacture.toISOString().split('T')[0] : 'N/A'}</div>
+                          <div className="col-span-2"><span className="text-on-surface-variant">Manufacturado:</span> {alert.fecha_manufactura ? new Date(alert.fecha_manufactura).toISOString().split('T')[0] : 'N/A'}</div>
                         </div>
 
                         <div className={`mt-2 font-data-mono text-[13px] font-bold ${alert.status === 'Obsoleto' ? 'text-danger' : 'text-warning'} flex items-center gap-1`}>
