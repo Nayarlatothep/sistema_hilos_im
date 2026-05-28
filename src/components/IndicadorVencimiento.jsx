@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 export default function IndicadorVencimiento() {
   const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchLoteMaterialColor();
@@ -404,26 +405,49 @@ export default function IndicadorVencimiento() {
       {showAllAlertsModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
           <div className="bg-surface-container-lowest rounded-xl shadow-modal w-full max-w-4xl max-h-[90vh] flex flex-col">
-            <div className="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low rounded-t-xl">
-              <div>
-                <h3 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-warning">warning</span> Todas las Alertas de Vencimiento
-                </h3>
-                <p className="font-body-md text-on-surface-variant mt-1">Mostrando el detalle de todos los artículos obsoletos o en riesgo.</p>
+            <div className="p-lg border-b border-outline-variant bg-surface-container-low rounded-t-xl flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                    <span className="material-symbols-outlined text-warning">warning</span> Todas las Alertas de Vencimiento
+                  </h3>
+                  <p className="font-body-md text-on-surface-variant mt-1">Mostrando el detalle de todos los artículos obsoletos o en riesgo.</p>
+                </div>
+                <button onClick={() => setShowAllAlertsModal(false)} className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-highest">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
               </div>
-              <button onClick={() => setShowAllAlertsModal(false)} className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-highest">
-                <span className="material-symbols-outlined">close</span>
-              </button>
+              <div className="relative max-w-md">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                <input 
+                  className="w-full pl-9 pr-4 py-2 border border-outline-variant rounded-lg bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" 
+                  placeholder="Buscar por artículo o nombre..." 
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
             
             <div className="p-md flex-1 overflow-y-auto bg-surface">
-              {actionRequiredAlerts.length === 0 ? (
-                <div className="p-8 text-center text-on-surface-variant font-body-md">
-                  No hay alertas de vencimiento en este momento.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {actionRequiredAlerts.map((alert, idx) => (
+              {(() => {
+                const filteredAlerts = actionRequiredAlerts.filter(alert => {
+                  const q = searchQuery.toLowerCase();
+                  return (alert.nombre && alert.nombre.toLowerCase().includes(q)) || 
+                         (alert.articulo && alert.articulo.toLowerCase().includes(q));
+                });
+
+                if (filteredAlerts.length === 0) {
+                  return (
+                    <div className="p-8 text-center text-on-surface-variant font-body-md">
+                      {searchQuery ? 'No se encontraron resultados para tu búsqueda.' : 'No hay alertas de vencimiento en este momento.'}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredAlerts.map((alert, idx) => (
                     <div key={idx} className={`p-4 border border-outline-variant rounded-lg hover:shadow-md transition-shadow bg-surface-container-lowest flex flex-col justify-between ${alert.status === 'Obsoleto' ? 'border-danger/30 bg-danger/5' : ''}`}>
                       <div>
                         <div className="flex items-center gap-2 mb-2">
@@ -456,7 +480,8 @@ export default function IndicadorVencimiento() {
                     </div>
                   ))}
                 </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         </div>
