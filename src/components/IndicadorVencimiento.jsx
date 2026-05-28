@@ -5,11 +5,21 @@ export default function IndicadorVencimiento() {
   const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchLoteMaterialColor();
     fetchMaterialesColor();
   }, []);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      fetchLoteMaterialColor(),
+      fetchMaterialesColor()
+    ]);
+    setIsRefreshing(false);
+  };
 
   const actionRequiredAlerts = useMemo(() => {
     if (!lotes_material_color || !materiales_color) return [];
@@ -75,10 +85,20 @@ export default function IndicadorVencimiento() {
   }, [lotes_material_color, materiales_color]);
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
-      <div className="mb-lg">
-        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Inventory Health Dashboard</h2>
-        <p className="font-body-md text-body-md text-on-surface-variant">Real-time analysis of material obsolescence and financial exposure.</p>
+    <div>
+      <div className="mb-lg flex justify-between items-start">
+        <div>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Inventory Health Dashboard</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant">Real-time analysis of material obsolescence and financial exposure.</p>
+        </div>
+        <button 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="bg-surface-container-low border border-outline-variant hover:border-primary text-primary px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 font-label-sm shadow-sm hover:shadow-md group disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span className={`material-symbols-outlined text-[18px] ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`}>sync</span>
+          Actualizar
+        </button>
       </div>
 
       {/* KPI Row */}
