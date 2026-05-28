@@ -56,7 +56,7 @@ export default function IndicadorVencimiento() {
         
         if (daysRemaining < 0) {
           status = 'Obsoleto';
-        } else if (daysRemaining <= 90) { // Consider 90 days as risk threshold
+        } else if (daysRemaining <= group.shelflife * 0.3) {
           status = 'En Riesgo';
         } else {
           status = 'Disponible';
