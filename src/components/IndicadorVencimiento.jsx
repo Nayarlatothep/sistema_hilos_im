@@ -1,6 +1,77 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
+  const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, loading } = useStore();
+
+  useEffect(() => {
+    fetchLoteMaterialColor();
+    fetchMaterialesColor();
+  }, []);
+
+  const actionRequiredAlerts = useMemo(() => {
+    if (!lotes_material_color || !materiales_color) return [];
+
+    const groups = {};
+
+    lotes_material_color.forEach(lote => {
+      const key = `${lote.articulo}-${lote.idcolor}`;
+      if (!groups[key]) {
+        const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
+        const shelflife = material ? Number(material.shelflife) || 0 : 0;
+        
+        groups[key] = {
+          articulo: lote.articulo,
+          nombre: lote.nombre,
+          color: lote.color,
+          cantidad: 0,
+          shelflife: shelflife,
+          earliestManufacture: null,
+        };
+      }
+      
+      groups[key].cantidad += Number(lote.cantidad || 0);
+
+      if (lote.fecha_manufactura) {
+        const date = new Date(lote.fecha_manufactura);
+        if (!groups[key].earliestManufacture || date < groups[key].earliestManufacture) {
+          groups[key].earliestManufacture = date;
+        }
+      }
+    });
+
+    return Object.values(groups).map(group => {
+      let expirationDate = null;
+      let daysRemaining = null;
+      let status = 'Desconocido';
+      
+      if (group.earliestManufacture && group.shelflife > 0) {
+        expirationDate = new Date(group.earliestManufacture);
+        expirationDate.setDate(expirationDate.getDate() + group.shelflife);
+        
+        const today = new Date();
+        const diffTime = expirationDate - today;
+        daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (daysRemaining < 0) {
+          status = 'Obsoleto';
+        } else if (daysRemaining <= 90) { // Consider 90 days as risk threshold
+          status = 'En Riesgo';
+        } else {
+          status = 'Disponible';
+        }
+      }
+
+      return {
+        ...group,
+        expirationDate,
+        daysRemaining,
+        status
+      };
+    }).filter(g => g.status === 'Obsoleto' || g.status === 'En Riesgo')
+      .sort((a, b) => a.daysRemaining - b.daysRemaining);
+  }, [lotes_material_color, materiales_color]);
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
       <div className="mb-lg">
@@ -197,78 +268,42 @@ export default function IndicadorVencimiento() {
           <div className="card-base flex flex-col h-auto overflow-hidden flex-1">
             <div className="bg-error-container p-4 border-b border-error/20 flex items-center justify-between">
               <h3 className="font-headline-md text-headline-md text-on-error-container flex items-center gap-2">
-                <span className="material-symbols-outlined">warning</span> Action Required
+                <span className="material-symbols-outlined">warning</span> Acción Requerida
               </h3>
-              <span className="bg-error text-on-error text-[10px] font-bold px-2 py-1 rounded-full">4 Prioridad Alta</span>
+              <span className="bg-error text-on-error text-[10px] font-bold px-2 py-1 rounded-full">{actionRequiredAlerts.length} Alertas</span>
             </div>
             <div className="p-0 flex-1 overflow-y-auto">
-              {/* Alert Item 1 */}
-              <div className="p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-label-sm text-label-sm font-bold text-on-surface">SKU HIL-002</span>
-                    <span className="bg-warning/10 text-warning text-[10px] font-bold px-2 py-0.5 rounded-full">En Riesgo</span>
-                  </div>
-                  <p className="font-body-md text-[12px] text-on-surface-variant">Hilo de Nylon Especializado (Stock: 200)</p>
-                  <div className="mt-2 font-data-mono text-[12px] text-warning flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">schedule</span> Vence: 2024-11-20 (15 días)
-                  </div>
+              {actionRequiredAlerts.length === 0 && (
+                <div className="p-8 text-center text-on-surface-variant font-body-md">
+                  No hay alertas de vencimiento en este momento.
                 </div>
-                <div className="text-right">
-                  <div className="font-data-mono text-data-mono font-bold">$760.00</div>
-                </div>
-              </div>
-              {/* Alert Item 2 */}
-              <div className="p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-label-sm text-label-sm font-bold text-on-surface">SKU HT-501</span>
-                    <span className="bg-warning/10 text-warning text-[10px] font-bold px-2 py-0.5 rounded-full">En Riesgo</span>
+              )}
+              {actionRequiredAlerts.map((alert, idx) => (
+                <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-label-sm text-label-sm font-bold text-on-surface">{alert.nombre || 'N/A'}</span>
+                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[10px] font-bold px-2 py-0.5 rounded-full`}>
+                        {alert.status}
+                      </span>
+                    </div>
+                    <p className="font-body-md text-[12px] text-on-surface-variant">Art: {alert.articulo} | Color: {alert.color}</p>
+                    <div className={`mt-2 font-data-mono text-[12px] ${alert.status === 'Obsoleto' ? 'text-danger' : 'text-warning'} flex items-center gap-1`}>
+                      <span className="material-symbols-outlined text-[14px]">
+                        {alert.status === 'Obsoleto' ? 'event_busy' : 'schedule'}
+                      </span> 
+                      {alert.status === 'Obsoleto' ? 'Vencido:' : 'Vence:'} {alert.expirationDate ? alert.expirationDate.toISOString().split('T')[0] : 'N/A'} ({alert.daysRemaining} días)
+                    </div>
                   </div>
-                  <p className="font-body-md text-[12px] text-on-surface-variant">Vinil Térmico Reflectivo (Stock: 1,000)</p>
-                  <div className="mt-2 font-data-mono text-[12px] text-warning flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">schedule</span> Vence: 2024-12-30 (55 días)
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-data-mono text-data-mono font-bold">$1,200.00</div>
-                </div>
-              </div>
-              {/* Alert Item 3 (New Obsolete) */}
-              <div className="p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start bg-danger/5">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-label-sm text-label-sm font-bold text-on-surface">SKU CUE-102</span>
-                    <span className="bg-danger/10 text-danger text-[10px] font-bold px-2 py-0.5 rounded-full">Obsoleto</span>
-                  </div>
-                  <p className="font-body-md text-[12px] text-on-surface-variant">Gamuza Sintética Prime (Stock: 80)</p>
-                  <div className="mt-2 font-data-mono text-[12px] text-danger flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">event_busy</span> Vencido: 2024-08-15 (-82 días)
+                  <div className="text-right">
+                    <div className="font-data-mono text-data-mono font-bold text-lg">{alert.cantidad.toLocaleString()}</div>
+                    <div className="font-label-sm text-[10px] text-on-surface-variant">Cant.</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-data-mono text-data-mono font-bold">$1,480.00</div>
-                </div>
-              </div>
-              {/* Alert Item 4 (New Obsolete) */}
-              <div className="p-4 hover:bg-surface-container-low transition-colors cursor-pointer flex justify-between items-start bg-danger/5">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-label-sm text-label-sm font-bold text-on-surface">SKU HT-502</span>
-                    <span className="bg-danger/10 text-danger text-[10px] font-bold px-2 py-0.5 rounded-full">Obsoleto</span>
-                  </div>
-                  <p className="font-body-md text-[12px] text-on-surface-variant">Parche Bordado Adhesivo (Stock: 400)</p>
-                  <div className="mt-2 font-data-mono text-[12px] text-danger flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">event_busy</span> Vencido: 2024-05-20 (-168 días)
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-data-mono text-data-mono font-bold">$380.00</div>
-                </div>
-              </div>
+              ))}
             </div>
             <div className="p-3 bg-surface-container-low border-t border-outline-variant text-center">
-              <button className="font-label-sm text-primary hover:underline">View All Alerts</button>
+              <button className="font-label-sm text-primary hover:underline">Ver todas las alertas</button>
             </div>
           </div>
         </div>
