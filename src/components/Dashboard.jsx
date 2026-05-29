@@ -370,14 +370,14 @@ export default function Dashboard() {
 
       <section className={`grid grid-cols-1 ${getGridClass()} gap-8`}>
         {stationsData.map(st => {
-          let perfBgColor = '#991b1b'; // Critical
+          let perfBg = 'bg-rose-600';
           let perfProgress = 'bg-white/40';
-          if (st.percent >= 90) perfBgColor = '#1a365d'; // Optimal
-          else if (st.percent >= 50) perfBgColor = '#d97706'; // Watchlist
+          if (st.percent >= 90) perfBg = 'bg-emerald-600';
+          else if (st.percent >= 50) perfBg = 'bg-amber-600';
 
           return (
             <div key={st.name} className="flex flex-col gap-0 shadow-xl rounded-2xl overflow-hidden transition-all hover:scale-[1.01]">
-              <div className="p-6 rounded-none flex flex-col items-center group relative overflow-hidden transition-all" style={{ backgroundColor: perfBgColor, border: 'none' }}>
+              <div className={`${perfBg} p-6 rounded-none flex flex-col items-center group relative overflow-hidden transition-all`}>
                 <div className="w-full flex justify-between items-center mb-6 relative z-10">
                   <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-white/90 font-headline">MÓDULO {st.name}</h3>
                   <span className="material-symbols-outlined text-white/30 text-xl">analytics</span>
@@ -788,13 +788,13 @@ export default function Dashboard() {
           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest font-headline">Global Production Overview | {productionDataList.length} Product Lines Active</p>
           <div className="flex items-center gap-4 font-headline">
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-500">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1a365d' }}></div> Optimal
+              <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Optimal
             </div>
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-500">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#d97706' }}></div> Watchlist
+              <div className="w-2 h-2 rounded-full bg-amber-500"></div> Watchlist
             </div>
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-500">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#991b1b' }}></div> Critical
+              <div className="w-2 h-2 rounded-full bg-rose-500"></div> Critical
             </div>
           </div>
         </div>
