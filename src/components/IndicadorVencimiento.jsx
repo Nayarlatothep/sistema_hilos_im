@@ -34,20 +34,37 @@ export default function IndicadorVencimiento() {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
-        const art = lote.articulo != null ? String(lote.articulo) : '';
-        const col = lote.idcolor != null ? String(lote.idcolor) : '';
+        const artRaw = lote.articulo != null ? String(lote.articulo) : '';
+        const colRaw = lote.idcolor != null ? String(lote.idcolor) : '';
+        const artTrim = artRaw.trim();
+        const colTrim = colRaw.trim();
         
-        // Emulando exactamente: CONCAT(l.articulo, l.idcolor) = c.sku
-        const targetSku = art + col;
+        const target1 = artRaw + colRaw; // Raw concat as in SQL
+        const target2 = `${artTrim} ${colTrim}`; // Explicit space
+        const target3 = `${artTrim}${colTrim}`; // No space
+        const target4 = `${artTrim}-${colTrim}`; // Hyphen
 
-        const costoData = costo_unitario.find(c => c && c.sku && String(c.sku) === targetSku);
+        const costoData = costo_unitario.find(c => {
+          if (!c || !c.sku) return false;
+          const s = String(c.sku).trim();
+          if (s === target1 || s === target2 || s === target3 || s === target4) return true;
+          // Fallback: ignore all spaces
+          return s.replace(/\s+/g, '') === target3.replace(/\s+/g, '');
+        });
 
-        // El query dice c.costo * l.cantidad, así que tomamos costoData.costo
         let costoU = 0;
-        if (costoData && !isNaN(Number(costoData.costo))) {
-          costoU = Number(costoData.costo);
-        } else if (costoData) {
-          costoU = Number(costoData.costo_unitario) || Number(costoData.precio) || 0;
+        if (costoData) {
+          const possibleKeys = ['costo', 'costo_unitario', 'precio', 'Costo', 'Precio'];
+          for (let key of possibleKeys) {
+            if (costoData[key] != null) {
+              let val = String(costoData[key]).replace(/[^0-9.-]+/g, "");
+              let num = parseFloat(val);
+              if (!isNaN(num) && num !== 0) {
+                costoU = num;
+                break;
+              }
+            }
+          }
         }
 
         groups[key] = {
