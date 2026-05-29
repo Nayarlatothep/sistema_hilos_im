@@ -99,10 +99,6 @@ export default function IndicadorVencimiento() {
         <div>
           <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Inventory Health Dashboard</h2>
           <p className="font-body-md text-body-md text-on-surface-variant">Real-time analysis of material obsolescence and financial exposure.</p>
-          <div className="mt-2 flex gap-4 text-xs font-data-mono text-on-surface-variant">
-            <span>Lotes con costo (RPC): {lotes_con_costo?.length || 0}</span>
-            <span>Con costo > 0: {lotes_con_costo?.filter(l => parseFloat(l.costo) > 0).length || 0}</span>
-          </div>
         </div>
         <button 
           onClick={handleRefresh}
