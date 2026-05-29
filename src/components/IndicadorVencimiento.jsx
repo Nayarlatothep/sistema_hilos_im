@@ -116,7 +116,7 @@ export default function IndicadorVencimiento() {
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
 
-  const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
+  const formatCurrency = (val) => 'L. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
 
   return (
     <div>
@@ -199,7 +199,7 @@ export default function IndicadorVencimiento() {
                   <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
                     <div className="h-full bg-warning" style={{ width: '100%' }}></div>
                   </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">$980</span>
+                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 980</span>
                 </div>
                 {/* Cueros */}
                 <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export default function IndicadorVencimiento() {
                   <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
                     <div className="h-full bg-warning" style={{ width: '65%' }}></div>
                   </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">$640</span>
+                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 640</span>
                 </div>
                 {/* Heat Transfer */}
                 <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ export default function IndicadorVencimiento() {
                   <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
                     <div className="h-full bg-warning" style={{ width: '29%' }}></div>
                   </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">$280</span>
+                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 280</span>
                 </div>
                 {/* Telas */}
                 <div className="flex items-center gap-3">
@@ -223,7 +223,7 @@ export default function IndicadorVencimiento() {
                   <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
                     <div className="h-full bg-warning" style={{ width: '12%' }}></div>
                   </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">$120</span>
+                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 120</span>
                 </div>
                 {/* Cierres */}
                 <div className="flex items-center gap-3">
@@ -231,7 +231,7 @@ export default function IndicadorVencimiento() {
                   <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
                     <div className="h-full bg-warning" style={{ width: '6%' }}></div>
                   </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">$60</span>
+                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 60</span>
                 </div>
               </div>
             </div>
@@ -244,36 +244,36 @@ export default function IndicadorVencimiento() {
               <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
                 {/* Y Axis markers */}
                 <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
-                  <span>$1k</span><span>$500</span><span>$0</span>
+                  <span>L. 1k</span><span>L. 500</span><span>L. 0</span>
                 </div>
                 {/* Bars */}
                 <div className="flex flex-col items-center ml-10 gap-1 group">
                   <div className="w-8 bg-danger rounded-t-sm h-[120px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">$850</span>
+                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 850</span>
                   </div>
                   <span className="font-label-sm text-[9px] text-on-surface-variant">Cueros</span>
                 </div>
                 <div className="flex flex-col items-center gap-1 group">
                   <div className="w-8 bg-danger rounded-t-sm h-[59px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">$420</span>
+                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 420</span>
                   </div>
                   <span className="font-label-sm text-[9px] text-on-surface-variant">Hilos</span>
                 </div>
                 <div className="flex flex-col items-center gap-1 group">
                   <div className="w-8 bg-danger rounded-t-sm h-[40px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">$280</span>
+                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 280</span>
                   </div>
                   <span className="font-label-sm text-[9px] text-on-surface-variant">Heat Tr.</span>
                 </div>
                 <div className="flex flex-col items-center gap-1 group">
                   <div className="w-8 bg-danger rounded-t-sm h-[27px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">$190</span>
+                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 190</span>
                   </div>
                   <span className="font-label-sm text-[9px] text-on-surface-variant">Telas</span>
                 </div>
                 <div className="flex flex-col items-center gap-1 group">
                   <div className="w-8 bg-danger rounded-t-sm h-[17px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">$120</span>
+                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 120</span>
                   </div>
                   <span className="font-label-sm text-[9px] text-on-surface-variant">Cierres</span>
                 </div>
@@ -414,7 +414,7 @@ export default function IndicadorVencimiento() {
                 <td className="py-3 px-4 text-on-surface-variant">Cueros</td>
                 <td className="py-3 px-4 text-on-surface-variant font-body-md">Cuero Sintético Azul</td>
                 <td className="py-3 px-4 text-right text-on-surface">500</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">$850.00</td>
+                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 850.00</td>
                 <td className="py-3 px-4 text-center">
                   <span className="bg-danger/10 text-danger px-2 py-1 rounded-full text-[10px] font-bold uppercase">Obsolete</span>
                 </td>
@@ -424,7 +424,7 @@ export default function IndicadorVencimiento() {
                 <td className="py-3 px-4 text-on-surface-variant">Hilos</td>
                 <td className="py-3 px-4 text-on-surface-variant font-body-md">Hilo Poliéster Negro</td>
                 <td className="py-3 px-4 text-right text-on-surface">1200</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">$420.00</td>
+                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 420.00</td>
                 <td className="py-3 px-4 text-center">
                   <span className="bg-danger/10 text-danger px-2 py-1 rounded-full text-[10px] font-bold uppercase">Obsolete</span>
                 </td>
@@ -434,7 +434,7 @@ export default function IndicadorVencimiento() {
                 <td className="py-3 px-4 text-on-surface-variant">Heat Transfer</td>
                 <td className="py-3 px-4 text-on-surface-variant font-body-md">Heat Transfer Logo</td>
                 <td className="py-3 px-4 text-right text-on-surface">800</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">$280.00</td>
+                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 280.00</td>
                 <td className="py-3 px-4 text-center">
                   <span className="bg-warning/10 text-warning px-2 py-1 rounded-full text-[10px] font-bold uppercase">In Risk</span>
                 </td>
@@ -444,7 +444,7 @@ export default function IndicadorVencimiento() {
                 <td className="py-3 px-4 text-on-surface-variant">Telas</td>
                 <td className="py-3 px-4 text-on-surface-variant font-body-md">Tela Algodón Blanca</td>
                 <td className="py-3 px-4 text-right text-on-surface">2500</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">$3,500.00</td>
+                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 3,500.00</td>
                 <td className="py-3 px-4 text-center">
                   <span className="bg-success/10 text-success px-2 py-1 rounded-full text-[10px] font-bold uppercase">Available</span>
                 </td>
@@ -454,7 +454,7 @@ export default function IndicadorVencimiento() {
                 <td className="py-3 px-4 text-on-surface-variant">Cierres</td>
                 <td className="py-3 px-4 text-on-surface-variant font-body-md">Cierre Metálico 15cm</td>
                 <td className="py-3 px-4 text-right text-on-surface">5000</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">$1,250.00</td>
+                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 1,250.00</td>
                 <td className="py-3 px-4 text-center">
                   <span className="bg-success/10 text-success px-2 py-1 rounded-full text-[10px] font-bold uppercase">Available</span>
                 </td>
@@ -561,3 +561,4 @@ export default function IndicadorVencimiento() {
     </div>
   );
 }
+
