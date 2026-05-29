@@ -140,26 +140,26 @@ export default function IndicadorVencimiento() {
         {/* Inventario Total */}
         <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-blue-900 border-none rounded-3xl">
           <div className="flex justify-between items-start">
-            <span className="font-label-sm text-label-sm text-white/80">Inventario Total</span>
+            <span className="font-label-sm text-label-sm text-white/80 uppercase tracking-wider font-bold">INVENTARIO TOTAL</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-sm" data-icon="account_balance_wallet">account_balance_wallet</span>
             </div>
           </div>
           <div>
-            <div className="font-display-kpi text-display-kpi text-white">{formatCurrency(stats.total)}</div>
+            <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.total)}</div>
           </div>
         </div>
 
         {/* Inventario Vencido */}
         <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-rose-600 border-none rounded-3xl">
           <div className="flex justify-between items-start">
-            <span className="font-label-sm text-label-sm text-white/80">Inventario Vencido</span>
+            <span className="font-label-sm text-label-sm text-white/80 uppercase tracking-wider font-bold">INVENTARIO VENCIDO</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span>
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <div className="font-display-kpi text-display-kpi text-white">{formatCurrency(stats.obsolete)}</div>
+            <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.obsolete)}</div>
             <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{obsoletePercentage.toFixed(1)}%</span>
           </div>
         </div>
@@ -167,13 +167,13 @@ export default function IndicadorVencimiento() {
         {/* Inventario en Riesgo */}
         <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-amber-600 border-none rounded-3xl">
           <div className="flex justify-between items-start">
-            <span className="font-label-sm text-label-sm text-white/80">Inventario en Riesgo</span>
+            <span className="font-label-sm text-label-sm text-white/80 uppercase tracking-wider font-bold">INVENTARIO EN RIESGO</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-sm" data-icon="error_outline">error_outline</span>
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <div className="font-display-kpi text-display-kpi text-white">{formatCurrency(stats.atRisk)}</div>
+            <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.atRisk)}</div>
             <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{atRiskPercentage.toFixed(1)}%</span>
           </div>
         </div>
