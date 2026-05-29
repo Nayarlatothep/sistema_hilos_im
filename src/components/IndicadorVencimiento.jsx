@@ -360,7 +360,7 @@ export default function IndicadorVencimiento() {
                     <div className="flex justify-between items-end w-full">
                       <span className="font-label-sm text-on-surface-variant">Costo Total</span>
                       <div className="font-data-mono font-bold text-lg text-error">
-                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(alert.costo_total || 0)}
+                        {'L. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(alert.costo_total || 0)}
                       </div>
                     </div>
                   </div>
@@ -545,7 +545,7 @@ export default function IndicadorVencimiento() {
                         <div className="flex justify-between items-end">
                           <span className="font-label-sm text-on-surface-variant">Costo Total</span>
                           <div className="font-data-mono font-bold text-lg text-error">
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(alert.costo_total || 0)}
+                            {'L. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(alert.costo_total || 0)}
                           </div>
                         </div>
                       </div>
@@ -561,4 +561,5 @@ export default function IndicadorVencimiento() {
     </div>
   );
 }
+
 
