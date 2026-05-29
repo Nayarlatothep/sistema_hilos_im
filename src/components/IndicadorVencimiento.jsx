@@ -136,8 +136,8 @@ export default function IndicadorVencimiento() {
     <div>
       <div className="mb-lg flex justify-between items-start">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Inventory Health Dashboard</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant">Real-time analysis of material obsolescence and financial exposure.</p>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">CONTROL MATERIALES EXPIRADOS - MATERIA PRIMA</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant">Análisis en tiempo real de la obsolescencia de materiales y exposición financiera.</p>
         </div>
         <button 
           onClick={handleRefresh}
