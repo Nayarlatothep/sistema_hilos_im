@@ -12,6 +12,7 @@ export const useStore = create((set, get) => ({
   lotes_material_color: [],
   lotes_procesados: [],
   costo_unitario: [],
+  lotes_con_costo: [],
   loading: false,
   error: null,
 
@@ -85,6 +86,17 @@ export const useStore = create((set, get) => ({
       set({ error: error.message, loading: false });
     } else {
       set({ costo_unitario: data, loading: false });
+    }
+  },
+
+  fetchLotesConCosto: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase.rpc('get_lotes_con_costo');
+    if (error) {
+      console.error('Error fetching lotes_con_costo:', error);
+      set({ error: error.message, loading: false });
+    } else {
+      set({ lotes_con_costo: data, loading: false });
     }
   },
 

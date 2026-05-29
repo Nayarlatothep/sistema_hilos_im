@@ -2,66 +2,38 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
-  const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, fetchCostoUnitario, costo_unitario, loading } = useStore();
+  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchLoteMaterialColor();
+    fetchLotesConCosto();
     fetchMaterialesColor();
-    fetchCostoUnitario();
   }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await Promise.all([
-      fetchLoteMaterialColor(),
-      fetchMaterialesColor(),
-      fetchCostoUnitario()
+      fetchLotesConCosto(),
+      fetchMaterialesColor()
     ]);
     setIsRefreshing(false);
   };
 
   const actionRequiredAlerts = useMemo(() => {
-    if (!lotes_material_color || !materiales_color || !costo_unitario) return [];
+    if (!lotes_con_costo || !materiales_color) return [];
 
     const groups = {};
 
-    lotes_material_color.forEach(lote => {
+    lotes_con_costo.forEach(lote => {
       const key = `${lote.articulo}-${lote.idcolor}-${lote.pc}`;
       if (!groups[key]) {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
-        const artRaw = lote.articulo != null ? String(lote.articulo).trim() : '';
-        const colRaw = lote.idcolor != null ? String(lote.idcolor).trim() : '';
-
-        // La tabla costo_unitario tiene columnas: id, itemid, colorid, costo, sku
-        // Intentar match por itemid+colorid contra articulo+idcolor
-        // Y también por sku = CONCAT(articulo, idcolor)
-        const concatSku = artRaw + colRaw;
-
-        const costoData = costo_unitario.find(c => {
-          if (!c) return false;
-          // Opción 1: Match por campos individuales itemid y colorid
-          if (c.itemid != null && c.colorid != null) {
-            const cItemid = String(c.itemid).trim();
-            const cColorid = String(c.colorid).trim();
-            if (cItemid === artRaw && cColorid === colRaw) return true;
-          }
-          // Opción 2: Match por sku = CONCAT(articulo, idcolor)
-          if (c.sku) {
-            const s = String(c.sku).trim();
-            if (s === concatSku) return true;
-          }
-          return false;
-        });
-
-        let costoU = 0;
-        if (costoData) {
-          costoU = parseFloat(costoData.costo) || 0;
-        }
+        // El costo ya viene del servidor (JOIN hecho en PostgreSQL)
+        const costoU = parseFloat(lote.costo) || 0;
 
         groups[key] = {
           pc: lote.pc,
@@ -119,7 +91,7 @@ export default function IndicadorVencimiento() {
       };
     }).filter(g => g.status === 'Obsoleto' || g.status === 'En Riesgo')
       .sort((a, b) => a.daysRemaining - b.daysRemaining);
-  }, [lotes_material_color, materiales_color, costo_unitario]);
+  }, [lotes_con_costo, materiales_color]);
 
   return (
     <div>
@@ -128,31 +100,9 @@ export default function IndicadorVencimiento() {
           <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Inventory Health Dashboard</h2>
           <p className="font-body-md text-body-md text-on-surface-variant">Real-time analysis of material obsolescence and financial exposure.</p>
           <div className="mt-2 flex gap-4 text-xs font-data-mono text-on-surface-variant">
-            <span>Lotes: {lotes_material_color?.length || 0}</span>
-            <span>Costos: {costo_unitario?.length || 0}</span>
+            <span>Lotes con costo (RPC): {lotes_con_costo?.length || 0}</span>
+            <span>Con costo > 0: {lotes_con_costo?.filter(l => parseFloat(l.costo) > 0).length || 0}</span>
           </div>
-          {costo_unitario?.length > 0 && lotes_material_color?.length > 0 && (
-            <div className="mt-2 p-3 bg-surface-container-highest rounded text-[11px] font-data-mono text-on-surface-variant max-h-40 overflow-y-auto">
-              <div className="font-bold mb-1">-- Primeros 3 de costo_unitario --</div>
-              {costo_unitario.slice(0, 3).map((c, i) => (
-                <div key={`c-${i}`}>itemid: [{c.itemid}] | colorid: [{c.colorid}] | sku: [{c.sku}] | costo: [{c.costo}]</div>
-              ))}
-              <div className="font-bold mt-2 mb-1">-- Primeros 3 de lote_material_color --</div>
-              {lotes_material_color.slice(0, 3).map((l, i) => (
-                <div key={`l-${i}`}>articulo: [{l.articulo}] | idcolor: [{l.idcolor}]</div>
-              ))}
-              <div className="font-bold mt-2 text-primary">
-                Matches encontrados: {lotes_material_color.filter(l => {
-                  const a = String(l.articulo || '').trim();
-                  const c = String(l.idcolor || '').trim();
-                  return costo_unitario.some(cu => 
-                    (cu.itemid != null && String(cu.itemid).trim() === a && cu.colorid != null && String(cu.colorid).trim() === c) ||
-                    (cu.sku && String(cu.sku).trim() === a + c)
-                  );
-                }).length} / {lotes_material_color.length}
-              </div>
-            </div>
-          )}
         </div>
         <button 
           onClick={handleRefresh}
