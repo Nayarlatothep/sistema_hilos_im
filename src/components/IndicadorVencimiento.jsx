@@ -4,8 +4,8 @@ import { useStore } from '../store/useStore';
 export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [detailedSearchQuery, setDetailedSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -134,6 +134,30 @@ export default function IndicadorVencimiento() {
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
 
   const formatCurrency = (val) => 'L. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
+
+  const filteredDetailedItems = useMemo(() => {
+    let items = inventoryData.items.filter(item => {
+      const q = detailedSearchQuery.toLowerCase();
+      return (item.articulo && item.articulo.toLowerCase().includes(q)) ||
+             (item.nombre && item.nombre.toLowerCase().includes(q)) ||
+             (item.color && item.color.toLowerCase().includes(q));
+    });
+
+    const statusOrder = { 'Obsoleto': 1, 'En Riesgo': 2, 'Disponible': 3 };
+    items.sort((a, b) => {
+      const sA = statusOrder[a.status] || 99;
+      const sB = statusOrder[b.status] || 99;
+      if (sA !== sB) return sA - sB;
+      return (b.costo_total || 0) - (a.costo_total || 0);
+    });
+
+    return items;
+  }, [inventoryData.items, detailedSearchQuery]);
+
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredDetailedItems.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedItems = filteredDetailedItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div>
@@ -440,25 +464,14 @@ export default function IndicadorVencimiento() {
               </tr>
             </thead>
             <tbody className="font-data-mono text-sm">
-              {(() => {
-                const filteredItems = inventoryData.items.filter(item => {
-                  const q = detailedSearchQuery.toLowerCase();
-                  return (item.articulo && item.articulo.toLowerCase().includes(q)) ||
-                         (item.nombre && item.nombre.toLowerCase().includes(q)) ||
-                         (item.color && item.color.toLowerCase().includes(q));
-                });
-                
-                if (filteredItems.length === 0) {
-                  return (
-                    <tr>
-                      <td colSpan="7" className="py-8 text-center text-on-surface-variant font-body-md">
-                        {detailedSearchQuery ? 'No se encontraron resultados.' : 'No hay datos de inventario disponibles.'}
-                      </td>
-                    </tr>
-                  );
-                }
-
-                return filteredItems.map((item, idx) => {
+              {filteredDetailedItems.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-8 text-center text-on-surface-variant font-body-md">
+                    {detailedSearchQuery ? 'No se encontraron resultados.' : 'No hay datos de inventario disponibles.'}
+                  </td>
+                </tr>
+              ) : (
+                paginatedItems.map((item, idx) => {
                   let rowBg = '';
                   let badgeClass = 'bg-success/10 text-success';
                   
@@ -487,11 +500,38 @@ export default function IndicadorVencimiento() {
                       </td>
                     </tr>
                   );
-                });
-              })()}
+                })
+              )}
             </tbody>
           </table>
         </div>
+        {/* Pagination Controls */}
+        {filteredDetailedItems.length > 0 && (
+          <div className="p-4 border-t border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+            <span className="font-label-sm text-on-surface-variant">
+              Mostrando {startIndex + 1} a {Math.min(startIndex + ITEMS_PER_PAGE, filteredDetailedItems.length)} de {filteredDetailedItems.length} registros
+            </span>
+            <div className="flex items-center gap-2">
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                className="px-3 py-1.5 rounded border border-outline-variant hover:bg-surface-container-low disabled:opacity-50 disabled:cursor-not-allowed font-label-sm flex items-center gap-1 text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[16px]">chevron_left</span> Anterior
+              </button>
+              <span className="font-label-sm font-bold text-on-surface px-2">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                className="px-3 py-1.5 rounded border border-outline-variant hover:bg-surface-container-low disabled:opacity-50 disabled:cursor-not-allowed font-label-sm flex items-center gap-1 text-on-surface"
+              >
+                Siguiente <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* All Alerts Modal */}
