@@ -132,9 +132,21 @@ export default function IndicadorVencimiento() {
           <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Inventory Health Dashboard</h2>
           <p className="font-body-md text-body-md text-on-surface-variant">Real-time analysis of material obsolescence and financial exposure.</p>
           <div className="mt-2 flex gap-4 text-xs font-data-mono text-on-surface-variant">
-            <span>Debug Lotes: {lotes_material_color?.length || 0}</span>
-            <span>Debug Costos: {costo_unitario?.length || 0}</span>
+            <span>Lotes: {lotes_material_color?.length || 0}</span>
+            <span>Costos: {costo_unitario?.length || 0}</span>
           </div>
+          {costo_unitario?.length > 0 && lotes_material_color?.length > 0 && (
+            <div className="mt-2 p-3 bg-surface-container-highest rounded text-[11px] font-data-mono text-on-surface-variant max-h-40 overflow-y-auto">
+              <div className="font-bold mb-1">-- Primeros 3 SKUs de costo_unitario (columnas: {Object.keys(costo_unitario[0]).join(', ')}) --</div>
+              {costo_unitario.slice(0, 3).map((c, i) => (
+                <div key={`c-${i}`}>sku: [{c.sku}] | costo: [{c.costo}] | tipo sku: [{typeof c.sku}]</div>
+              ))}
+              <div className="font-bold mt-2 mb-1">-- Primeros 3 CONCAT(articulo,idcolor) de lote_material_color --</div>
+              {lotes_material_color.slice(0, 3).map((l, i) => (
+                <div key={`l-${i}`}>articulo: [{l.articulo}] | idcolor: [{l.idcolor}] | concat: [{String(l.articulo ?? '') + String(l.idcolor ?? '')}] | tipo art: [{typeof l.articulo}] tipo id: [{typeof l.idcolor}]</div>
+              ))}
+            </div>
+          )}
         </div>
         <button 
           onClick={handleRefresh}
