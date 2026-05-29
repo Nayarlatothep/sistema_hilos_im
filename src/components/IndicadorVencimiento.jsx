@@ -457,7 +457,7 @@ export default function IndicadorVencimiento() {
             {/* Category Filter */}
             <div className="relative">
               <select 
-                className="pl-3 pr-8 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
+                className="pl-3 pr-8 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
               >
@@ -466,13 +466,12 @@ export default function IndicadorVencimiento() {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" data-icon="expand_more">expand_more</span>
             </div>
             
             {/* Status Filter */}
             <div className="relative">
               <select 
-                className="pl-3 pr-8 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
+                className="pl-3 pr-8 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
@@ -481,7 +480,6 @@ export default function IndicadorVencimiento() {
                 <option value="En Riesgo">En Riesgo</option>
                 <option value="Disponible">Disponible</option>
               </select>
-              <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" data-icon="expand_more">expand_more</span>
             </div>
 
             {/* SKU Search */}
