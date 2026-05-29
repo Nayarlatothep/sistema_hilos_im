@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
-  const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, loading } = useStore();
+  const { fetchLoteMaterialColor, lotes_material_color, fetchMaterialesColor, materiales_color, fetchCostoUnitario, costo_unitario, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -10,19 +10,21 @@ export default function IndicadorVencimiento() {
   useEffect(() => {
     fetchLoteMaterialColor();
     fetchMaterialesColor();
+    fetchCostoUnitario();
   }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await Promise.all([
       fetchLoteMaterialColor(),
-      fetchMaterialesColor()
+      fetchMaterialesColor(),
+      fetchCostoUnitario()
     ]);
     setIsRefreshing(false);
   };
 
   const actionRequiredAlerts = useMemo(() => {
-    if (!lotes_material_color || !materiales_color) return [];
+    if (!lotes_material_color || !materiales_color || !costo_unitario) return [];
 
     const groups = {};
 
@@ -32,6 +34,11 @@ export default function IndicadorVencimiento() {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
+        const concatSku1 = `${lote.articulo}${lote.idcolor}`;
+        const concatSku2 = `${lote.articulo}-${lote.idcolor}`;
+        const costoData = costo_unitario.find(c => c.sku === concatSku1 || c.sku === concatSku2);
+        const costoU = costoData ? (Number(costoData.costo_unitario) || Number(costoData.costo) || Number(costoData.precio) || 0) : 0;
+
         groups[key] = {
           pc: lote.pc,
           articulo: lote.articulo,
@@ -41,6 +48,7 @@ export default function IndicadorVencimiento() {
           cantidad: 0,
           shelflife: shelflife,
           earliestManufacture: null,
+          costo_unitario: costoU,
         };
       }
       
@@ -76,15 +84,18 @@ export default function IndicadorVencimiento() {
         }
       }
 
+      const costo_total = group.cantidad * (group.costo_unitario || 0);
+
       return {
         ...group,
         expirationDate,
         daysRemaining,
-        status
+        status,
+        costo_total
       };
     }).filter(g => g.status === 'Obsoleto' || g.status === 'En Riesgo')
       .sort((a, b) => a.daysRemaining - b.daysRemaining);
-  }, [lotes_material_color, materiales_color]);
+  }, [lotes_material_color, materiales_color, costo_unitario]);
 
   return (
     <div>
@@ -320,9 +331,17 @@ export default function IndicadorVencimiento() {
                       {alert.status === 'Obsoleto' ? 'Vencido:' : 'Vence:'} {alert.expirationDate ? alert.expirationDate.toISOString().split('T')[0] : 'N/A'} ({alert.daysRemaining} días)
                     </div>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-outline-variant flex justify-between items-end w-full">
-                    <span className="font-label-sm text-on-surface-variant">Cantidad Total</span>
-                    <div className="font-data-mono font-bold text-xl text-primary">{alert.cantidad.toLocaleString()}</div>
+                  <div className="mt-4 pt-3 border-t border-outline-variant flex flex-col gap-2 w-full">
+                    <div className="flex justify-between items-end w-full">
+                      <span className="font-label-sm text-on-surface-variant">Cantidad Total</span>
+                      <div className="font-data-mono font-bold text-lg text-primary">{alert.cantidad.toLocaleString()}</div>
+                    </div>
+                    <div className="flex justify-between items-end w-full">
+                      <span className="font-label-sm text-on-surface-variant">Costo Total</span>
+                      <div className="font-data-mono font-bold text-lg text-error">
+                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(alert.costo_total || 0)}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -497,9 +516,17 @@ export default function IndicadorVencimiento() {
                         </div>
                       </div>
                       
-                      <div className="mt-4 pt-3 border-t border-outline-variant flex justify-between items-end">
-                        <span className="font-label-sm text-on-surface-variant">Cantidad Total</span>
-                        <div className="font-data-mono font-bold text-xl text-primary">{alert.cantidad.toLocaleString()}</div>
+                      <div className="mt-4 pt-3 border-t border-outline-variant flex flex-col gap-2">
+                        <div className="flex justify-between items-end">
+                          <span className="font-label-sm text-on-surface-variant">Cantidad Total</span>
+                          <div className="font-data-mono font-bold text-lg text-primary">{alert.cantidad.toLocaleString()}</div>
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <span className="font-label-sm text-on-surface-variant">Costo Total</span>
+                          <div className="font-data-mono font-bold text-lg text-error">
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(alert.costo_total || 0)}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}

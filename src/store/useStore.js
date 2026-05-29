@@ -11,6 +11,7 @@ export const useStore = create((set, get) => ({
   materiales_color: [],
   lotes_material_color: [],
   lotes_procesados: [],
+  costo_unitario: [],
   loading: false,
   error: null,
 
@@ -72,6 +73,18 @@ export const useStore = create((set, get) => ({
       set({ error: error.message, loading: false });
     } else {
       set({ materiales_color: data, loading: false });
+    }
+  },
+
+  fetchCostoUnitario: async () => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('costo_unitario')
+      .select('*');
+    if (error) {
+      set({ error: error.message, loading: false });
+    } else {
+      set({ costo_unitario: data, loading: false });
     }
   },
 
