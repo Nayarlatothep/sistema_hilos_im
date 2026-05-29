@@ -37,14 +37,16 @@ export default function IndicadorVencimiento() {
         const art = String(lote.articulo || '').trim().toUpperCase();
         const col = String(lote.idcolor || '').trim().toUpperCase();
         
-        const concatSku1 = `${art}${col}`;
-        const concatSku2 = `${art}-${col}`;
-        const concatSku3 = `${art}_${col}`;
+        // El usuario indicó que el formato debe ser: "40 01 01 01 0003201"
+        const targetSku = `${art} ${col}`;
 
         const costoData = costo_unitario.find(c => {
           if (!c || !c.sku) return false;
           const s = String(c.sku).trim().toUpperCase();
-          return s === concatSku1 || s === concatSku2 || s === concatSku3 || s.replace(/[^A-Z0-9]/g, '') === concatSku1.replace(/[^A-Z0-9]/g, '');
+          // Intentamos la coincidencia exacta primero
+          if (s === targetSku) return true;
+          // Fallback ignorando espacios extras por si acaso
+          return s.replace(/\s+/g, ' ') === targetSku.replace(/\s+/g, ' ');
         });
 
         let costoU = 0;
