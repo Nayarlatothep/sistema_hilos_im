@@ -21,10 +21,13 @@ export default function IndicadorVencimiento() {
     setIsRefreshing(false);
   };
 
-  const actionRequiredAlerts = useMemo(() => {
-    if (!lotes_con_costo || !materiales_color) return [];
+  const inventoryData = useMemo(() => {
+    if (!lotes_con_costo || !materiales_color) return { alerts: [], stats: { total: 0, obsolete: 0, atRisk: 0 } };
 
     const groups = {};
+    let totalCosto = 0;
+    let obsoleteCosto = 0;
+    let atRiskCosto = 0;
 
     lotes_con_costo.forEach(lote => {
       const key = `${lote.articulo}-${lote.idcolor}-${lote.pc}`;
@@ -58,7 +61,7 @@ export default function IndicadorVencimiento() {
       }
     });
 
-    return Object.values(groups).map(group => {
+    const allGroups = Object.values(groups).map(group => {
       let expirationDate = null;
       let daysRemaining = null;
       let status = 'Desconocido';
@@ -81,6 +84,10 @@ export default function IndicadorVencimiento() {
       }
 
       const costo_total = group.cantidad * (group.costo_unitario || 0);
+      
+      totalCosto += costo_total;
+      if (status === 'Obsoleto') obsoleteCosto += costo_total;
+      if (status === 'En Riesgo') atRiskCosto += costo_total;
 
       return {
         ...group,
@@ -89,9 +96,27 @@ export default function IndicadorVencimiento() {
         status,
         costo_total
       };
-    }).filter(g => g.status === 'Obsoleto' || g.status === 'En Riesgo')
+    });
+
+    const alerts = allGroups.filter(g => g.status === 'Obsoleto' || g.status === 'En Riesgo')
       .sort((a, b) => a.daysRemaining - b.daysRemaining);
+
+    return {
+      alerts,
+      stats: {
+        total: totalCosto,
+        obsolete: obsoleteCosto,
+        atRisk: atRiskCosto
+      }
+    };
   }, [lotes_con_costo, materiales_color]);
+
+  const { alerts: actionRequiredAlerts, stats } = inventoryData;
+
+  const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
+  const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
+
+  const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
 
   return (
     <div>
@@ -121,7 +146,7 @@ export default function IndicadorVencimiento() {
             </div>
           </div>
           <div>
-            <div className="font-display-kpi text-display-kpi text-white">$11,820</div>
+            <div className="font-display-kpi text-display-kpi text-white">{formatCurrency(stats.total)}</div>
           </div>
         </div>
 
@@ -134,8 +159,8 @@ export default function IndicadorVencimiento() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <div className="font-display-kpi text-display-kpi text-white">$1,860</div>
-            <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">-15.7%</span>
+            <div className="font-display-kpi text-display-kpi text-white">{formatCurrency(stats.obsolete)}</div>
+            <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{obsoletePercentage.toFixed(1)}%</span>
           </div>
         </div>
 
@@ -148,8 +173,8 @@ export default function IndicadorVencimiento() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <div className="font-display-kpi text-display-kpi text-white">$1,960</div>
-            <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">16.6%</span>
+            <div className="font-display-kpi text-display-kpi text-white">{formatCurrency(stats.atRisk)}</div>
+            <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{atRiskPercentage.toFixed(1)}%</span>
           </div>
         </div>
       </div>
