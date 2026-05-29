@@ -358,9 +358,9 @@ export default function IndicadorVencimiento() {
               {actionRequiredAlerts.slice(0, 5).map((alert, idx) => (
                 <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex flex-col justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
                   <div className="w-full">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-label-sm text-label-sm font-bold text-on-surface">{alert.nombre || 'N/A'}</span>
-                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[12px] font-bold px-2 py-0.5 rounded-full`}>
+                    <div className="flex items-center gap-2 mb-1 w-full">
+                      <span className="font-label-sm text-label-sm font-bold text-on-surface flex-1 truncate">{alert.nombre || 'N/A'}</span>
+                      <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[12px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 w-24 text-center`}>
                         {alert.status}
                       </span>
                     </div>
@@ -534,9 +534,9 @@ export default function IndicadorVencimiento() {
                     {filteredAlerts.map((alert, idx) => (
                     <div key={idx} className={`p-4 border border-outline-variant rounded-lg hover:shadow-md transition-shadow bg-surface-container-lowest flex flex-col justify-between ${alert.status === 'Obsoleto' ? 'border-danger/30 bg-danger/5' : ''}`}>
                       <div>
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2 w-full">
                           <span className="font-label-sm text-label-sm font-bold text-on-surface truncate flex-1">{alert.nombre || 'N/A'}</span>
-                          <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0`}>
+                          <span className={`${alert.status === 'Obsoleto' ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning'} text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 w-20 text-center`}>
                             {alert.status}
                           </span>
                         </div>
