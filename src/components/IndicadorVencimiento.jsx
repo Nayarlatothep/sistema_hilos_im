@@ -138,7 +138,7 @@ export default function IndicadorVencimiento() {
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg lg:grid-cols-3">
         {/* Inventario Total */}
-        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#2563eb] border-none" style={{ backgroundColor: '#1a365d', border: 'none' }}>
+        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#2563eb] border-none rounded-3xl" style={{ backgroundColor: '#1a365d', border: 'none' }}>
           <div className="flex justify-between items-start">
             <span className="font-label-sm text-label-sm text-white/80">Inventario Total</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
@@ -151,7 +151,7 @@ export default function IndicadorVencimiento() {
         </div>
 
         {/* Inventario Vencido */}
-        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#dc2626] border-none" style={{ backgroundColor: '#991b1b', border: 'none' }}>
+        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#dc2626] border-none rounded-3xl" style={{ backgroundColor: '#991b1b', border: 'none' }}>
           <div className="flex justify-between items-start">
             <span className="font-label-sm text-label-sm text-white/80">Inventario Vencido</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
@@ -165,7 +165,7 @@ export default function IndicadorVencimiento() {
         </div>
 
         {/* Inventario en Riesgo */}
-        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#f59e0b] border-none" style={{ backgroundColor: '#d97706', border: 'none' }}>
+        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#f59e0b] border-none rounded-3xl" style={{ backgroundColor: '#d97706', border: 'none' }}>
           <div className="flex justify-between items-start">
             <span className="font-label-sm text-label-sm text-white/80">Inventario en Riesgo</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
@@ -561,6 +561,7 @@ export default function IndicadorVencimiento() {
     </div>
   );
 }
+
 
 
 
