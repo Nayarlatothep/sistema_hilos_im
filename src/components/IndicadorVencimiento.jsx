@@ -138,7 +138,7 @@ export default function IndicadorVencimiento() {
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg lg:grid-cols-3">
         {/* Inventario Total */}
-        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-blue-600 border-none rounded-3xl">
+        <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-blue-900 border-none rounded-3xl">
           <div className="flex justify-between items-start">
             <span className="font-label-sm text-label-sm text-white/80">Inventario Total</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
