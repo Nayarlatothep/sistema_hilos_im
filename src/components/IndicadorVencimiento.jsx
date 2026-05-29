@@ -51,7 +51,7 @@ export default function IndicadorVencimiento() {
         groups[key] = {
           pc: lote.pc,
           articulo: lote.articulo,
-          categoria: lote.articulo ? lote.articulo.split('-')[0] : '',
+          categoria: '', // Por los momentos en blanco, en un futuro se agregará
           nombre: lote.nombre,
           color: lote.color,
           idcolor: lote.idcolor,
