@@ -137,10 +137,10 @@ export default function IndicadorVencimiento() {
 
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg lg:grid-cols-3">
-        {/* Total Inventory */}
+        {/* Inventario Total */}
         <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#2563eb] border-none" style={{ backgroundColor: '#1a365d', border: 'none' }}>
           <div className="flex justify-between items-start">
-            <span className="font-label-sm text-label-sm text-white/80">Total Inventory</span>
+            <span className="font-label-sm text-label-sm text-white/80">Inventario Total</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-sm" data-icon="account_balance_wallet">account_balance_wallet</span>
             </div>
@@ -150,10 +150,10 @@ export default function IndicadorVencimiento() {
           </div>
         </div>
 
-        {/* Loss Obsolete */}
+        {/* Inventario Vencido */}
         <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#dc2626] border-none" style={{ backgroundColor: '#991b1b', border: 'none' }}>
           <div className="flex justify-between items-start">
-            <span className="font-label-sm text-label-sm text-white/80">Loss Obsolete</span>
+            <span className="font-label-sm text-label-sm text-white/80">Inventario Vencido</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span>
             </div>
@@ -164,10 +164,10 @@ export default function IndicadorVencimiento() {
           </div>
         </div>
 
-        {/* At Risk */}
+        {/* Inventario en Riesgo */}
         <div className="card-base p-md flex flex-col justify-between h-32 relative overflow-hidden bg-[#f59e0b] border-none" style={{ backgroundColor: '#d97706', border: 'none' }}>
           <div className="flex justify-between items-start">
-            <span className="font-label-sm text-label-sm text-white/80">At Risk</span>
+            <span className="font-label-sm text-label-sm text-white/80">Inventario en Riesgo</span>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-sm" data-icon="error_outline">error_outline</span>
             </div>
@@ -184,10 +184,10 @@ export default function IndicadorVencimiento() {
         {/* Left Column (Charts) */}
         <div className="lg:col-span-2 space-y-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-            {/* At Risk by Category (Horizontal Bar Chart) */}
+            {/* Inventario en Riesgo by Category (Horizontal Bar Chart) */}
             <div className="card-base p-lg flex flex-col h-80">
               <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">At Risk by Category</h3>
+                <h3 className="font-headline-md text-headline-md text-on-surface">Inventario en Riesgo by Category</h3>
                 <button className="text-on-surface-variant hover:text-primary">
                   <span className="material-symbols-outlined" data-icon="more_vert">more_vert</span>
                 </button>
@@ -561,5 +561,6 @@ export default function IndicadorVencimiento() {
     </div>
   );
 }
+
 
 
