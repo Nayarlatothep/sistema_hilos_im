@@ -5,8 +5,14 @@ export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [detailedSearchQuery, setDetailedSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterCategory, setFilterCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [detailedSearchQuery, filterStatus, filterCategory]);
 
   useEffect(() => {
     fetchLotesConCosto();
@@ -45,6 +51,7 @@ export default function IndicadorVencimiento() {
         groups[key] = {
           pc: lote.pc,
           articulo: lote.articulo,
+          categoria: lote.articulo ? lote.articulo.split('-')[0] : '',
           nombre: lote.nombre,
           color: lote.color,
           idcolor: lote.idcolor,
@@ -135,12 +142,27 @@ export default function IndicadorVencimiento() {
 
   const formatCurrency = (val) => 'L. ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val);
 
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set(inventoryData.items.map(item => item.categoria).filter(Boolean));
+    return Array.from(cats).sort();
+  }, [inventoryData.items]);
+
   const filteredDetailedItems = useMemo(() => {
     let items = inventoryData.items.filter(item => {
+      // SKU/Name Search
       const q = detailedSearchQuery.toLowerCase();
-      return (item.articulo && item.articulo.toLowerCase().includes(q)) ||
+      const matchesSearch = !q || 
+             (item.articulo && item.articulo.toLowerCase().includes(q)) ||
              (item.nombre && item.nombre.toLowerCase().includes(q)) ||
              (item.color && item.color.toLowerCase().includes(q));
+      
+      // Status Filter
+      const matchesStatus = filterStatus === 'All' || item.status === filterStatus;
+      
+      // Category Filter
+      const matchesCategory = filterCategory === 'All' || item.categoria === filterCategory;
+
+      return matchesSearch && matchesStatus && matchesCategory;
     });
 
     const statusOrder = { 'Obsoleto': 1, 'En Riesgo': 2, 'Disponible': 3 };
@@ -152,7 +174,7 @@ export default function IndicadorVencimiento() {
     });
 
     return items;
-  }, [inventoryData.items, detailedSearchQuery]);
+  }, [inventoryData.items, detailedSearchQuery, filterStatus, filterCategory]);
 
   const ITEMS_PER_PAGE = 10;
   const totalPages = Math.max(1, Math.ceil(filteredDetailedItems.length / ITEMS_PER_PAGE));
@@ -431,22 +453,51 @@ export default function IndicadorVencimiento() {
       <div className="card-base overflow-hidden">
         <div className="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
           <h3 className="font-headline-md text-headline-md text-on-surface">Inventory Detailed Analysis</h3>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
+            {/* Category Filter */}
+            <div className="relative">
+              <select 
+                className="pl-3 pr-8 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+              >
+                <option value="All">Categoría: Todas</option>
+                {uniqueCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" data-icon="expand_more">expand_more</span>
+            </div>
+            
+            {/* Status Filter */}
+            <div className="relative">
+              <select 
+                className="pl-3 pr-8 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="All">Estatus: Todos</option>
+                <option value="Obsoleto">Obsoleto</option>
+                <option value="En Riesgo">En Riesgo</option>
+                <option value="Disponible">Disponible</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm pointer-events-none" data-icon="expand_more">expand_more</span>
+            </div>
+
+            {/* SKU Search */}
             <div className="relative">
               <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
               <input 
-                className="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none w-64" 
-                placeholder="Search SKU..." 
+                className="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none w-48 lg:w-64" 
+                placeholder="Buscar SKU..." 
                 type="text" 
                 value={detailedSearchQuery}
                 onChange={(e) => setDetailedSearchQuery(e.target.value)}
               />
             </div>
-            <button className="border border-outline-variant text-on-surface-variant px-3 py-1.5 rounded hover:bg-surface-container-low transition-colors flex items-center gap-2 font-label-sm">
-              <span className="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span> Filter
-            </button>
-            <button className="bg-primary-container text-on-primary px-3 py-1.5 rounded hover:bg-primary transition-colors flex items-center gap-2 font-label-sm font-bold">
-              <span className="material-symbols-outlined text-sm" data-icon="download">download</span> Export
+            
+            <button className="bg-primary-container text-on-primary px-3 py-1.5 rounded hover:bg-primary transition-colors flex items-center gap-2 font-label-sm font-bold ml-2">
+              <span className="material-symbols-outlined text-sm" data-icon="download">download</span> Exportar
             </button>
           </div>
         </div>
@@ -486,7 +537,7 @@ export default function IndicadorVencimiento() {
                   return (
                     <tr key={idx} className={`border-b border-outline-variant hover:bg-surface-container-lowest transition-colors ${rowBg}`}>
                       <td className="py-3 px-4 text-on-surface font-bold">{item.articulo}</td>
-                      <td className="py-3 px-4 text-on-surface-variant"></td>
+                      <td className="py-3 px-4 text-on-surface-variant">{item.categoria}</td>
                       <td className="py-3 px-4 text-on-surface-variant font-body-md">{item.nombre || '-'}</td>
                       <td className="py-3 px-4 text-on-surface-variant">{item.color} ({item.idcolor})</td>
                       <td className="py-3 px-4 text-right text-on-surface">{item.cantidad.toLocaleString()}</td>
