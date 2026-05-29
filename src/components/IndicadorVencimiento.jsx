@@ -28,6 +28,9 @@ export default function IndicadorVencimiento() {
     let totalCosto = 0;
     let obsoleteCosto = 0;
     let atRiskCosto = 0;
+    let totalQty = 0;
+    let obsoleteQty = 0;
+    let atRiskQty = 0;
 
     lotes_con_costo.forEach(lote => {
       const key = `${lote.articulo}-${lote.idcolor}-${lote.pc}`;
@@ -86,8 +89,16 @@ export default function IndicadorVencimiento() {
       const costo_total = group.cantidad * (group.costo_unitario || 0);
       
       totalCosto += costo_total;
-      if (status === 'Obsoleto') obsoleteCosto += costo_total;
-      if (status === 'En Riesgo') atRiskCosto += costo_total;
+      totalQty += group.cantidad;
+
+      if (status === 'Obsoleto') {
+        obsoleteCosto += costo_total;
+        obsoleteQty += group.cantidad;
+      }
+      if (status === 'En Riesgo') {
+        atRiskCosto += costo_total;
+        atRiskQty += group.cantidad;
+      }
 
       return {
         ...group,
@@ -105,8 +116,11 @@ export default function IndicadorVencimiento() {
       alerts,
       stats: {
         total: totalCosto,
+        totalQty: totalQty,
         obsolete: obsoleteCosto,
-        atRisk: atRiskCosto
+        obsoleteQty: obsoleteQty,
+        atRisk: atRiskCosto,
+        atRiskQty: atRiskQty
       }
     };
   }, [lotes_con_costo, materiales_color]);
@@ -147,6 +161,7 @@ export default function IndicadorVencimiento() {
           </div>
           <div>
             <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.total)}</div>
+            <div className="text-white/80 text-sm font-medium mt-1">{new Intl.NumberFormat('en-US').format(stats.totalQty)} und</div>
           </div>
         </div>
 
@@ -158,9 +173,12 @@ export default function IndicadorVencimiento() {
               <span className="material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span>
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.obsolete)}</div>
-            <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{obsoletePercentage.toFixed(1)}%</span>
+          <div>
+            <div className="flex items-baseline gap-2">
+              <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.obsolete)}</div>
+              <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{obsoletePercentage.toFixed(1)}%</span>
+            </div>
+            <div className="text-white/80 text-sm font-medium mt-1">{new Intl.NumberFormat('en-US').format(stats.obsoleteQty)} und</div>
           </div>
         </div>
 
@@ -172,9 +190,12 @@ export default function IndicadorVencimiento() {
               <span className="material-symbols-outlined text-sm" data-icon="error_outline">error_outline</span>
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.atRisk)}</div>
-            <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{atRiskPercentage.toFixed(1)}%</span>
+          <div>
+            <div className="flex items-baseline gap-2">
+              <div className="font-display-kpi text-display-kpi text-white text-4xl font-black">{formatCurrency(stats.atRisk)}</div>
+              <span className="font-data-mono text-data-mono text-white bg-white/20 px-2 py-0.5 rounded-full">{atRiskPercentage.toFixed(1)}%</span>
+            </div>
+            <div className="text-white/80 text-sm font-medium mt-1">{new Intl.NumberFormat('en-US').format(stats.atRiskQty)} und</div>
           </div>
         </div>
       </div>
