@@ -34,33 +34,20 @@ export default function IndicadorVencimiento() {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
-        const art = String(lote.articulo || '').trim().toUpperCase();
-        const col = String(lote.idcolor || '').trim().toUpperCase();
+        const art = lote.articulo != null ? String(lote.articulo) : '';
+        const col = lote.idcolor != null ? String(lote.idcolor) : '';
         
-        // El usuario indicó que el formato debe ser: "40 01 01 01 0003201"
-        const targetSku = `${art} ${col}`;
+        // Emulando exactamente: CONCAT(l.articulo, l.idcolor) = c.sku
+        const targetSku = art + col;
 
-        const costoData = costo_unitario.find(c => {
-          if (!c || !c.sku) return false;
-          const s = String(c.sku).trim().toUpperCase();
-          // Intentamos la coincidencia exacta primero
-          if (s === targetSku) return true;
-          // Fallback ignorando espacios extras por si acaso
-          return s.replace(/\s+/g, ' ') === targetSku.replace(/\s+/g, ' ');
-        });
+        const costoData = costo_unitario.find(c => c && c.sku && String(c.sku) === targetSku);
 
+        // El query dice c.costo * l.cantidad, así que tomamos costoData.costo
         let costoU = 0;
-        if (costoData) {
-          costoU = Number(costoData.costo_unitario) || Number(costoData.costo) || Number(costoData.precio) || Number(costoData.Costo) || Number(costoData.Precio) || 0;
-          if (costoU === 0) {
-            // Fallback: look for the first valid number that is not an ID
-            for (const key in costoData) {
-              if (!['id', 'sku', 'articulo', 'idcolor'].includes(key.toLowerCase()) && typeof costoData[key] === 'number') {
-                costoU = costoData[key];
-                break;
-              }
-            }
-          }
+        if (costoData && !isNaN(Number(costoData.costo))) {
+          costoU = Number(costoData.costo);
+        } else if (costoData) {
+          costoU = Number(costoData.costo_unitario) || Number(costoData.precio) || 0;
         }
 
         groups[key] = {
