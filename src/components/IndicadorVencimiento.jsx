@@ -34,37 +34,33 @@ export default function IndicadorVencimiento() {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
-        const artRaw = lote.articulo != null ? String(lote.articulo) : '';
-        const colRaw = lote.idcolor != null ? String(lote.idcolor) : '';
-        const artTrim = artRaw.trim();
-        const colTrim = colRaw.trim();
-        
-        const target1 = artRaw + colRaw; // Raw concat as in SQL
-        const target2 = `${artTrim} ${colTrim}`; // Explicit space
-        const target3 = `${artTrim}${colTrim}`; // No space
-        const target4 = `${artTrim}-${colTrim}`; // Hyphen
+        const artRaw = lote.articulo != null ? String(lote.articulo).trim() : '';
+        const colRaw = lote.idcolor != null ? String(lote.idcolor).trim() : '';
+
+        // La tabla costo_unitario tiene columnas: id, itemid, colorid, costo, sku
+        // Intentar match por itemid+colorid contra articulo+idcolor
+        // Y también por sku = CONCAT(articulo, idcolor)
+        const concatSku = artRaw + colRaw;
 
         const costoData = costo_unitario.find(c => {
-          if (!c || !c.sku) return false;
-          const s = String(c.sku).trim();
-          if (s === target1 || s === target2 || s === target3 || s === target4) return true;
-          // Fallback: ignore all spaces
-          return s.replace(/\s+/g, '') === target3.replace(/\s+/g, '');
+          if (!c) return false;
+          // Opción 1: Match por campos individuales itemid y colorid
+          if (c.itemid != null && c.colorid != null) {
+            const cItemid = String(c.itemid).trim();
+            const cColorid = String(c.colorid).trim();
+            if (cItemid === artRaw && cColorid === colRaw) return true;
+          }
+          // Opción 2: Match por sku = CONCAT(articulo, idcolor)
+          if (c.sku) {
+            const s = String(c.sku).trim();
+            if (s === concatSku) return true;
+          }
+          return false;
         });
 
         let costoU = 0;
         if (costoData) {
-          const possibleKeys = ['costo', 'costo_unitario', 'precio', 'Costo', 'Precio'];
-          for (let key of possibleKeys) {
-            if (costoData[key] != null) {
-              let val = String(costoData[key]).replace(/[^0-9.-]+/g, "");
-              let num = parseFloat(val);
-              if (!isNaN(num) && num !== 0) {
-                costoU = num;
-                break;
-              }
-            }
-          }
+          costoU = parseFloat(costoData.costo) || 0;
         }
 
         groups[key] = {
@@ -137,14 +133,24 @@ export default function IndicadorVencimiento() {
           </div>
           {costo_unitario?.length > 0 && lotes_material_color?.length > 0 && (
             <div className="mt-2 p-3 bg-surface-container-highest rounded text-[11px] font-data-mono text-on-surface-variant max-h-40 overflow-y-auto">
-              <div className="font-bold mb-1">-- Primeros 3 SKUs de costo_unitario (columnas: {Object.keys(costo_unitario[0]).join(', ')}) --</div>
+              <div className="font-bold mb-1">-- Primeros 3 de costo_unitario --</div>
               {costo_unitario.slice(0, 3).map((c, i) => (
-                <div key={`c-${i}`}>sku: [{c.sku}] | costo: [{c.costo}] | tipo sku: [{typeof c.sku}]</div>
+                <div key={`c-${i}`}>itemid: [{c.itemid}] | colorid: [{c.colorid}] | sku: [{c.sku}] | costo: [{c.costo}]</div>
               ))}
-              <div className="font-bold mt-2 mb-1">-- Primeros 3 CONCAT(articulo,idcolor) de lote_material_color --</div>
+              <div className="font-bold mt-2 mb-1">-- Primeros 3 de lote_material_color --</div>
               {lotes_material_color.slice(0, 3).map((l, i) => (
-                <div key={`l-${i}`}>articulo: [{l.articulo}] | idcolor: [{l.idcolor}] | concat: [{String(l.articulo ?? '') + String(l.idcolor ?? '')}] | tipo art: [{typeof l.articulo}] tipo id: [{typeof l.idcolor}]</div>
+                <div key={`l-${i}`}>articulo: [{l.articulo}] | idcolor: [{l.idcolor}]</div>
               ))}
+              <div className="font-bold mt-2 text-primary">
+                Matches encontrados: {lotes_material_color.filter(l => {
+                  const a = String(l.articulo || '').trim();
+                  const c = String(l.idcolor || '').trim();
+                  return costo_unitario.some(cu => 
+                    (cu.itemid != null && String(cu.itemid).trim() === a && cu.colorid != null && String(cu.colorid).trim() === c) ||
+                    (cu.sku && String(cu.sku).trim() === a + c)
+                  );
+                }).length} / {lotes_material_color.length}
+              </div>
             </div>
           )}
         </div>
