@@ -5,6 +5,7 @@ export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [detailedSearchQuery, setDetailedSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function IndicadorVencimiento() {
           articulo: lote.articulo,
           nombre: lote.nombre,
           color: lote.color,
+          idcolor: lote.idcolor,
           fecha_manufactura: lote.fecha_manufactura,
           cantidad: 0,
           shelflife: shelflife,
@@ -114,6 +116,7 @@ export default function IndicadorVencimiento() {
 
     return {
       alerts,
+      items: allGroups,
       stats: {
         total: totalCosto,
         totalQty: totalQty,
@@ -407,7 +410,13 @@ export default function IndicadorVencimiento() {
           <div className="flex gap-2">
             <div className="relative">
               <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
-              <input className="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none w-64" placeholder="Search SKU..." type="text" />
+              <input 
+                className="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none w-64" 
+                placeholder="Search SKU..." 
+                type="text" 
+                value={detailedSearchQuery}
+                onChange={(e) => setDetailedSearchQuery(e.target.value)}
+              />
             </div>
             <button className="border border-outline-variant text-on-surface-variant px-3 py-1.5 rounded hover:bg-surface-container-low transition-colors flex items-center gap-2 font-label-sm">
               <span className="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span> Filter
@@ -424,62 +433,62 @@ export default function IndicadorVencimiento() {
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">SKU</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Category</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Description</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Qty</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Color</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Quantity</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Value</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Status</th>
               </tr>
             </thead>
             <tbody className="font-data-mono text-sm">
-              <tr className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors bg-danger-bg/10">
-                <td className="py-3 px-4 text-on-surface font-bold">CUE-001</td>
-                <td className="py-3 px-4 text-on-surface-variant">Cueros</td>
-                <td className="py-3 px-4 text-on-surface-variant font-body-md">Cuero Sintético Azul</td>
-                <td className="py-3 px-4 text-right text-on-surface">500</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 850.00</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="bg-danger/10 text-danger px-2 py-1 rounded-full text-[10px] font-bold uppercase">Obsolete</span>
-                </td>
-              </tr>
-              <tr className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors bg-danger-bg/5">
-                <td className="py-3 px-4 text-on-surface font-bold">HIL-002</td>
-                <td className="py-3 px-4 text-on-surface-variant">Hilos</td>
-                <td className="py-3 px-4 text-on-surface-variant font-body-md">Hilo Poliéster Negro</td>
-                <td className="py-3 px-4 text-right text-on-surface">1200</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 420.00</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="bg-danger/10 text-danger px-2 py-1 rounded-full text-[10px] font-bold uppercase">Obsolete</span>
-                </td>
-              </tr>
-              <tr className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors bg-warning-bg/10">
-                <td className="py-3 px-4 text-on-surface font-bold">HT-501</td>
-                <td className="py-3 px-4 text-on-surface-variant">Heat Transfer</td>
-                <td className="py-3 px-4 text-on-surface-variant font-body-md">Heat Transfer Logo</td>
-                <td className="py-3 px-4 text-right text-on-surface">800</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 280.00</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="bg-warning/10 text-warning px-2 py-1 rounded-full text-[10px] font-bold uppercase">In Risk</span>
-                </td>
-              </tr>
-              <tr className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                <td className="py-3 px-4 text-on-surface font-bold">TEL-105</td>
-                <td className="py-3 px-4 text-on-surface-variant">Telas</td>
-                <td className="py-3 px-4 text-on-surface-variant font-body-md">Tela Algodón Blanca</td>
-                <td className="py-3 px-4 text-right text-on-surface">2500</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 3,500.00</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="bg-success/10 text-success px-2 py-1 rounded-full text-[10px] font-bold uppercase">Available</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-surface-container-lowest transition-colors">
-                <td className="py-3 px-4 text-on-surface font-bold">CIE-302</td>
-                <td className="py-3 px-4 text-on-surface-variant">Cierres</td>
-                <td className="py-3 px-4 text-on-surface-variant font-body-md">Cierre Metálico 15cm</td>
-                <td className="py-3 px-4 text-right text-on-surface">5000</td>
-                <td className="py-3 px-4 text-right text-on-surface font-bold">L. 1,250.00</td>
-                <td className="py-3 px-4 text-center">
-                  <span className="bg-success/10 text-success px-2 py-1 rounded-full text-[10px] font-bold uppercase">Available</span>
-                </td>
-              </tr>
+              {(() => {
+                const filteredItems = inventoryData.items.filter(item => {
+                  const q = detailedSearchQuery.toLowerCase();
+                  return (item.articulo && item.articulo.toLowerCase().includes(q)) ||
+                         (item.nombre && item.nombre.toLowerCase().includes(q)) ||
+                         (item.color && item.color.toLowerCase().includes(q));
+                });
+                
+                if (filteredItems.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan="7" className="py-8 text-center text-on-surface-variant font-body-md">
+                        {detailedSearchQuery ? 'No se encontraron resultados.' : 'No hay datos de inventario disponibles.'}
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return filteredItems.map((item, idx) => {
+                  let rowBg = '';
+                  let badgeClass = 'bg-success/10 text-success';
+                  
+                  if (item.status === 'Obsoleto') {
+                    rowBg = 'bg-danger-bg/10';
+                    badgeClass = 'bg-danger/10 text-danger';
+                  } else if (item.status === 'En Riesgo') {
+                    rowBg = 'bg-warning-bg/10';
+                    badgeClass = 'bg-warning/10 text-warning';
+                  }
+
+                  return (
+                    <tr key={idx} className={`border-b border-outline-variant hover:bg-surface-container-lowest transition-colors ${rowBg}`}>
+                      <td className="py-3 px-4 text-on-surface font-bold">{item.articulo}</td>
+                      <td className="py-3 px-4 text-on-surface-variant"></td>
+                      <td className="py-3 px-4 text-on-surface-variant font-body-md">{item.nombre || '-'}</td>
+                      <td className="py-3 px-4 text-on-surface-variant">{item.color} ({item.idcolor})</td>
+                      <td className="py-3 px-4 text-right text-on-surface">{item.cantidad.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right text-on-surface font-bold">
+                        {formatCurrency(item.costo_total || 0)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`${badgeClass} px-2 py-1 rounded-full text-[10px] font-bold uppercase`}>
+                          {item.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                });
+              })()}
             </tbody>
           </table>
         </div>
