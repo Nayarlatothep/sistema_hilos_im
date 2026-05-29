@@ -34,10 +34,32 @@ export default function IndicadorVencimiento() {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
-        const concatSku1 = `${lote.articulo}${lote.idcolor}`;
-        const concatSku2 = `${lote.articulo}-${lote.idcolor}`;
-        const costoData = costo_unitario.find(c => c.sku === concatSku1 || c.sku === concatSku2);
-        const costoU = costoData ? (Number(costoData.costo_unitario) || Number(costoData.costo) || Number(costoData.precio) || 0) : 0;
+        const art = String(lote.articulo || '').trim().toUpperCase();
+        const col = String(lote.idcolor || '').trim().toUpperCase();
+        
+        const concatSku1 = `${art}${col}`;
+        const concatSku2 = `${art}-${col}`;
+        const concatSku3 = `${art}_${col}`;
+
+        const costoData = costo_unitario.find(c => {
+          if (!c || !c.sku) return false;
+          const s = String(c.sku).trim().toUpperCase();
+          return s === concatSku1 || s === concatSku2 || s === concatSku3 || s.replace(/[^A-Z0-9]/g, '') === concatSku1.replace(/[^A-Z0-9]/g, '');
+        });
+
+        let costoU = 0;
+        if (costoData) {
+          costoU = Number(costoData.costo_unitario) || Number(costoData.costo) || Number(costoData.precio) || Number(costoData.Costo) || Number(costoData.Precio) || 0;
+          if (costoU === 0) {
+            // Fallback: look for the first valid number that is not an ID
+            for (const key in costoData) {
+              if (!['id', 'sku', 'articulo', 'idcolor'].includes(key.toLowerCase()) && typeof costoData[key] === 'number') {
+                costoU = costoData[key];
+                break;
+              }
+            }
+          }
+        }
 
         groups[key] = {
           pc: lote.pc,
