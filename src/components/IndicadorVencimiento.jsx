@@ -208,7 +208,7 @@ export default function IndicadorVencimiento() {
             {/* Inventario en Riesgo by Category (Horizontal Bar Chart) */}
             <div className="card-base p-lg flex flex-col h-80">
               <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Inventario en Riesgo by Category</h3>
+                <h3 className="font-headline-md text-headline-md text-on-surface">Inventario en Riesgo por Categoría</h3>
                 <button className="text-on-surface-variant hover:text-primary">
                   <span className="material-symbols-outlined" data-icon="more_vert">more_vert</span>
                 </button>
