@@ -541,7 +541,7 @@ export default function IndicadorVencimiento() {
       {/* Detailed Data Table */}
       <div className="card-base overflow-hidden">
         <div className="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
-          <h3 className="font-headline-md text-headline-md text-on-surface">Inventory Detailed Analysis</h3>
+          <h3 className="font-headline-md text-headline-md text-on-surface">Análisis Detallado de Inventario</h3>
           <div className="flex flex-wrap gap-2 items-center">
             {/* Category Filter */}
             <div className="relative">
