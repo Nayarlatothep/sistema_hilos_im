@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [detailedSearchQuery, setDetailedSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
