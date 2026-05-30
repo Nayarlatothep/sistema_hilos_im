@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [detailedSearchQuery, setDetailedSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -495,7 +496,10 @@ export default function IndicadorVencimiento() {
               />
             </div>
             
-            <button className="bg-primary-container text-on-primary px-3 py-1.5 rounded hover:bg-primary transition-colors flex items-center gap-2 font-label-sm font-bold ml-2">
+            <button 
+              onClick={() => setShowExportModal(true)}
+              className="bg-primary-container text-on-primary px-3 py-1.5 rounded hover:bg-primary transition-colors flex items-center gap-2 font-label-sm font-bold ml-2"
+            >
               <span className="material-symbols-outlined text-sm" data-icon="download">download</span> Exportar
             </button>
           </div>
@@ -674,6 +678,66 @@ export default function IndicadorVencimiento() {
                 </div>
                 );
               })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
+          <div className="bg-surface-container-lowest rounded-xl shadow-modal w-full max-w-6xl max-h-[90vh] flex flex-col">
+            <div className="p-lg border-b border-outline-variant bg-surface-container-low rounded-t-xl flex justify-between items-start">
+              <div>
+                <h3 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">table</span> Vista de Exportación
+                </h3>
+                <p className="font-body-md text-on-surface-variant mt-1">Mostrando {filteredDetailedItems.length} registros según los filtros actuales.</p>
+              </div>
+              <button onClick={() => setShowExportModal(false)} className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-highest">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-auto bg-surface">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-surface-container-low border-b border-outline-variant sticky top-0 z-10 shadow-sm">
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">SKU</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Categoría</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Descripción</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Color</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Cantidad</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Costo Total</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Estatus</th>
+                  </tr>
+                </thead>
+                <tbody className="font-data-mono text-sm">
+                  {filteredDetailedItems.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="py-8 text-center text-on-surface-variant font-body-md">
+                        No hay datos para mostrar con los filtros actuales.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredDetailedItems.map((item, idx) => (
+                      <tr key={idx} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                        <td className="py-2 px-4 text-on-surface font-bold">{item.articulo}</td>
+                        <td className="py-2 px-4 text-on-surface-variant">{item.categoria}</td>
+                        <td className="py-2 px-4 text-on-surface-variant font-body-md">{item.nombre || '-'}</td>
+                        <td className="py-2 px-4 text-on-surface-variant">{item.color} ({item.idcolor})</td>
+                        <td className="py-2 px-4 text-right text-on-surface">{item.cantidad.toLocaleString()}</td>
+                        <td className="py-2 px-4 text-right text-on-surface font-bold">
+                          {formatCurrency(item.costo_total || 0)}
+                        </td>
+                        <td className="py-2 px-4 text-center">
+                          {item.status}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
