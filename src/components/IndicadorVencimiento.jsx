@@ -183,6 +183,93 @@ export default function IndicadorVencimiento() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredDetailedItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return; // In case popup blocker is enabled
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Reporte de Inventario</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+            th { background-color: #f4f4f4; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h2>Reporte de Inventario Detallado</h2>
+          <p>Total Registros (SKUs): <strong>${filteredDetailedItems.length}</strong></p>
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Color</th>
+                <th class="text-right">Cantidad</th>
+                <th class="text-right">Costo Total</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredDetailedItems.map(item => `
+                <tr>
+                  <td>${item.articulo}</td>
+                  <td>${item.categoria}</td>
+                  <td>${item.nombre || '-'}</td>
+                  <td>${item.color} (${item.idcolor})</td>
+                  <td class="text-right">${item.cantidad.toLocaleString()}</td>
+                  <td class="text-right">${formatCurrency(item.costo_total || 0)}</td>
+                  <td>${item.status}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr class="font-bold">
+                <td colspan="4" class="text-right">Totales:</td>
+                <td class="text-right">${filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
+                <td class="text-right">${formatCurrency(filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['SKU', 'Categoria', 'Descripcion', 'Color', 'Cantidad', 'Costo Total', 'Estatus'];
+    const csvData = filteredDetailedItems.map(item => [
+      item.articulo,
+      item.categoria,
+      '"' + (item.nombre || '').replace(/"/g, '""') + '"',
+      '"' + item.color + ' (' + item.idcolor + ')"',
+      item.cantidad,
+      item.costo_total || 0,
+      item.status
+    ]);
+    const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'inventario_export.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div>
       <div className="mb-lg flex justify-between items-start">
@@ -737,7 +824,36 @@ export default function IndicadorVencimiento() {
                     ))
                   )}
                 </tbody>
+                {filteredDetailedItems.length > 0 && (
+                  <tfoot className="bg-surface-container-low font-bold text-on-surface border-t-2 border-outline-variant">
+                    <tr>
+                      <td colSpan="4" className="py-3 px-4 text-right">
+                        <span className="mr-6 bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px]">Total SKUs: {filteredDetailedItems.length}</span>
+                        Totales:
+                      </td>
+                      <td className="py-3 px-4 text-right">{filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right text-error">{formatCurrency(filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
+                      <td className="py-3 px-4"></td>
+                    </tr>
+                  </tfoot>
+                )}
               </table>
+            </div>
+            
+            {/* Modal Actions Footer */}
+            <div className="p-4 border-t border-outline-variant bg-surface-container-lowest rounded-b-xl flex justify-end gap-3">
+              <button 
+                onClick={handlePrint}
+                className="bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">print</span> Imprimir
+              </button>
+              <button 
+                onClick={handleExportCSV}
+                className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">download</span> Exportar a CSV
+              </button>
             </div>
           </div>
         </div>
