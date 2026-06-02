@@ -80,7 +80,7 @@ export default function IngresoLotes() {
   // Save duplicated item with custom fields
   const handleConfirmDuplication = (e) => {
     e.preventDefault();
-    if (!pcCode || !quantity || quantity <= 0 || !categoria) {
+    if (!pcCode.trim() || !quantity || quantity <= 0 || !categoria) {
       alert("Por favor rellene todos los campos obligatorios.");
       return;
     }
@@ -543,7 +543,8 @@ export default function IngresoLotes() {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/10 active:scale-95 transition-all"
+                  disabled={!pcCode.trim() || !quantity || quantity <= 0 || !categoria}
+                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   Confirmar y Agregar
                 </button>
