@@ -81,46 +81,46 @@ export default function ReporteLotes() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">ID</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Código PC</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Categoría</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Artículo</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Nombre</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Color</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
-                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">ID</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Código PC</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Categoría</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Artículo</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Nombre</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Color</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
+                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLotes.map((row, idx) => (
                   <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
-                    <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-xs">
+                    <td className="p-5 whitespace-nowrap font-bold text-slate-400 text-sm">
                       #{row.id || '—'}
                     </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span className="text-xs font-mono font-black text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">
+                    <td className="p-5 whitespace-nowrap">
+                      <span className="text-sm font-mono font-black text-secondary bg-secondary/5 px-3 py-1.5 rounded-lg">
                         {row.pc || '—'}
                       </span>
                     </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span className="font-bold text-slate-700 text-xs uppercase bg-slate-100 px-2.5 py-1 rounded-lg">
+                    <td className="p-5 whitespace-nowrap">
+                      <span className="font-bold text-slate-700 text-sm uppercase bg-slate-100 px-3 py-1.5 rounded-lg">
                         {row.categoria || '—'}
                       </span>
                     </td>
-                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-xs">{row.articulo || '—'}</td>
-                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-xs">{row.nombre || '—'}</td>
-                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-xs">
+                    <td className="p-5 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.articulo || '—'}</td>
+                    <td className="p-5 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.nombre || '—'}</td>
+                    <td className="p-5 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">
                       {row.color ? (
                         <div className="flex items-center gap-2">
                            <span className="font-semibold">{row.color}</span>
-                           <span className="text-[10px] text-slate-400">({row.idcolor || '—'})</span>
+                           <span className="text-xs text-slate-400">({row.idcolor || '—'})</span>
                         </div>
                       ) : '—'}
                     </td>
-                    <td className="p-4 whitespace-nowrap font-bold font-mono text-slate-800 text-sm">
+                    <td className="p-5 whitespace-nowrap font-bold font-mono text-slate-800 text-base">
                       {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
                     </td>
-                    <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-xs">
+                    <td className="p-5 whitespace-nowrap font-bold text-slate-500 text-sm">
                       {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
                     </td>
                   </tr>
