@@ -1,51 +1,138 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function ReporteLotes() {
   const { lotes_material_color, fetchLoteMaterialColor, loading, error } = useStore();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchLoteMaterialColor();
   }, []);
 
-  if (loading) return <div className="text-center py-4">Cargando datos...</div>;
-  if (error) return <div className="text-red-500 py-4">Error: {error}</div>;
+  const filteredLotes = (lotes_material_color || []).filter(row => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return Object.values(row).some(val => 
+      val !== null && String(val).toLowerCase().includes(q)
+    );
+  });
 
   return (
-    <div className="overflow-x-auto">
-      <h2 className="text-xl font-bold mb-4 text-white">Reporte de Lotes</h2>
-      <table className="min-w-full bg-[#001731] text-white border border-white/10 rounded-xl shadow-2xl">
-        <thead className="bg-[#00244a]">
-          <tr>
-            <th className="px-4 py-2">Articulo</th>
-            <th className="px-4 py-2">Nombre</th>
-            <th className="px-4 py-2">ID Color</th>
-            <th className="px-4 py-2">Color</th>
-            <th className="px-4 py-2">PC</th>
-            <th className="px-4 py-2">Cantidad</th>
-            <th className="px-4 py-2">Fecha Manufactura</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lotes_material_color && lotes_material_color.length > 0 ? (
-            lotes_material_color.map((row, idx) => (
-              <tr key={idx} className={idx % 2 === 0 ? 'bg-[#001d3a]' : ''}>
-                <td className="px-4 py-2">{row.articulo}</td>
-                <td className="px-4 py-2">{row.nombre}</td>
-                <td className="px-4 py-2">{row.idcolor}</td>
-                <td className="px-4 py-2">{row.color}</td>
-                <td className="px-4 py-2">{row.pc}</td>
-                <td className="px-4 py-2">{row.cantidad}</td>
-                <td className="px-4 py-2">{row.fecha_manufactura}</td>
-              </tr>
-            ))
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500 max-w-[1600px] mx-auto p-4">
+      {/* Header Section */}
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <p className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] font-headline">Historial</p>
+          <h2 className="text-4xl font-black font-headline text-primary tracking-tighter uppercase leading-none mt-1">Reporte de Lotes</h2>
+        </div>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => fetchLoteMaterialColor()}
+            disabled={loading}
+            className="px-6 py-3 bg-primary hover:bg-primary-container text-white rounded-xl font-bold font-headline text-xs tracking-wider uppercase shadow-lg shadow-primary/10 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-75"
+          >
+            <span className={`material-symbols-outlined text-[16px] ${loading ? 'animate-spin' : ''}`}>
+              refresh
+            </span>
+            {loading ? 'Cargando...' : 'Actualizar Datos'}
+          </button>
+        </div>
+      </section>
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-rose-50 text-rose-600 p-4 rounded-2xl border border-rose-200 text-sm font-bold flex items-center gap-2">
+          <span className="material-symbols-outlined">error</span>
+          Ocurrió un error: {error}
+        </div>
+      )}
+
+      {/* Search Bar */}
+      <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/5 focus-within:border-primary/20">
+        <span className="material-symbols-outlined text-slate-400 mr-3">search</span>
+        <input 
+          className="bg-transparent border-none outline-none w-full text-sm font-semibold text-slate-600 placeholder:text-slate-400" 
+          placeholder="Buscar por código PC, artículo, categoría o color..." 
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <span className="material-symbols-outlined text-md">close</span>
+          </button>
+        )}
+      </div>
+
+      {/* Data Table */}
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden min-h-[400px] flex flex-col">
+        <div className="overflow-x-auto flex-grow custom-scrollbar">
+          {loading && filteredLotes.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-4">
+              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Consultando Reporte...</p>
+            </div>
+          ) : filteredLotes.length === 0 ? (
+            <div className="h-64 flex flex-col items-center justify-center text-slate-400 gap-3">
+              <span className="material-symbols-outlined text-4xl opacity-30">layers_clear</span>
+              <p className="text-sm font-bold uppercase tracking-wider text-slate-400">No se encontraron lotes</p>
+            </div>
           ) : (
-            <tr>
-              <td colSpan={7} className="px-4 py-2 text-center">No hay datos</td>
-            </tr>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Código PC</th>
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Categoría</th>
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Artículo</th>
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Nombre</th>
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Color</th>
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLotes.map((row, idx) => (
+                  <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
+                    <td className="p-4 whitespace-nowrap">
+                      <span className="text-xs font-mono font-black text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">
+                        {row.pc || '—'}
+                      </span>
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      <span className="font-bold text-slate-700 text-xs uppercase bg-slate-100 px-2.5 py-1 rounded-lg">
+                        {row.categoria || '—'}
+                      </span>
+                    </td>
+                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-xs">{row.articulo || '—'}</td>
+                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-xs">{row.nombre || '—'}</td>
+                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-xs">
+                      {row.color ? (
+                        <div className="flex items-center gap-2">
+                           <span className="font-semibold">{row.color}</span>
+                           <span className="text-[10px] text-slate-400">({row.idcolor || '—'})</span>
+                        </div>
+                      ) : '—'}
+                    </td>
+                    <td className="p-4 whitespace-nowrap font-bold font-mono text-slate-800 text-sm">
+                      {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
+                    </td>
+                    <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-xs">
+                      {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+      {/* Scrollbar Customization */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+      `}} />
     </div>
   );
 }
