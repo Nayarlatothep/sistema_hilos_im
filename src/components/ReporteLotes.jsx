@@ -81,46 +81,46 @@ export default function ReporteLotes() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">ID</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Código PC</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Categoría</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Artículo</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Nombre</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Color</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
-                  <th className="p-5 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">ID</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Código PC</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Categoría</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Artículo</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Nombre</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Color</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
+                  <th className="py-6 px-8 text-sm font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLotes.map((row, idx) => (
                   <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
-                    <td className="p-5 whitespace-nowrap font-bold text-slate-400 text-sm">
+                    <td className="py-6 px-8 whitespace-nowrap font-bold text-slate-400 text-base">
                       #{row.id || '—'}
                     </td>
-                    <td className="p-5 whitespace-nowrap">
-                      <span className="text-sm font-mono font-black text-secondary bg-secondary/5 px-3 py-1.5 rounded-lg">
+                    <td className="py-6 px-8 whitespace-nowrap">
+                      <span className="text-base font-mono font-black text-secondary bg-secondary/5 px-4 py-2 rounded-lg">
                         {row.pc || '—'}
                       </span>
                     </td>
-                    <td className="p-5 whitespace-nowrap">
-                      <span className="font-bold text-slate-700 text-sm uppercase bg-slate-100 px-3 py-1.5 rounded-lg">
+                    <td className="py-6 px-8 whitespace-nowrap">
+                      <span className="font-bold text-slate-700 text-base uppercase bg-slate-100 px-4 py-2 rounded-lg">
                         {row.categoria || '—'}
                       </span>
                     </td>
-                    <td className="p-5 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.articulo || '—'}</td>
-                    <td className="p-5 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.nombre || '—'}</td>
-                    <td className="p-5 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">
+                    <td className="py-6 px-8 whitespace-nowrap font-semibold text-slate-700 uppercase text-base">{row.articulo || '—'}</td>
+                    <td className="py-6 px-8 whitespace-nowrap font-semibold text-slate-700 uppercase text-base">{row.nombre || '—'}</td>
+                    <td className="py-6 px-8 whitespace-nowrap font-semibold text-slate-700 uppercase text-base">
                       {row.color ? (
                         <div className="flex items-center gap-2">
                            <span className="font-semibold">{row.color}</span>
-                           <span className="text-xs text-slate-400">({row.idcolor || '—'})</span>
+                           <span className="text-sm text-slate-400">({row.idcolor || '—'})</span>
                         </div>
                       ) : '—'}
                     </td>
-                    <td className="p-5 whitespace-nowrap font-bold font-mono text-slate-800 text-base">
+                    <td className="py-6 px-8 whitespace-nowrap font-bold font-mono text-slate-800 text-lg">
                       {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
                     </td>
-                    <td className="p-5 whitespace-nowrap font-bold text-slate-500 text-sm">
+                    <td className="py-6 px-8 whitespace-nowrap font-bold text-slate-500 text-base">
                       {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
                     </td>
                   </tr>
