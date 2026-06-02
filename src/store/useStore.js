@@ -362,7 +362,8 @@ export const useStore = create((set, get) => ({
         color: record.color || record.COLOR || '',
         pc: formattedPc,
         cantidad: parseFloat(record.cantidad) || parseFloat(record.CANTIDAD) || parseFloat(record.Cantidad) || 0,
-        fecha_manufactura: record.fecha_manufactura || record.Fecha_manufactura || record.Fecha_manu || record.fecha_manu || record['FECHA MANU'] || null
+        fecha_manufactura: record.fecha_manufactura || record.Fecha_manufactura || record.Fecha_manu || record.fecha_manu || record['FECHA MANU'] || null,
+        categoria: record.categoria || record.Categoria || record.CATEGORIA || null
       };
     });
 
