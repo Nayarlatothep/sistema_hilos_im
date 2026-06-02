@@ -23,6 +23,7 @@ export default function IngresoLotes() {
   const [showModal, setShowModal] = useState(false);
   const [pcCode, setPcCode] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [categoria, setCategoria] = useState('');
   const [fechaManu, setFechaManu] = useState(() => {
     const today = new Date();
     return today.toISOString().split('T')[0];
@@ -70,18 +71,17 @@ export default function IngresoLotes() {
   // Open modal to duplicate a row
   const handleOpenDuplicationModal = (item) => {
     setSelectedMaterial(item);
-    // Suggest a sequential PC code as a simple number (formatted as PC-000x in display/db)
-    const seq = String(lotes_procesados.length + 1);
-    setPcCode(seq);
+    setPcCode('');
     setQuantity('');
+    setCategoria('');
     setShowModal(true);
   };
 
   // Save duplicated item with custom fields
   const handleConfirmDuplication = (e) => {
     e.preventDefault();
-    if (!pcCode || !quantity || quantity <= 0) {
-      alert("Por favor rellene los campos obligatorios.");
+    if (!pcCode || !quantity || quantity <= 0 || !categoria) {
+      alert("Por favor rellene todos los campos obligatorios.");
       return;
     }
 
@@ -90,7 +90,8 @@ export default function IngresoLotes() {
       id: `proc-${Date.now()}`, // Generate new unique ID
       PC: pcCode,
       Cantidad: parseFloat(quantity),
-      Fecha_manu: fechaManu
+      Fecha_manu: fechaManu,
+      categoria: categoria
     };
 
     addLoteProcesado(newProcessedLote);
@@ -487,6 +488,22 @@ export default function IngresoLotes() {
                   min="0.01"
                   step="any"
                 />
+              </div>
+
+              {/* Categoria Input */}
+              <div>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">CATEGORÍA DEL MATERIAL *</label>
+                <select 
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold font-mono text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all"
+                  required
+                >
+                  <option value="" disabled>Seleccione una categoría</option>
+                  <option value="Heat Transfers">Heat Transfers</option>
+                  <option value="Quimicos">Quimicos</option>
+                  <option value="Stickers">Stickers</option>
+                </select>
               </div>
 
               {/* Fecha_manu Input */}
