@@ -81,6 +81,7 @@ export default function ReporteLotes() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">ID</th>
                   <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Código PC</th>
                   <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Categoría</th>
                   <th className="p-4 text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Artículo</th>
@@ -93,6 +94,9 @@ export default function ReporteLotes() {
               <tbody>
                 {filteredLotes.map((row, idx) => (
                   <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
+                    <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-xs">
+                      #{row.id || '—'}
+                    </td>
                     <td className="p-4 whitespace-nowrap">
                       <span className="text-xs font-mono font-black text-secondary bg-secondary/5 px-2.5 py-1 rounded-lg">
                         {row.pc || '—'}
