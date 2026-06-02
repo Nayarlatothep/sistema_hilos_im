@@ -112,8 +112,8 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         </div>
       </header>
 
-      {/* Main Content Canvas */}
-      <main className="pt-24 min-h-screen max-w-7xl mx-auto px-8 pb-12 w-full flex-grow">
+      {/* Main Content Area */}
+      <main className="pt-24 min-h-screen w-full mx-auto px-4 md:px-8 pb-12 flex-grow">
         {children}
       </main>
 
