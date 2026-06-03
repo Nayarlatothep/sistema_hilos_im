@@ -5,18 +5,55 @@ export default function ReporteLotes() {
   const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLotes, setSelectedLotes] = useState(new Set());
+  const [filterStatus, setFilterStatus] = useState('All');
 
   useEffect(() => {
     fetchLoteMaterialColor();
     fetchMaterialesColor();
   }, []);
 
-  const filteredLotes = (lotes_material_color || []).filter(row => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return Object.values(row).some(val => 
-      val !== null && String(val).toLowerCase().includes(q)
+  const lotesWithStatus = (lotes_material_color || []).map(row => {
+    const material = materiales_color?.find(m => m.articulo === row.articulo && String(m.idcolor) === String(row.idcolor));
+    const shelflife = material ? Number(material.shelflife) || 0 : 0;
+    let status = 'Desconocido';
+    let fechaVencimientoStr = '—';
+    
+    if (row.fecha_manufactura && shelflife > 0) {
+      let expirationDate;
+      const [year, month, day] = row.fecha_manufactura.split('-').map(Number);
+      if (year && month && day) {
+        expirationDate = new Date(year, month - 1, day);
+      } else {
+        expirationDate = new Date(row.fecha_manufactura);
+      }
+      
+      if (!isNaN(expirationDate)) {
+        expirationDate.setDate(expirationDate.getDate() + shelflife);
+        fechaVencimientoStr = expirationDate.toLocaleDateString();
+        
+        const today = new Date();
+        const diffTime = expirationDate - today;
+        const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (daysRemaining < 0) {
+          status = 'Obsoleto';
+        } else if (daysRemaining <= shelflife * 0.3) {
+          status = 'En Riesgo';
+        } else {
+          status = 'Disponible';
+        }
+      }
+    }
+    return { ...row, status, fechaVencimientoStr };
+  });
+
+  const filteredLotes = lotesWithStatus.filter(row => {
+    const matchesSearch = !searchQuery || Object.values(row).some(val => 
+      val !== null && String(val).toLowerCase().includes(searchQuery.toLowerCase())
     );
+    const matchesStatus = filterStatus === 'All' || row.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
   });
 
   return (
@@ -62,21 +99,42 @@ export default function ReporteLotes() {
         </div>
       )}
 
-      {/* Search Bar */}
-      <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/5 focus-within:border-primary/20">
-        <span className="material-symbols-outlined text-slate-400 mr-3">search</span>
-        <input 
-          className="bg-transparent border-none outline-none w-full text-sm font-semibold text-slate-600 placeholder:text-slate-400" 
-          placeholder="Buscar por código PC, artículo, categoría o color..." 
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        {searchQuery && (
-          <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 transition-colors">
-            <span className="material-symbols-outlined text-md">close</span>
-          </button>
-        )}
+      {/* Filters Section */}
+      <div className="flex flex-col md:flex-row items-center gap-4">
+        {/* Search Bar */}
+        <div className="relative flex-1 flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/5 focus-within:border-primary/20 w-full">
+          <span className="material-symbols-outlined text-slate-400 mr-3">search</span>
+          <input 
+            className="bg-transparent border-none outline-none w-full text-sm font-semibold text-slate-600 placeholder:text-slate-400" 
+            placeholder="Buscar por código PC, artículo, categoría o color..." 
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <span className="material-symbols-outlined text-md">close</span>
+            </button>
+          )}
+        </div>
+
+        {/* Status Filter */}
+        <div className="relative w-full md:w-64 shrink-0">
+          <select 
+            className="appearance-none bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm w-full text-sm font-semibold text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/5 focus:border-primary/20 cursor-pointer"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="All">Estatus: Todos</option>
+            <option value="Disponible">Disponible</option>
+            <option value="En Riesgo">En Riesgo</option>
+            <option value="Obsoleto">Obsoleto</option>
+            <option value="Desconocido">Desconocido</option>
+          </select>
+          <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+            expand_more
+          </span>
+        </div>
       </div>
 
       {/* Data Table */}
@@ -111,47 +169,15 @@ export default function ReporteLotes() {
               </thead>
               <tbody>
                 {filteredLotes.map((row, idx) => {
-                  const material = materiales_color?.find(m => m.articulo === row.articulo && String(m.idcolor) === String(row.idcolor));
-                  const shelflife = material ? Number(material.shelflife) || 0 : 0;
-                  let fechaVencimientoStr = '—';
-                  let status = 'Desconocido';
-                  
-                  if (row.fecha_manufactura && shelflife > 0) {
-                    let expirationDate;
-                    const [year, month, day] = row.fecha_manufactura.split('-').map(Number);
-                    if (year && month && day) {
-                      expirationDate = new Date(year, month - 1, day);
-                    } else {
-                      expirationDate = new Date(row.fecha_manufactura);
-                    }
-                    
-                    if (!isNaN(expirationDate)) {
-                      expirationDate.setDate(expirationDate.getDate() + shelflife);
-                      fechaVencimientoStr = expirationDate.toLocaleDateString();
-                      
-                      const today = new Date();
-                      const diffTime = expirationDate - today;
-                      const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                      
-                      if (daysRemaining < 0) {
-                        status = 'Obsoleto';
-                      } else if (daysRemaining <= shelflife * 0.3) {
-                        status = 'En Riesgo';
-                      } else {
-                        status = 'Disponible';
-                      }
-                    }
-                  }
-
                   let rowBg = 'hover:bg-slate-50/70';
-                  let badgeClass = 'bg-slate-100 text-slate-500'; // Default para desconocido
+                  let badgeClass = 'bg-slate-100 text-slate-500';
                   
-                  if (status === 'Disponible') {
+                  if (row.status === 'Disponible') {
                     badgeClass = 'bg-success/10 text-success';
-                  } else if (status === 'Obsoleto') {
+                  } else if (row.status === 'Obsoleto') {
                     rowBg = 'bg-danger-bg/10 hover:bg-danger-bg/20';
                     badgeClass = 'bg-danger/10 text-danger';
-                  } else if (status === 'En Riesgo') {
+                  } else if (row.status === 'En Riesgo') {
                     rowBg = 'bg-warning-bg/10 hover:bg-warning-bg/20';
                     badgeClass = 'bg-warning/10 text-warning';
                   }
@@ -204,11 +230,11 @@ export default function ReporteLotes() {
                         {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
-                        {fechaVencimientoStr}
+                        {row.fechaVencimientoStr}
                       </td>
                       <td className="p-4 whitespace-nowrap text-center">
                         <span className={`${badgeClass} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider`}>
-                          {status}
+                          {row.status}
                         </span>
                       </td>
                     </tr>
