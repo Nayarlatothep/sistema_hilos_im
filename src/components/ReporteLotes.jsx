@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function ReporteLotes() {
-  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, updateLoteMaterialColorCantidad, deleteLoteMaterialColor, loading, error } = useStore();
+  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, updateLoteMaterialColorCantidad, deleteMultipleLoteMaterialColor, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLotes, setSelectedLotes] = useState(new Set());
   const [filterStatus, setFilterStatus] = useState('All');
@@ -69,10 +69,8 @@ export default function ReporteLotes() {
         <div className="flex items-center gap-4">
           <button 
             onClick={async () => {
-              if (window.confirm(`¿Estás seguro de que deseas eliminar ${selectedLotes.size} registro(s)?`)) {
-                for (const id of selectedLotes) {
-                  await deleteLoteMaterialColor(id);
-                }
+              if (window.confirm(`¿Estás seguro de que deseas eliminar permanentemente estos ${selectedLotes.size} registro(s)? Esta acción no se puede deshacer.`)) {
+                await deleteMultipleLoteMaterialColor(Array.from(selectedLotes));
                 setSelectedLotes(new Set());
               }
             }}
