@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function ReporteLotes() {
-  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, updateLoteMaterialColorCantidad, loading, error } = useStore();
+  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, updateLoteMaterialColorCantidad, deleteLoteMaterialColor, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLotes, setSelectedLotes] = useState(new Set());
   const [filterStatus, setFilterStatus] = useState('All');
   const [editingId, setEditingId] = useState(null);
   const [editCantidad, setEditCantidad] = useState('');
@@ -67,19 +66,6 @@ export default function ReporteLotes() {
           <h2 className="text-4xl font-black font-headline text-primary tracking-tighter uppercase leading-none mt-1">Reporte de Lotes</h2>
         </div>
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => {
-              // TODO: Implement delete logic for selectedLotes
-              console.log('Borrar registros seleccionados:', Array.from(selectedLotes));
-            }}
-            disabled={loading || selectedLotes.size === 0}
-            className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold font-headline text-xs tracking-wider uppercase shadow-lg shadow-rose-600/10 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="material-symbols-outlined text-[16px]">
-              delete
-            </span>
-            Borrar Registros
-          </button>
           <button 
             onClick={() => { fetchLoteMaterialColor(); fetchMaterialesColor(); }}
             disabled={loading}
@@ -188,20 +174,21 @@ export default function ReporteLotes() {
                     <tr key={row.id || idx} className={`border-b border-slate-50 transition-colors ${rowBg}`}>
                       <td className="p-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer accent-primary shrink-0"
-                            checked={selectedLotes.has(row.id || idx)}
-                            onChange={(e) => {
-                              const newSet = new Set(selectedLotes);
-                              if (e.target.checked) {
-                                newSet.add(row.id || idx);
-                              } else {
-                                newSet.delete(row.id || idx);
+                          <button 
+                            onClick={async () => {
+                              if (row.id) {
+                                if (window.confirm('¿Estás seguro de que deseas eliminar este registro?')) {
+                                  await deleteLoteMaterialColor(row.id);
+                                }
                               }
-                              setSelectedLotes(newSet);
                             }}
-                          />
+                            className="text-slate-400 hover:text-rose-600 transition-colors p-1.5 rounded-lg hover:bg-rose-50 flex items-center justify-center shrink-0"
+                            title="Borrar registro"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">
+                              delete
+                            </span>
+                          </button>
                           {editingId === (row.id || idx) ? (
                             <button 
                               onClick={async () => {

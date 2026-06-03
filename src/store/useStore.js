@@ -354,6 +354,23 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  deleteLoteMaterialColor: async (id) => {
+    set({ loading: true, error: null });
+    const { error } = await supabase
+      .from('lote_material_color')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return false;
+    } else {
+      const updated = get().lotes_material_color.filter(t => t.id !== id);
+      set({ lotes_material_color: updated, loading: false });
+      return true;
+    }
+  },
+
   loadLotesProcesados: () => {
     try {
       const stored = localStorage.getItem('sistema_hilos_lotes_procesados');
