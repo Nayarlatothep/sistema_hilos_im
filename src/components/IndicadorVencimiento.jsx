@@ -607,7 +607,7 @@ export default function IndicadorVencimiento() {
           {/* Inventory Aging Timeline */}
           <div className="card-base p-lg flex flex-col h-72">
             <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-              <h3 className="font-headline-md text-headline-md text-on-surface">Inventory Aging Timeline (Next 6 Months)</h3>
+              <h3 className="font-headline-md text-headline-md text-on-surface">Historico de Diarios de Material Expirados</h3>
             </div>
             <div className="flex-1 relative mt-4">
               {/* Grid lines */}
