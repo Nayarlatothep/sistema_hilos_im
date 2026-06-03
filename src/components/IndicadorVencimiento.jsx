@@ -33,7 +33,7 @@ export default function IndicadorVencimiento() {
   };
 
   const inventoryData = useMemo(() => {
-    if (!lotes_con_costo || !materiales_color || !lotes_material_color) return { alerts: [], stats: { total: 0, obsolete: 0, atRisk: 0 } };
+    if (!lotes_con_costo || !materiales_color || !lotes_material_color) return { alerts: [], items: [], stats: { total: 0, obsolete: 0, atRisk: 0 } };
 
     const groups = {};
     let totalCosto = 0;
@@ -51,6 +51,7 @@ export default function IndicadorVencimiento() {
         
         const originalLote = lotes_material_color.find(l => l.pc === lote.pc && l.articulo === lote.articulo);
         const categoria = originalLote?.categoria || lote.categoria || 'Sin Categoría';
+        const lote_total = originalLote?.total ? parseFloat(originalLote.total) : null;
 
         // El costo ya viene del servidor (JOIN hecho en PostgreSQL)
         const costoU = parseFloat(lote.costo) || 0;
@@ -67,6 +68,7 @@ export default function IndicadorVencimiento() {
           shelflife: shelflife,
           earliestManufacture: null,
           costo_unitario: costoU,
+          lote_total: lote_total
         };
       }
       
@@ -102,7 +104,7 @@ export default function IndicadorVencimiento() {
         }
       }
 
-      const costo_total = group.cantidad * (group.costo_unitario || 0);
+      const costo_total = group.lote_total !== null ? group.lote_total : (group.cantidad * (group.costo_unitario || 0));
       
       totalCosto += costo_total;
       totalQty += group.cantidad;
@@ -142,7 +144,31 @@ export default function IndicadorVencimiento() {
     };
   }, [lotes_con_costo, materiales_color, lotes_material_color]);
 
-  const { alerts: actionRequiredAlerts, stats } = inventoryData;
+  const { alerts: actionRequiredAlerts, stats, items } = inventoryData;
+
+  const riskByCategory = useMemo(() => {
+    if (!items) return [];
+    const riskItems = items.filter(item => item.status === 'En Riesgo');
+    const categories = {};
+    riskItems.forEach(item => {
+      categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
+    });
+    return Object.entries(categories)
+      .map(([categoria, total]) => ({ categoria, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [items]);
+
+  const lossByCategory = useMemo(() => {
+    if (!items) return [];
+    const lossItems = items.filter(item => item.status === 'Obsoleto');
+    const categories = {};
+    lossItems.forEach(item => {
+      categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
+    });
+    return Object.entries(categories)
+      .map(([categoria, total]) => ({ categoria, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [items]);
 
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
@@ -357,46 +383,23 @@ export default function IndicadorVencimiento() {
                 </button>
               </div>
               <div className="flex-1 flex flex-col justify-center gap-4 mt-2">
-                {/* Hilos */}
-                <div className="flex items-center gap-3">
-                  <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right">Hilos</span>
-                  <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
-                    <div className="h-full bg-warning" style={{ width: '100%' }}></div>
-                  </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 980</span>
-                </div>
-                {/* Cueros */}
-                <div className="flex items-center gap-3">
-                  <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right">Cueros</span>
-                  <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
-                    <div className="h-full bg-warning" style={{ width: '65%' }}></div>
-                  </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 640</span>
-                </div>
-                {/* Heat Transfer */}
-                <div className="flex items-center gap-3">
-                  <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right">Heat Trans.</span>
-                  <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
-                    <div className="h-full bg-warning" style={{ width: '29%' }}></div>
-                  </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 280</span>
-                </div>
-                {/* Telas */}
-                <div className="flex items-center gap-3">
-                  <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right">Telas</span>
-                  <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
-                    <div className="h-full bg-warning" style={{ width: '12%' }}></div>
-                  </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 120</span>
-                </div>
-                {/* Cierres */}
-                <div className="flex items-center gap-3">
-                  <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right">Cierres</span>
-                  <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
-                    <div className="h-full bg-warning" style={{ width: '6%' }}></div>
-                  </div>
-                  <span className="w-12 text-[12px] font-data-mono text-on-surface text-right font-bold">L. 60</span>
-                </div>
+                {riskByCategory.length === 0 ? (
+                  <div className="text-center text-on-surface-variant text-sm py-4">Sin datos</div>
+                ) : (
+                  riskByCategory.slice(0, 5).map((cat, idx) => {
+                    const maxRisk = riskByCategory[0].total || 1;
+                    const percentage = Math.max(1, (cat.total / maxRisk) * 100);
+                    return (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right" title={cat.categoria}>{cat.categoria}</span>
+                        <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
+                          <div className="h-full bg-warning" style={{ width: `${percentage}%` }}></div>
+                        </div>
+                        <span className="w-20 text-[12px] font-data-mono text-on-surface text-right font-bold">{formatCurrency(cat.total)}</span>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
 
@@ -406,41 +409,29 @@ export default function IndicadorVencimiento() {
                 <h3 className="font-headline-md text-headline-md text-on-surface">Loss by Category</h3>
               </div>
               <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
-                {/* Y Axis markers */}
-                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
-                  <span>L. 1k</span><span>L. 500</span><span>L. 0</span>
-                </div>
-                {/* Bars */}
-                <div className="flex flex-col items-center ml-10 gap-1 group">
-                  <div className="w-8 bg-danger rounded-t-sm h-[120px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 850</span>
-                  </div>
-                  <span className="font-label-sm text-[9px] text-on-surface-variant">Cueros</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 group">
-                  <div className="w-8 bg-danger rounded-t-sm h-[59px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 420</span>
-                  </div>
-                  <span className="font-label-sm text-[9px] text-on-surface-variant">Hilos</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 group">
-                  <div className="w-8 bg-danger rounded-t-sm h-[40px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 280</span>
-                  </div>
-                  <span className="font-label-sm text-[9px] text-on-surface-variant">Heat Tr.</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 group">
-                  <div className="w-8 bg-danger rounded-t-sm h-[27px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 190</span>
-                  </div>
-                  <span className="font-label-sm text-[9px] text-on-surface-variant">Telas</span>
-                </div>
-                <div className="flex flex-col items-center gap-1 group">
-                  <div className="w-8 bg-danger rounded-t-sm h-[17px] transition-all group-hover:opacity-80 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-100">L. 120</span>
-                  </div>
-                  <span className="font-label-sm text-[9px] text-on-surface-variant">Cierres</span>
-                </div>
+                {lossByCategory.length === 0 ? (
+                  <div className="w-full text-center text-on-surface-variant text-sm py-4">Sin pérdida por obsolescencia</div>
+                ) : (
+                  <>
+                    {/* Y Axis markers */}
+                    <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
+                      <span>Max</span><span>Med</span><span>Min</span>
+                    </div>
+                    {/* Bars */}
+                    {lossByCategory.slice(0, 5).map((cat, idx) => {
+                      const maxLoss = lossByCategory[0].total || 1;
+                      const height = Math.max(10, (cat.total / maxLoss) * 120); // max height ~ 120px
+                      return (
+                        <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
+                          <div className="w-8 bg-danger rounded-t-sm transition-all group-hover:opacity-80 relative" style={{ height: `${height}px` }}>
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-0 bg-surface-container shadow-sm px-1 rounded z-10 whitespace-nowrap">{formatCurrency(cat.total)}</span>
+                          </div>
+                          <span className="font-label-sm text-[9px] text-on-surface-variant w-12 text-center truncate" title={cat.categoria}>{cat.categoria}</span>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
               </div>
             </div>
           </div>
