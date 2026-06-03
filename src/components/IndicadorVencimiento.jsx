@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
-  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, fetchDisponibleVencimiento, disponible_vencimiento, loading } = useStore();
+  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, fetchDisponibleVencimiento, disponible_vencimiento } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
