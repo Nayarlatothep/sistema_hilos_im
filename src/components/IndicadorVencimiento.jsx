@@ -412,7 +412,7 @@ export default function IndicadorVencimiento() {
       item.cantidad,
       item.inventario_bruto || 0,
       item.costo_total || 0,
-      item.has_discrepancy ? 'DISCREPANCIA FÍSICA' : item.status
+      item.has_discrepancy ? `${item.status} (DISCREPANCIA)` : item.status
     ]);
     const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -863,8 +863,9 @@ export default function IndicadorVencimiento() {
                         {formatCurrency(item.costo_total || 0)}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`${item.has_discrepancy ? 'bg-danger text-white' : badgeClass} px-2 py-1 rounded-full text-[10px] font-bold uppercase`}>
-                          {item.has_discrepancy ? 'DISCREPANCIA' : item.status}
+                        <span className={`${badgeClass} px-2 py-1 rounded-full text-[10px] font-bold uppercase inline-flex items-center gap-1`}>
+                          {item.status}
+                          {item.has_discrepancy && <span className="material-symbols-outlined text-[14px] text-danger" title="Discrepancia Física">warning</span>}
                         </span>
                       </td>
                     </tr>
@@ -1046,7 +1047,10 @@ export default function IndicadorVencimiento() {
                           {formatCurrency(item.costo_total || 0)}
                         </td>
                         <td className="py-2 px-4 text-center">
-                          {item.status}
+                          <span className="inline-flex items-center gap-1">
+                            {item.status}
+                            {item.has_discrepancy && <span className="material-symbols-outlined text-[14px] text-danger" title="Discrepancia Física">warning</span>}
+                          </span>
                         </td>
                       </tr>
                     ))
