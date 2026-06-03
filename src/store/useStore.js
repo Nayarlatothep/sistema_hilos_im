@@ -334,6 +334,26 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  updateLoteMaterialColorCantidad: async (id, nuevaCantidad) => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('lote_material_color')
+      .update({ cantidad: nuevaCantidad })
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      const updated = get().lotes_material_color.map(t => 
+        t.id === id ? { ...t, cantidad: nuevaCantidad } : t
+      );
+      set({ lotes_material_color: updated, loading: false });
+      return data;
+    }
+  },
+
   loadLotesProcesados: () => {
     try {
       const stored = localStorage.getItem('sistema_hilos_lotes_procesados');

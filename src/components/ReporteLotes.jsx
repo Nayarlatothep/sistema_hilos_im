@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function ReporteLotes() {
-  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, loading, error } = useStore();
+  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, updateLoteMaterialColorCantidad, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLotes, setSelectedLotes] = useState(new Set());
   const [filterStatus, setFilterStatus] = useState('All');
+  const [editingId, setEditingId] = useState(null);
+  const [editCantidad, setEditCantidad] = useState('');
 
   useEffect(() => {
     fetchLoteMaterialColor();
@@ -200,18 +202,35 @@ export default function ReporteLotes() {
                               setSelectedLotes(newSet);
                             }}
                           />
-                          <button 
-                            onClick={() => {
-                              // TODO: Implement edit logic
-                              console.log('Editar lote:', row);
-                            }}
-                            className="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/10 flex items-center justify-center shrink-0"
-                            title="Editar lote"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">
-                              edit
-                            </span>
-                          </button>
+                          {editingId === (row.id || idx) ? (
+                            <button 
+                              onClick={async () => {
+                                if (row.id) {
+                                  await updateLoteMaterialColorCantidad(row.id, parseFloat(editCantidad));
+                                }
+                                setEditingId(null);
+                              }}
+                              className="text-success hover:text-green-600 transition-colors p-1.5 rounded-lg hover:bg-success/10 flex items-center justify-center shrink-0"
+                              title="Guardar cambios"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                check
+                              </span>
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => {
+                                setEditingId(row.id || idx);
+                                setEditCantidad(row.cantidad);
+                              }}
+                              className="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/10 flex items-center justify-center shrink-0"
+                              title="Editar lote"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                edit
+                              </span>
+                            </button>
+                          )}
                         </div>
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-sm">
@@ -238,7 +257,27 @@ export default function ReporteLotes() {
                         ) : '—'}
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold font-mono text-slate-800 text-base">
-                        {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
+                        {editingId === (row.id || idx) ? (
+                          <input 
+                            type="number"
+                            className="w-24 px-2 py-1 border border-slate-300 rounded text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            value={editCantidad}
+                            onChange={(e) => setEditCantidad(e.target.value)}
+                            autoFocus
+                            onKeyDown={async (e) => {
+                              if (e.key === 'Enter') {
+                                if (row.id) {
+                                  await updateLoteMaterialColorCantidad(row.id, parseFloat(editCantidad));
+                                }
+                                setEditingId(null);
+                              } else if (e.key === 'Escape') {
+                                setEditingId(null);
+                              }
+                            }}
+                          />
+                        ) : (
+                          row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'
+                        )}
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
                         {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
