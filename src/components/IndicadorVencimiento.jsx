@@ -193,10 +193,10 @@ export default function IndicadorVencimiento() {
     });
 
     return [
-      { label: '91+ días', total: buckets['91+ días'], color: 'bg-success' },
-      { label: '61-90 días', total: buckets['61-90 días'], color: 'bg-yellow-400' },
-      { label: '31-60 días', total: buckets['31-60 días'], color: 'bg-amber-400' },
-      { label: '0-30 días', total: buckets['0-30 días'], color: 'bg-warning' }
+      { label: '0-30 días', total: buckets['0-30 días'], color: 'bg-orange-600' },
+      { label: '31-60 días', total: buckets['31-60 días'], color: 'bg-orange-500' },
+      { label: '61-90 días', total: buckets['61-90 días'], color: 'bg-orange-400' },
+      { label: '91+ días', total: buckets['91+ días'], color: 'bg-orange-300' }
     ];
   }, [items]);
 
