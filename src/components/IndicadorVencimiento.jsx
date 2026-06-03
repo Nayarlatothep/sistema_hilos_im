@@ -48,14 +48,21 @@ export default function IndicadorVencimiento() {
     let atRiskQty = 0;
 
     lotes_con_costo.forEach(lote => {
+      // Filtrar estricto: solo lotes que fueron ingresados manualmente en lote_material_color
+      const originalLote = lotes_material_color.find(l => 
+        String(l.pc).trim() === String(lote.pc).trim() && 
+        String(l.articulo).trim() === String(lote.articulo).trim()
+      );
+      
+      if (!originalLote) return; // Si no existe en el registro manual, ignorarlo
+
       const key = `${lote.articulo}-${lote.idcolor}-${lote.pc}`;
       if (!groups[key]) {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
-        const originalLote = lotes_material_color.find(l => l.pc === lote.pc && l.articulo === lote.articulo);
-        const categoria = originalLote?.categoria || lote.categoria || 'Sin Categoría';
-        const lote_total = originalLote?.total ? parseFloat(originalLote.total) : null;
+        const categoria = originalLote.categoria || lote.categoria || 'Sin Categoría';
+        const lote_total = originalLote.total ? parseFloat(originalLote.total) : null;
 
         // El costo ya viene del servidor (JOIN hecho en PostgreSQL)
         const costoU = parseFloat(lote.costo) || 0;
