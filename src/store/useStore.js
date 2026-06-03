@@ -13,7 +13,6 @@ export const useStore = create((set, get) => ({
   lotes_procesados: [],
   costo_unitario: [],
   lotes_con_costo: [],
-  disponible_vencimiento: [],
   loading: false,
   error: null,
 
@@ -98,19 +97,6 @@ export const useStore = create((set, get) => ({
       set({ error: error.message, loading: false });
     } else {
       set({ lotes_con_costo: data, loading: false });
-    }
-  },
-
-  fetchDisponibleVencimiento: async () => {
-    set({ loading: true, error: null });
-    const { data, error } = await supabase
-      .from('disponible_vencimiento')
-      .select('*');
-    if (error) {
-      console.error('Error fetching disponible_vencimiento:', error);
-      set({ error: error.message, loading: false });
-    } else {
-      set({ disponible_vencimiento: data, loading: false });
     }
   },
 
