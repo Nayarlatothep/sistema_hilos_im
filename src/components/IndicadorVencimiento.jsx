@@ -9,6 +9,7 @@ export default function IndicadorVencimiento() {
   const [detailedSearchQuery, setDetailedSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
+  const [urgencyCategory, setUrgencyCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -166,7 +167,10 @@ export default function IndicadorVencimiento() {
     if (!items) return [];
     
     // Solo incluir items que están 'En Riesgo'
-    const riskItems = items.filter(item => item.status === 'En Riesgo');
+    let riskItems = items.filter(item => item.status === 'En Riesgo');
+    if (urgencyCategory !== 'All') {
+      riskItems = riskItems.filter(item => item.categoria === urgencyCategory);
+    }
     
     const buckets = {
       '91+ días': 0,
@@ -198,7 +202,7 @@ export default function IndicadorVencimiento() {
       { label: '61-90 días', total: buckets['61-90 días'], color: 'bg-orange-400' },
       { label: '91+ días', total: buckets['91+ días'], color: 'bg-orange-300' }
     ];
-  }, [items]);
+  }, [items, urgencyCategory]);
 
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
@@ -436,7 +440,17 @@ export default function IndicadorVencimiento() {
             {/* Urgency Histogram (Aging / Time-to-Expiry) */}
             <div className="card-base p-lg flex flex-col h-80">
               <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Urgencia (Aging)</h3>
+                <h3 className="font-headline-md text-headline-md text-on-surface">Histograma Material en Riesgo</h3>
+                <select 
+                  className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
+                  value={urgencyCategory}
+                  onChange={(e) => setUrgencyCategory(e.target.value)}
+                >
+                  <option value="All">Todas</option>
+                  {uniqueCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
                 {/* Y Axis markers */}
