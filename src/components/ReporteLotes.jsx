@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore';
 export default function ReporteLotes() {
   const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLotes, setSelectedLotes] = useState(new Set());
 
   useEffect(() => {
     fetchLoteMaterialColor();
@@ -27,6 +28,19 @@ export default function ReporteLotes() {
           <h2 className="text-4xl font-black font-headline text-primary tracking-tighter uppercase leading-none mt-1">Reporte de Lotes</h2>
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={() => {
+              // TODO: Implement delete logic for selectedLotes
+              console.log('Borrar registros seleccionados:', Array.from(selectedLotes));
+            }}
+            disabled={loading || selectedLotes.size === 0}
+            className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold font-headline text-xs tracking-wider uppercase shadow-lg shadow-rose-600/10 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-[16px]">
+              delete
+            </span>
+            Borrar Registros
+          </button>
           <button 
             onClick={() => { fetchLoteMaterialColor(); fetchMaterialesColor(); }}
             disabled={loading}
@@ -82,6 +96,7 @@ export default function ReporteLotes() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap text-center">Salida</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">ID</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Código PC</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Categoría</th>
@@ -143,6 +158,22 @@ export default function ReporteLotes() {
 
                   return (
                     <tr key={row.id || idx} className={`border-b border-slate-50 transition-colors ${rowBg}`}>
+                      <td className="p-4 whitespace-nowrap text-center">
+                        <input 
+                          type="checkbox" 
+                          className="w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer accent-primary"
+                          checked={selectedLotes.has(row.id || idx)}
+                          onChange={(e) => {
+                            const newSet = new Set(selectedLotes);
+                            if (e.target.checked) {
+                              newSet.add(row.id || idx);
+                            } else {
+                              newSet.delete(row.id || idx);
+                            }
+                            setSelectedLotes(newSet);
+                          }}
+                        />
+                      </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-sm">
                         #{row.id || '—'}
                       </td>
