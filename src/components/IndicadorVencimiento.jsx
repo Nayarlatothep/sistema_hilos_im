@@ -164,38 +164,39 @@ export default function IndicadorVencimiento() {
 
   const urgencyHistogram = useMemo(() => {
     if (!items) return [];
+    
+    // Solo incluir items que están 'En Riesgo'
+    const riskItems = items.filter(item => item.status === 'En Riesgo');
+    
     const buckets = {
-      'Vencido': 0,
-      '0-30 días': 0,
-      '31-60 días': 0,
+      '91+ días': 0,
       '61-90 días': 0,
-      '91+ días': 0
+      '31-60 días': 0,
+      '0-30 días': 0
     };
     
-    items.forEach(item => {
+    riskItems.forEach(item => {
       const days = item.daysRemaining;
       const val = item.costo_total || 0;
       if (days === null || days === undefined) return;
       
-      if (days < 0) {
-        buckets['Vencido'] += val;
-      } else if (days <= 30) {
+      // Excluir días negativos (vencidos) ya que solo queremos 'En Riesgo'
+      if (days >= 0 && days <= 30) {
         buckets['0-30 días'] += val;
-      } else if (days <= 60) {
+      } else if (days > 30 && days <= 60) {
         buckets['31-60 días'] += val;
-      } else if (days <= 90) {
+      } else if (days > 60 && days <= 90) {
         buckets['61-90 días'] += val;
-      } else {
+      } else if (days > 90) {
         buckets['91+ días'] += val;
       }
     });
 
     return [
-      { label: 'Vencido', total: buckets['Vencido'], color: 'bg-danger' },
-      { label: '0-30 días', total: buckets['0-30 días'], color: 'bg-warning' },
-      { label: '31-60 días', total: buckets['31-60 días'], color: 'bg-amber-400' },
+      { label: '91+ días', total: buckets['91+ días'], color: 'bg-success' },
       { label: '61-90 días', total: buckets['61-90 días'], color: 'bg-yellow-400' },
-      { label: '91+ días', total: buckets['91+ días'], color: 'bg-success' }
+      { label: '31-60 días', total: buckets['31-60 días'], color: 'bg-amber-400' },
+      { label: '0-30 días', total: buckets['0-30 días'], color: 'bg-warning' }
     ];
   }, [items]);
 
