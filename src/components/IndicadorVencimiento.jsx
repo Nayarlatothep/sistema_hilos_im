@@ -162,20 +162,41 @@ export default function IndicadorVencimiento() {
       .sort((a, b) => b.total - a.total);
   }, [items]);
 
-  const lossByCategory = useMemo(() => {
+  const urgencyHistogram = useMemo(() => {
     if (!items) return [];
-    const lossItems = items.filter(item => item.status === 'Obsoleto');
-    const categories = {
-      'Heat Transfers': 0,
-      'Quimicos': 0,
-      'Stickers': 0
+    const buckets = {
+      'Vencido': 0,
+      '0-30 días': 0,
+      '31-60 días': 0,
+      '61-90 días': 0,
+      '91+ días': 0
     };
-    lossItems.forEach(item => {
-      categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
+    
+    items.forEach(item => {
+      const days = item.daysRemaining;
+      const val = item.costo_total || 0;
+      if (days === null || days === undefined) return;
+      
+      if (days < 0) {
+        buckets['Vencido'] += val;
+      } else if (days <= 30) {
+        buckets['0-30 días'] += val;
+      } else if (days <= 60) {
+        buckets['31-60 días'] += val;
+      } else if (days <= 90) {
+        buckets['61-90 días'] += val;
+      } else {
+        buckets['91+ días'] += val;
+      }
     });
-    return Object.entries(categories)
-      .map(([categoria, total]) => ({ categoria, total }))
-      .sort((a, b) => b.total - a.total);
+
+    return [
+      { label: 'Vencido', total: buckets['Vencido'], color: 'bg-danger' },
+      { label: '0-30 días', total: buckets['0-30 días'], color: 'bg-warning' },
+      { label: '31-60 días', total: buckets['31-60 días'], color: 'bg-amber-400' },
+      { label: '61-90 días', total: buckets['61-90 días'], color: 'bg-yellow-400' },
+      { label: '91+ días', total: buckets['91+ días'], color: 'bg-success' }
+    ];
   }, [items]);
 
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
@@ -411,35 +432,29 @@ export default function IndicadorVencimiento() {
               </div>
             </div>
 
-            {/* Loss by Category (Vertical Bar Chart) */}
+            {/* Urgency Histogram (Aging / Time-to-Expiry) */}
             <div className="card-base p-lg flex flex-col h-80">
               <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Loss by Category</h3>
+                <h3 className="font-headline-md text-headline-md text-on-surface">Urgencia (Aging)</h3>
               </div>
               <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
-                {lossByCategory.length === 0 ? (
-                  <div className="w-full text-center text-on-surface-variant text-sm py-4">Sin pérdida por obsolescencia</div>
-                ) : (
-                  <>
-                    {/* Y Axis markers */}
-                    <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
-                      <span>Max</span><span>Med</span><span>Min</span>
+                {/* Y Axis markers */}
+                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
+                  <span>Max</span><span>Med</span><span>Min</span>
+                </div>
+                {/* Bars */}
+                {urgencyHistogram.map((bucket, idx) => {
+                  const maxVal = Math.max(...urgencyHistogram.map(b => b.total), 1);
+                  const height = Math.max(10, (bucket.total / maxVal) * 120); // max height ~ 120px
+                  return (
+                    <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
+                      <div className={`w-10 ${bucket.color} rounded-t-sm transition-all group-hover:opacity-80 relative flex items-end justify-center`} style={{ height: `${height}px` }}>
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-0 bg-surface-container shadow-sm px-1 rounded z-10 whitespace-nowrap">{formatCurrency(bucket.total)}</span>
+                      </div>
+                      <span className="font-label-sm text-[9px] text-on-surface-variant w-14 text-center leading-tight">{bucket.label}</span>
                     </div>
-                    {/* Bars */}
-                    {lossByCategory.slice(0, 5).map((cat, idx) => {
-                      const maxLoss = lossByCategory[0].total || 1;
-                      const height = Math.max(10, (cat.total / maxLoss) * 120); // max height ~ 120px
-                      return (
-                        <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
-                          <div className="w-8 bg-danger rounded-t-sm transition-all group-hover:opacity-80 relative" style={{ height: `${height}px` }}>
-                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-0 bg-surface-container shadow-sm px-1 rounded z-10 whitespace-nowrap">{formatCurrency(cat.total)}</span>
-                          </div>
-                          <span className="font-label-sm text-[9px] text-on-surface-variant w-12 text-center truncate" title={cat.categoria}>{cat.categoria}</span>
-                        </div>
-                      );
-                    })}
-                  </>
-                )}
+                  );
+                })}
               </div>
             </div>
           </div>
