@@ -149,7 +149,11 @@ export default function IndicadorVencimiento() {
   const riskByCategory = useMemo(() => {
     if (!items) return [];
     const riskItems = items.filter(item => item.status === 'En Riesgo');
-    const categories = {};
+    const categories = {
+      'Heat Transfers': 0,
+      'Quimicos': 0,
+      'Stickers': 0
+    };
     riskItems.forEach(item => {
       categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
     });
@@ -161,7 +165,11 @@ export default function IndicadorVencimiento() {
   const lossByCategory = useMemo(() => {
     if (!items) return [];
     const lossItems = items.filter(item => item.status === 'Obsoleto');
-    const categories = {};
+    const categories = {
+      'Heat Transfers': 0,
+      'Quimicos': 0,
+      'Stickers': 0
+    };
     lossItems.forEach(item => {
       categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
     });
