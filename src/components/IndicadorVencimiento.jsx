@@ -130,11 +130,11 @@ export default function IndicadorVencimiento() {
       }
 
       // Logic for discrepancy calculation
-      const brutoObj = disponible_vencimiento?.find(d => 
-        String(d.articulo).trim() === String(group.articulo).trim() && 
-        String(d.color).trim() === String(group.idcolor).trim()
-      );
-      const inventario_bruto = brutoObj ? parseFloat(brutoObj.cantidad || 0) : 0;
+      const brutoObjs = disponible_vencimiento?.filter(d => 
+        String(d.articulo).trim().toLowerCase() === String(group.articulo).trim().toLowerCase() && 
+        String(d.color).trim().toLowerCase() === String(group.idcolor).trim().toLowerCase()
+      ) || [];
+      const inventario_bruto = brutoObjs.reduce((acc, curr) => acc + parseFloat(curr.cantidad || 0), 0);
       
       const reserva_total = group.cantidad;
       const has_discrepancy = reserva_total > inventario_bruto;
