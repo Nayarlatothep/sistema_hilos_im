@@ -281,11 +281,7 @@ export default function IndicadorVencimiento() {
       { label: '91+ días', total: buckets['91+ días'], color: 'bg-red-700' }
     ];
   }, [items, obsoleteCategory]);
-=======
-  }, [lotes_con_costo, materiales_color, disponible_vencimiento]);
 
-  const { alerts: actionRequiredAlerts, stats, discrepancies } = inventoryData;
->>>>>>> 4afe961 (feat: Implementada reconciliación física de inventario para módulo de vencimientos)
 
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
