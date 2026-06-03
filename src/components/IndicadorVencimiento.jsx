@@ -10,6 +10,7 @@ export default function IndicadorVencimiento() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterCategory, setFilterCategory] = useState('All');
   const [urgencyCategory, setUrgencyCategory] = useState('All');
+  const [obsoleteCategory, setObsoleteCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -203,6 +204,64 @@ export default function IndicadorVencimiento() {
       { label: '91+ días', total: buckets['91+ días'], color: 'bg-orange-300' }
     ];
   }, [items, urgencyCategory]);
+
+  const obsoleteByCategory = useMemo(() => {
+    if (!items) return [];
+    const obsoleteItems = items.filter(item => item.status === 'Obsoleto');
+    const categories = {
+      'Heat Transfers': 0,
+      'Quimicos': 0,
+      'Stickers': 0
+    };
+    obsoleteItems.forEach(item => {
+      categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
+    });
+    return Object.entries(categories)
+      .map(([categoria, total]) => ({ categoria, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [items]);
+
+  const obsoleteHistogram = useMemo(() => {
+    if (!items) return [];
+    
+    // Solo incluir items que están 'Obsoleto'
+    let obsItems = items.filter(item => item.status === 'Obsoleto');
+    if (obsoleteCategory !== 'All') {
+      obsItems = obsItems.filter(item => item.categoria === obsoleteCategory);
+    }
+    
+    const buckets = {
+      '91+ días': 0,
+      '61-90 días': 0,
+      '31-60 días': 0,
+      '0-30 días': 0
+    };
+    
+    obsItems.forEach(item => {
+      const days = item.daysRemaining;
+      const val = item.costo_total || 0;
+      if (days === null || days === undefined) return;
+      
+      const overdue = Math.abs(days); // Días que han pasado desde el vencimiento
+      
+      if (overdue >= 0 && overdue <= 30) {
+        buckets['0-30 días'] += val;
+      } else if (overdue > 30 && overdue <= 60) {
+        buckets['31-60 días'] += val;
+      } else if (overdue > 60 && overdue <= 90) {
+        buckets['61-90 días'] += val;
+      } else if (overdue > 90) {
+        buckets['91+ días'] += val;
+      }
+    });
+
+    return [
+      { label: '0-30 días', total: buckets['0-30 días'], color: 'bg-red-400' },
+      { label: '31-60 días', total: buckets['31-60 días'], color: 'bg-red-500' },
+      { label: '61-90 días', total: buckets['61-90 días'], color: 'bg-red-600' },
+      { label: '91+ días', total: buckets['91+ días'], color: 'bg-red-700' }
+    ];
+  }, [items, obsoleteCategory]);
 
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
@@ -462,6 +521,75 @@ export default function IndicadorVencimiento() {
                 {/* Bars */}
                 {urgencyHistogram.map((bucket, idx) => {
                   const maxVal = Math.max(...urgencyHistogram.map(b => b.total), 1);
+                  const height = Math.max(10, (bucket.total / maxVal) * 120); // max height ~ 120px
+                  return (
+                    <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
+                      <div className={`w-10 ${bucket.color} rounded-t-sm transition-all group-hover:opacity-80 relative flex items-end justify-center`} style={{ height: `${height}px` }}>
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-0 bg-surface-container shadow-sm px-1 rounded z-10 whitespace-nowrap">{formatCurrency(bucket.total)}</span>
+                      </div>
+                      <span className="font-label-sm text-[9px] text-on-surface-variant w-14 text-center leading-tight">{bucket.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mt-lg">
+            {/* Inventario Obsoleto por Category (Horizontal Bar Chart) */}
+            <div className="card-base p-lg flex flex-col h-80">
+              <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
+                <h3 className="font-headline-md text-headline-md text-on-surface">Inventario Obsoleto por Categoría</h3>
+                <button className="text-on-surface-variant hover:text-primary">
+                  <span className="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                </button>
+              </div>
+              <div className="flex-1 flex flex-col justify-center gap-4 mt-2">
+                {obsoleteByCategory.length === 0 ? (
+                  <div className="text-center text-on-surface-variant text-sm py-4">Sin datos</div>
+                ) : (
+                  obsoleteByCategory.slice(0, 5).map((cat, idx) => {
+                    const maxObs = obsoleteByCategory[0].total || 1;
+                    const percentage = Math.max(1, (cat.total / maxObs) * 100);
+                    return (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right" title={cat.categoria}>{cat.categoria}</span>
+                        <div className="flex-1 h-5 bg-danger/20 rounded-r-sm overflow-hidden flex items-center">
+                          <div className="h-full bg-danger" style={{ width: `${percentage}%` }}></div>
+                        </div>
+                        <span className="w-20 text-[12px] font-data-mono text-on-surface text-right font-bold">{formatCurrency(cat.total)}</span>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Obsolete Histogram */}
+            <div className="card-base p-lg flex flex-col h-80">
+              <div className="mb-2 border-b border-outline-variant pb-2">
+                <h3 className="font-headline-md text-headline-md text-on-surface">Histograma Material Obsoleto</h3>
+              </div>
+              <div className="flex justify-end mb-2">
+                <select 
+                  className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
+                  value={obsoleteCategory}
+                  onChange={(e) => setObsoleteCategory(e.target.value)}
+                >
+                  <option value="All">Todas las Categorías</option>
+                  {uniqueCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
+                {/* Y Axis markers */}
+                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
+                  <span>Max</span><span>Med</span><span>Min</span>
+                </div>
+                {/* Bars */}
+                {obsoleteHistogram.map((bucket, idx) => {
+                  const maxVal = Math.max(...obsoleteHistogram.map(b => b.total), 1);
                   const height = Math.max(10, (bucket.total / maxVal) * 120); // max height ~ 120px
                   return (
                     <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
