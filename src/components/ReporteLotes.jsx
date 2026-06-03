@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function ReporteLotes() {
-  const { lotes_material_color, fetchLoteMaterialColor, loading, error } = useStore();
+  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchLoteMaterialColor();
+    fetchMaterialesColor();
   }, []);
 
   const filteredLotes = (lotes_material_color || []).filter(row => {
@@ -27,7 +28,7 @@ export default function ReporteLotes() {
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => fetchLoteMaterialColor()}
+            onClick={() => { fetchLoteMaterialColor(); fetchMaterialesColor(); }}
             disabled={loading}
             className="px-6 py-3 bg-primary hover:bg-primary-container text-white rounded-xl font-bold font-headline text-xs tracking-wider uppercase shadow-lg shadow-primary/10 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-75"
           >
@@ -89,42 +90,67 @@ export default function ReporteLotes() {
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Color</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
+                  <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Vencimiento</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredLotes.map((row, idx) => (
-                  <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
-                    <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-sm">
-                      #{row.id || '—'}
-                    </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span className="text-sm font-mono font-black text-secondary bg-secondary/5 px-3 py-1.5 rounded-lg">
-                        {row.pc || '—'}
-                      </span>
-                    </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span className="font-bold text-slate-700 text-sm uppercase bg-slate-100 px-3 py-1.5 rounded-lg">
-                        {row.categoria || '—'}
-                      </span>
-                    </td>
-                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.articulo || '—'}</td>
-                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.nombre || '—'}</td>
-                    <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">
-                      {row.color ? (
-                        <div className="flex items-center gap-2">
-                           <span className="font-semibold">{row.color}</span>
-                           <span className="text-xs text-slate-400">({row.idcolor || '—'})</span>
-                        </div>
-                      ) : '—'}
-                    </td>
-                    <td className="p-4 whitespace-nowrap font-bold font-mono text-slate-800 text-base">
-                      {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
-                    </td>
-                    <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
-                      {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
-                    </td>
-                  </tr>
-                ))}
+                {filteredLotes.map((row, idx) => {
+                  const material = materiales_color?.find(m => m.articulo === row.articulo && String(m.idcolor) === String(row.idcolor));
+                  const shelflife = material ? Number(material.shelflife) || 0 : 0;
+                  let fechaVencimientoStr = '—';
+                  
+                  if (row.fecha_manufactura && shelflife > 0) {
+                    const [year, month, day] = row.fecha_manufactura.split('-').map(Number);
+                    if (year && month && day) {
+                      const expirationDate = new Date(year, month - 1, day);
+                      expirationDate.setDate(expirationDate.getDate() + shelflife);
+                      fechaVencimientoStr = expirationDate.toLocaleDateString();
+                    } else {
+                      const expirationDate = new Date(row.fecha_manufactura);
+                      if (!isNaN(expirationDate)) {
+                        expirationDate.setDate(expirationDate.getDate() + shelflife);
+                        fechaVencimientoStr = expirationDate.toLocaleDateString();
+                      }
+                    }
+                  }
+
+                  return (
+                    <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
+                      <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-sm">
+                        #{row.id || '—'}
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className="text-sm font-mono font-black text-secondary bg-secondary/5 px-3 py-1.5 rounded-lg">
+                          {row.pc || '—'}
+                        </span>
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className="font-bold text-slate-700 text-sm uppercase bg-slate-100 px-3 py-1.5 rounded-lg">
+                          {row.categoria || '—'}
+                        </span>
+                      </td>
+                      <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.articulo || '—'}</td>
+                      <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">{row.nombre || '—'}</td>
+                      <td className="p-4 whitespace-nowrap font-semibold text-slate-700 uppercase text-sm">
+                        {row.color ? (
+                          <div className="flex items-center gap-2">
+                             <span className="font-semibold">{row.color}</span>
+                             <span className="text-xs text-slate-400">({row.idcolor || '—'})</span>
+                          </div>
+                        ) : '—'}
+                      </td>
+                      <td className="p-4 whitespace-nowrap font-bold font-mono text-slate-800 text-base">
+                        {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
+                      </td>
+                      <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
+                        {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
+                      </td>
+                      <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
+                        {fechaVencimientoStr}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
