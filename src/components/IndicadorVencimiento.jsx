@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
-  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, loading } = useStore();
+  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,19 +19,21 @@ export default function IndicadorVencimiento() {
   useEffect(() => {
     fetchLotesConCosto();
     fetchMaterialesColor();
+    fetchLoteMaterialColor();
   }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await Promise.all([
       fetchLotesConCosto(),
-      fetchMaterialesColor()
+      fetchMaterialesColor(),
+      fetchLoteMaterialColor()
     ]);
     setIsRefreshing(false);
   };
 
   const inventoryData = useMemo(() => {
-    if (!lotes_con_costo || !materiales_color) return { alerts: [], stats: { total: 0, obsolete: 0, atRisk: 0 } };
+    if (!lotes_con_costo || !materiales_color || !lotes_material_color) return { alerts: [], stats: { total: 0, obsolete: 0, atRisk: 0 } };
 
     const groups = {};
     let totalCosto = 0;
@@ -47,13 +49,16 @@ export default function IndicadorVencimiento() {
         const material = materiales_color.find(m => m.articulo === lote.articulo && String(m.idcolor) === String(lote.idcolor));
         const shelflife = material ? Number(material.shelflife) || 0 : 0;
         
+        const originalLote = lotes_material_color.find(l => l.pc === lote.pc && l.articulo === lote.articulo);
+        const categoria = originalLote?.categoria || lote.categoria || 'Sin Categoría';
+
         // El costo ya viene del servidor (JOIN hecho en PostgreSQL)
         const costoU = parseFloat(lote.costo) || 0;
 
         groups[key] = {
           pc: lote.pc,
           articulo: lote.articulo,
-          categoria: '', // Por los momentos en blanco, en un futuro se agregará
+          categoria: categoria,
           nombre: lote.nombre,
           color: lote.color,
           idcolor: lote.idcolor,
@@ -135,7 +140,7 @@ export default function IndicadorVencimiento() {
         atRiskQty: atRiskQty
       }
     };
-  }, [lotes_con_costo, materiales_color]);
+  }, [lotes_con_costo, materiales_color, lotes_material_color]);
 
   const { alerts: actionRequiredAlerts, stats } = inventoryData;
 
