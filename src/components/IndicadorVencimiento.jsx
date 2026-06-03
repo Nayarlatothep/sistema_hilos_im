@@ -759,13 +759,13 @@ export default function IndicadorVencimiento() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant">
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">SKU</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Category</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Description</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Articulo</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Categoria</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Nombre Articulo</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Color</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Quantity</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Value</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Cantidad</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Total</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Estado</th>
               </tr>
             </thead>
             <tbody className="font-data-mono text-sm">
@@ -954,13 +954,13 @@ export default function IndicadorVencimiento() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-container-low border-b border-outline-variant sticky top-0 z-10 shadow-sm">
-                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">SKU</th>
-                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Categoría</th>
-                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Descripción</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Articulo</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Categoria</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Nombre Articulo</th>
                     <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Color</th>
                     <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Cantidad</th>
-                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Costo Total</th>
-                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Estatus</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Total</th>
+                    <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Estado</th>
                   </tr>
                 </thead>
                 <tbody className="font-data-mono text-sm">
