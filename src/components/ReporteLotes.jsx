@@ -185,20 +185,34 @@ export default function ReporteLotes() {
                   return (
                     <tr key={row.id || idx} className={`border-b border-slate-50 transition-colors ${rowBg}`}>
                       <td className="p-4 whitespace-nowrap text-center">
-                        <input 
-                          type="checkbox" 
-                          className="w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer accent-primary"
-                          checked={selectedLotes.has(row.id || idx)}
-                          onChange={(e) => {
-                            const newSet = new Set(selectedLotes);
-                            if (e.target.checked) {
-                              newSet.add(row.id || idx);
-                            } else {
-                              newSet.delete(row.id || idx);
-                            }
-                            setSelectedLotes(newSet);
-                          }}
-                        />
+                        <div className="flex items-center justify-center gap-3">
+                          <input 
+                            type="checkbox" 
+                            className="w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer accent-primary shrink-0"
+                            checked={selectedLotes.has(row.id || idx)}
+                            onChange={(e) => {
+                              const newSet = new Set(selectedLotes);
+                              if (e.target.checked) {
+                                newSet.add(row.id || idx);
+                              } else {
+                                newSet.delete(row.id || idx);
+                              }
+                              setSelectedLotes(newSet);
+                            }}
+                          />
+                          <button 
+                            onClick={() => {
+                              // TODO: Implement edit logic
+                              console.log('Editar lote:', row);
+                            }}
+                            className="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/10 flex items-center justify-center shrink-0"
+                            title="Editar lote"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">
+                              edit
+                            </span>
+                          </button>
+                        </div>
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-sm">
                         #{row.id || '—'}
