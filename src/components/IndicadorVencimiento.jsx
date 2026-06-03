@@ -439,14 +439,16 @@ export default function IndicadorVencimiento() {
 
             {/* Urgency Histogram (Aging / Time-to-Expiry) */}
             <div className="card-base p-lg flex flex-col h-80">
-              <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
+              <div className="mb-2 border-b border-outline-variant pb-2">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Histograma Material en Riesgo</h3>
+              </div>
+              <div className="flex justify-end mb-2">
                 <select 
                   className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
                   value={urgencyCategory}
                   onChange={(e) => setUrgencyCategory(e.target.value)}
                 >
-                  <option value="All">Todas</option>
+                  <option value="All">Todas las Categorías</option>
                   {uniqueCategories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
