@@ -45,7 +45,7 @@ export default function ReporteLotes() {
       }
     }
     return { ...row, status, fechaVencimientoStr };
-  });
+  }).sort((a, b) => (b.id || 0) - (a.id || 0));
 
   const filteredLotes = lotesWithStatus.filter(row => {
     const matchesSearch = !searchQuery || Object.values(row).some(val => 
