@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function IndicadorVencimiento() {
-  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, loading } = useStore();
+  const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, fetchDisponibleVencimiento, disponible_vencimiento, loading } = useStore();
   const [showAllAlertsModal, setShowAllAlertsModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +22,7 @@ export default function IndicadorVencimiento() {
     fetchLotesConCosto();
     fetchMaterialesColor();
     fetchLoteMaterialColor();
+    fetchDisponibleVencimiento();
   }, []);
 
   const handleRefresh = async () => {
@@ -29,13 +30,14 @@ export default function IndicadorVencimiento() {
     await Promise.all([
       fetchLotesConCosto(),
       fetchMaterialesColor(),
-      fetchLoteMaterialColor()
+      fetchLoteMaterialColor(),
+      fetchDisponibleVencimiento()
     ]);
     setIsRefreshing(false);
   };
 
   const inventoryData = useMemo(() => {
-    if (!lotes_con_costo || !materiales_color || !lotes_material_color) return { alerts: [], items: [], stats: { total: 0, obsolete: 0, atRisk: 0 } };
+    if (!lotes_con_costo || !materiales_color || !lotes_material_color) return { alerts: [], items: [], stats: { total: 0, obsolete: 0, atRisk: 0 }, discrepancies: [] };
 
     const groups = {};
     let totalCosto = 0;
@@ -120,21 +122,38 @@ export default function IndicadorVencimiento() {
         atRiskQty += group.cantidad;
       }
 
+      // Logic for discrepancy calculation
+      const brutoObj = disponible_vencimiento?.find(d => 
+        String(d.articulo).trim() === String(group.articulo).trim() && 
+        String(d.color).trim() === String(group.idcolor).trim()
+      );
+      const inventario_bruto = brutoObj ? parseFloat(brutoObj.cantidad || 0) : 0;
+      
+      const reserva_total = group.cantidad;
+      const has_discrepancy = reserva_total > inventario_bruto;
+      const disponible_neto = Math.max(0, inventario_bruto - reserva_total);
+
       return {
         ...group,
         expirationDate,
         daysRemaining,
         status,
-        costo_total
+        costo_total,
+        inventario_bruto,
+        has_discrepancy,
+        disponible_neto
       };
     });
 
     const alerts = allGroups.filter(g => g.status === 'Obsoleto' || g.status === 'En Riesgo')
       .sort((a, b) => a.daysRemaining - b.daysRemaining);
 
+    const discrepancies = allGroups.filter(g => g.has_discrepancy);
+
     return {
       alerts,
       items: allGroups,
+      discrepancies,
       stats: {
         total: totalCosto,
         totalQty: totalQty,
@@ -144,9 +163,9 @@ export default function IndicadorVencimiento() {
         atRiskQty: atRiskQty
       }
     };
-  }, [lotes_con_costo, materiales_color, lotes_material_color]);
+  }, [lotes_con_costo, materiales_color, lotes_material_color, disponible_vencimiento]);
 
-  const { alerts: actionRequiredAlerts, stats, items } = inventoryData;
+  const { alerts: actionRequiredAlerts, stats, items, discrepancies } = inventoryData;
 
   const riskByCategory = useMemo(() => {
     if (!items) return [];
@@ -262,6 +281,11 @@ export default function IndicadorVencimiento() {
       { label: '91+ días', total: buckets['91+ días'], color: 'bg-red-700' }
     ];
   }, [items, obsoleteCategory]);
+=======
+  }, [lotes_con_costo, materiales_color, disponible_vencimiento]);
+
+  const { alerts: actionRequiredAlerts, stats, discrepancies } = inventoryData;
+>>>>>>> 4afe961 (feat: Implementada reconciliación física de inventario para módulo de vencimientos)
 
   const obsoletePercentage = stats.total > 0 ? (stats.obsolete / stats.total) * 100 : 0;
   const atRiskPercentage = stats.total > 0 ? (stats.atRisk / stats.total) * 100 : 0;
@@ -372,15 +396,16 @@ export default function IndicadorVencimiento() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['SKU', 'Categoria', 'Descripcion', 'Color', 'Cantidad', 'Costo Total', 'Estatus'];
+    const headers = ['SKU', 'Categoria', 'Descripcion', 'Color', 'Cant_Reservada', 'Inventario_Bruto', 'Costo Total', 'Estatus'];
     const csvData = filteredDetailedItems.map(item => [
       item.articulo,
       item.categoria,
       '"' + (item.nombre || '').replace(/"/g, '""') + '"',
       '"' + item.color + ' (' + item.idcolor + ')"',
       item.cantidad,
+      item.inventario_bruto || 0,
       item.costo_total || 0,
-      item.status
+      item.has_discrepancy ? 'DISCREPANCIA FÍSICA' : item.status
     ]);
     const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -643,6 +668,29 @@ export default function IndicadorVencimiento() {
 
         {/* Right Column (Alerts & Actions) */}
         <div className="lg:col-span-1 space-y-lg flex flex-col">
+          {/* Discrepancies Alert Panel */}
+          {discrepancies.length > 0 && (
+            <div className="card-base flex flex-col h-auto overflow-hidden shadow-sm border border-danger/20 mb-4">
+              <div className="bg-danger/10 p-3 border-b border-danger/20 flex items-center justify-between">
+                <h3 className="font-headline-sm text-sm font-bold text-danger flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px]">error</span> Discrepancias Físicas
+                </h3>
+                <span className="bg-danger text-white text-[10px] font-bold px-2 py-1 rounded-full">{discrepancies.length} Casos</span>
+              </div>
+              <div className="p-0 overflow-y-auto max-h-48">
+                {discrepancies.map((disc, idx) => (
+                  <div key={idx} className="p-3 border-b border-outline-variant text-sm bg-surface-container-lowest">
+                    <div className="font-bold text-on-surface text-[12px] mb-1">{disc.articulo} - {disc.color}</div>
+                    <div className="text-[11px] text-on-surface-variant flex justify-between">
+                      <span>Reservado: <strong className="text-danger">{disc.cantidad.toLocaleString()}</strong></span>
+                      <span>Físico Bruto: <strong>{disc.inventario_bruto.toLocaleString()}</strong></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Action Required Panel */}
           <div className="card-base flex flex-col h-auto overflow-hidden flex-1">
             <div className="bg-error-container p-4 border-b border-error/20 flex items-center justify-between">
@@ -763,7 +811,9 @@ export default function IndicadorVencimiento() {
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Categoria</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Nombre Articulo</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Color</th>
-                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Cantidad</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Cant. Reserva</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Inv. Bruto</th>
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Inv. Neto</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Total</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Estado</th>
               </tr>
@@ -789,18 +839,25 @@ export default function IndicadorVencimiento() {
                   }
 
                   return (
-                    <tr key={idx} className={`border-b border-outline-variant hover:bg-surface-container-lowest transition-colors ${rowBg}`}>
-                      <td className="py-3 px-4 text-on-surface font-bold">{item.articulo}</td>
+                    <tr key={idx} className={`border-b border-outline-variant hover:bg-surface-container-lowest transition-colors ${rowBg} ${item.has_discrepancy ? 'border-l-4 border-l-danger' : ''}`}>
+                      <td className="py-3 px-4 text-on-surface font-bold">
+                        {item.articulo}
+                        {item.has_discrepancy && (
+                          <span className="material-symbols-outlined text-danger text-[14px] ml-1 align-middle" title="Reserva supera inventario físico">warning</span>
+                        )}
+                      </td>
                       <td className="py-3 px-4 text-on-surface-variant">{item.categoria}</td>
                       <td className="py-3 px-4 text-on-surface-variant font-body-md">{item.nombre || '-'}</td>
                       <td className="py-3 px-4 text-on-surface-variant">{item.color} ({item.idcolor})</td>
-                      <td className="py-3 px-4 text-right text-on-surface">{item.cantidad.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right text-on-surface font-bold text-danger">{item.cantidad.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right text-on-surface">{item.inventario_bruto?.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right text-on-surface">{item.disponible_neto?.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right text-on-surface font-bold">
                         {formatCurrency(item.costo_total || 0)}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`${badgeClass} px-2 py-1 rounded-full text-[10px] font-bold uppercase`}>
-                          {item.status}
+                        <span className={`${item.has_discrepancy ? 'bg-danger text-white' : badgeClass} px-2 py-1 rounded-full text-[10px] font-bold uppercase`}>
+                          {item.has_discrepancy ? 'DISCREPANCIA' : item.status}
                         </span>
                       </td>
                     </tr>
