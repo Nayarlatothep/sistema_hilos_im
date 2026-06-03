@@ -91,6 +91,7 @@ export default function ReporteLotes() {
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Vencimiento</th>
+                  <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap text-center">Estatus</th>
                 </tr>
               </thead>
               <tbody>
@@ -98,24 +99,50 @@ export default function ReporteLotes() {
                   const material = materiales_color?.find(m => m.articulo === row.articulo && String(m.idcolor) === String(row.idcolor));
                   const shelflife = material ? Number(material.shelflife) || 0 : 0;
                   let fechaVencimientoStr = '—';
+                  let status = 'Desconocido';
                   
                   if (row.fecha_manufactura && shelflife > 0) {
+                    let expirationDate;
                     const [year, month, day] = row.fecha_manufactura.split('-').map(Number);
                     if (year && month && day) {
-                      const expirationDate = new Date(year, month - 1, day);
+                      expirationDate = new Date(year, month - 1, day);
+                    } else {
+                      expirationDate = new Date(row.fecha_manufactura);
+                    }
+                    
+                    if (!isNaN(expirationDate)) {
                       expirationDate.setDate(expirationDate.getDate() + shelflife);
                       fechaVencimientoStr = expirationDate.toLocaleDateString();
-                    } else {
-                      const expirationDate = new Date(row.fecha_manufactura);
-                      if (!isNaN(expirationDate)) {
-                        expirationDate.setDate(expirationDate.getDate() + shelflife);
-                        fechaVencimientoStr = expirationDate.toLocaleDateString();
+                      
+                      const today = new Date();
+                      const diffTime = expirationDate - today;
+                      const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                      
+                      if (daysRemaining < 0) {
+                        status = 'Obsoleto';
+                      } else if (daysRemaining <= shelflife * 0.3) {
+                        status = 'En Riesgo';
+                      } else {
+                        status = 'Disponible';
                       }
                     }
                   }
 
+                  let rowBg = 'hover:bg-slate-50/70';
+                  let badgeClass = 'bg-slate-100 text-slate-500'; // Default para desconocido
+                  
+                  if (status === 'Disponible') {
+                    badgeClass = 'bg-success/10 text-success';
+                  } else if (status === 'Obsoleto') {
+                    rowBg = 'bg-danger-bg/10 hover:bg-danger-bg/20';
+                    badgeClass = 'bg-danger/10 text-danger';
+                  } else if (status === 'En Riesgo') {
+                    rowBg = 'bg-warning-bg/10 hover:bg-warning-bg/20';
+                    badgeClass = 'bg-warning/10 text-warning';
+                  }
+
                   return (
-                    <tr key={row.id || idx} className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors">
+                    <tr key={row.id || idx} className={`border-b border-slate-50 transition-colors ${rowBg}`}>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-400 text-sm">
                         #{row.id || '—'}
                       </td>
@@ -147,6 +174,11 @@ export default function ReporteLotes() {
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
                         {fechaVencimientoStr}
+                      </td>
+                      <td className="p-4 whitespace-nowrap text-center">
+                        <span className={`${badgeClass} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider`}>
+                          {status}
+                        </span>
                       </td>
                     </tr>
                   );
