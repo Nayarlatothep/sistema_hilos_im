@@ -4,6 +4,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
   const [openDashboards, setOpenDashboards] = useState(true);
   const [openLotes, setOpenLotes] = useState(true);
   const [openMateriaPrima, setOpenMateriaPrima] = useState(true);
+  const [openHilos, setOpenHilos] = useState(true);
   const [isSidebarPinned, setIsSidebarPinned] = useState(true);
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
@@ -53,44 +54,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         {/* Navigation Menu */}
         <nav className="flex-1 py-6 flex flex-col gap-2 px-3 overflow-x-hidden">
           
-          {/* Dashboards Accordion */}
-          <div className="flex flex-col mb-2">
-            <button 
-              onClick={() => { if (isExpanded) setOpenDashboards(!openDashboards); }}
-              className={`flex items-center ${isExpanded ? 'justify-between px-4' : 'justify-center px-0'} py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors font-headline text-xs uppercase tracking-widest font-bold`}
-              title="Dashboards"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[22px]">dashboard</span>
-                <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Dashboards</span>
-              </div>
-              {isExpanded && <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${openDashboards ? 'rotate-180' : ''}`}>expand_more</span>}
-            </button>
-            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openDashboards && isExpanded ? 'max-h-64 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
-              <a 
-                href="#"
-                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'dashboard-monitor' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-                onClick={(e) => { e.preventDefault(); onTabChange('dashboard-monitor'); }}
-              >
-                KPI Producción
-              </a>
 
-              <a 
-                href="#"
-                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'traslados' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-                onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
-              >
-                Traslados
-              </a>
-              <a 
-                href="#"
-                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'devolucion' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-                onClick={(e) => { e.preventDefault(); onTabChange('devolucion'); }}
-              >
-                Devolución
-              </a>
-            </div>
-          </div>
 
           {/* Ingreso Archivos */}
           <a 
@@ -101,17 +65,6 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
           >
             <span className="material-symbols-outlined text-[22px]">upload_file</span>
             <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Ingreso Archivos</span>
-          </a>
-
-          {/* Transferencias */}
-          <a 
-            href="#"
-            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'dashboard-transfer' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
-            title="Transferencias"
-          >
-            <span className="material-symbols-outlined text-[22px]">local_shipping</span>
-            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Transferencias</span>
           </a>
 
           {/* Materia Prima Accordion */}
@@ -127,14 +80,52 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
               </div>
               {isExpanded && <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${openMateriaPrima ? 'rotate-180' : ''}`}>expand_more</span>}
             </button>
-            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openMateriaPrima && isExpanded ? 'max-h-32 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
-              <a 
-                href="#"
-                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'materia-prima-hilos' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-                onClick={(e) => { e.preventDefault(); onTabChange('materia-prima-hilos'); }}
-              >
-                HILOS
-              </a>
+            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openMateriaPrima && isExpanded ? 'max-h-[500px] mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+              
+              {/* Nested Accordion: HILOS */}
+              <div className="flex flex-col ml-4 border-l border-white/10">
+                <button 
+                  onClick={() => { if (isExpanded) setOpenHilos(!openHilos); }}
+                  className={`flex items-center justify-between pl-6 pr-4 py-2 text-white/60 hover:text-white hover:bg-white/5 rounded-r-lg transition-colors font-headline text-[11px] uppercase tracking-widest font-bold`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">line_weight</span>
+                    HILOS
+                  </div>
+                  <span className={`material-symbols-outlined text-[14px] transition-transform duration-300 ${openHilos ? 'rotate-180' : ''}`}>expand_more</span>
+                </button>
+                <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openHilos ? 'max-h-64 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <a 
+                    href="#"
+                    className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'dashboard-monitor' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('dashboard-monitor'); }}
+                  >
+                    INDICADOR SEMANAL HILOS
+                  </a>
+                  <a 
+                    href="#"
+                    className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'traslados' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
+                  >
+                    TRASLADO HILOS
+                  </a>
+                  <a 
+                    href="#"
+                    className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'dashboard-transfer' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
+                  >
+                    TRANSFERENCIA
+                  </a>
+                  <a 
+                    href="#"
+                    className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'devolucion' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('devolucion'); }}
+                  >
+                    DEVOLUCION
+                  </a>
+                </div>
+              </div>
+              
             </div>
           </div>
 
