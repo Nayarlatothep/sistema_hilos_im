@@ -166,6 +166,49 @@ export default function IndicadorVencimiento() {
       .sort((a, b) => b.total - a.total);
   }, [items]);
 
+  const diasVencTableData = useMemo(() => {
+    if (!items) return { rows: [], totalQty: 0, totalCost: 0, totalCount: 0 };
+    
+    const grouped = {};
+    items.forEach(item => {
+      if (item.daysRemaining === null || item.daysRemaining === undefined) return;
+      if (item.daysRemaining < 0) return;
+      
+      const days = item.daysRemaining;
+      if (!grouped[days]) {
+        grouped[days] = {
+          days,
+          cantidad: 0,
+          costo_total: 0,
+          count: 0
+        };
+      }
+      grouped[days].cantidad += Number(item.cantidad || 0);
+      grouped[days].costo_total += Number(item.costo_total || 0);
+      grouped[days].count += 1;
+    });
+
+    const sortedRows = Object.values(grouped).sort((a, b) => a.days - b.days);
+    
+    let acumulado = 0;
+    let totalQty = 0;
+    let totalCost = 0;
+    let totalCount = 0;
+    
+    const rows = sortedRows.map(row => {
+      acumulado += row.costo_total;
+      totalQty += row.cantidad;
+      totalCost += row.costo_total;
+      totalCount += row.count;
+      return {
+        ...row,
+        acumulado
+      };
+    });
+
+    return { rows, totalQty, totalCost, totalCount };
+  }, [items]);
+
   const urgencyHistogram = useMemo(() => {
     if (!items) return [];
     
@@ -621,32 +664,59 @@ export default function IndicadorVencimiento() {
         {/* Left Column (Charts) */}
         <div className="lg:col-span-2 space-y-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-            {/* Inventario en Riesgo by Category (Horizontal Bar Chart) */}
-            <div className="card-base p-lg flex flex-col h-80">
-              <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Inventario en Riesgo por Categoría</h3>
-                <button className="text-on-surface-variant hover:text-primary">
-                  <span className="material-symbols-outlined" data-icon="more_vert">more_vert</span>
-                </button>
+            {/* Tabla Colorización por Días de Vencimiento */}
+            <div className="card-base flex flex-col h-80 overflow-hidden">
+              <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento</h3>
               </div>
-              <div className="flex-1 flex flex-col justify-center gap-4 mt-2">
-                {riskByCategory.length === 0 ? (
-                  <div className="text-center text-on-surface-variant text-sm py-4">Sin datos</div>
-                ) : (
-                  riskByCategory.slice(0, 5).map((cat, idx) => {
-                    const maxRisk = riskByCategory[0].total || 1;
-                    const percentage = Math.max(1, (cat.total / maxRisk) * 100);
-                    return (
-                      <div key={idx} className="flex items-center gap-3">
-                        <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right" title={cat.categoria}>{cat.categoria}</span>
-                        <div className="flex-1 h-5 bg-warning-bg/50 rounded-r-sm overflow-hidden flex items-center">
-                          <div className="h-full bg-warning" style={{ width: `${percentage}%` }}></div>
-                        </div>
-                        <span className="w-20 text-[12px] font-data-mono text-on-surface text-right font-bold">{formatCurrency(cat.total)}</span>
-                      </div>
-                    );
-                  })
-                )}
+              <div className="flex-1 overflow-auto p-4 pt-0">
+                <table className="w-full text-xs text-right border-collapse">
+                  <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant">
+                    <tr>
+                      <th className="py-2 px-2 text-left">Días Venc.</th>
+                      <th className="py-2 px-2">Sum of Cantidad</th>
+                      <th className="py-2 px-2">Sum of Costo Total</th>
+                      <th className="py-2 px-2">Acumulado</th>
+                      <th className="py-2 px-2">Count of Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {diasVencTableData.rows.map((row, idx) => {
+                      let bgColor = '';
+                      let textColor = 'text-on-surface';
+                      
+                      if (row.days >= 0 && row.days <= 14) {
+                        bgColor = 'bg-red-400';
+                        textColor = 'text-white';
+                      } else if (row.days >= 35 && row.days <= 70) {
+                        bgColor = 'bg-yellow-200';
+                        textColor = 'text-black';
+                      } else if (row.days >= 71) {
+                        bgColor = 'bg-green-200';
+                        textColor = 'text-black';
+                      }
+
+                      return (
+                        <tr key={idx} className={`${bgColor} border-b border-outline-variant/50 last:border-0`}>
+                          <td className={`py-1.5 px-2 text-left ${textColor}`}>+{row.days}</td>
+                          <td className={`py-1.5 px-2 ${textColor}`}>{new Intl.NumberFormat('en-US').format(row.cantidad)}</td>
+                          <td className={`py-1.5 px-2 font-data-mono ${textColor}`}>{formatCurrency(row.costo_total)}</td>
+                          <td className={`py-1.5 px-2 font-data-mono ${textColor}`}>{formatCurrency(row.acumulado)}</td>
+                          <td className={`py-1.5 px-2 ${textColor}`}>{row.count}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot className="sticky bottom-0 bg-surface z-10 font-bold border-t border-outline-variant">
+                    <tr>
+                      <td className="py-2 px-2 text-left">Grand Total</td>
+                      <td className="py-2 px-2">{new Intl.NumberFormat('en-US').format(diasVencTableData.totalQty)}</td>
+                      <td className="py-2 px-2 font-data-mono">{formatCurrency(diasVencTableData.totalCost)}</td>
+                      <td className="py-2 px-2"></td>
+                      <td className="py-2 px-2">{diasVencTableData.totalCount}</td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             </div>
 
