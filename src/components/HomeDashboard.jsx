@@ -50,15 +50,22 @@ export default function HomeDashboard() {
     return Object.entries(stations).map(([name, data]) => {
       const percent = data.planned > 0 ? Math.min(100, (data.transferred / data.planned) * 100) : 0;
       let statusColor = 'bg-rose-500';
-      if (percent >= 100) statusColor = 'bg-emerald-500';
-      else if (percent >= 50) statusColor = 'bg-amber-500';
+      let textColor = 'text-rose-500';
+      if (percent >= 100) {
+        statusColor = 'bg-emerald-500';
+        textColor = 'text-emerald-500';
+      } else if (percent >= 50) {
+        statusColor = 'bg-amber-500';
+        textColor = 'text-amber-500';
+      }
 
       return {
         name,
         planned: data.planned,
         transferred: data.transferred,
         percent,
-        statusColor
+        statusColor,
+        textColor
       };
     }).sort((a, b) => Number(a.name) - Number(b.name));
   }, [planificacion, transferencias, availableModules]);
@@ -174,7 +181,7 @@ export default function HomeDashboard() {
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 font-headline mb-4 mt-2">Módulo {st.name}</h3>
                 
                 <div className="flex flex-col items-center justify-center mb-6">
-                  <p className="text-5xl font-black text-slate-800 font-headline tabular-nums">{Math.round(st.percent)}%</p>
+                  <p className={`text-5xl font-black ${st.textColor} font-headline tabular-nums drop-shadow-sm`}>{Math.round(st.percent)}%</p>
                   <p className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-1">Cumplimiento</p>
                 </div>
                 
