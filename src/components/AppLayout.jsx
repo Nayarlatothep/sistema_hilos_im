@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 export default function AppLayout({ children, currentTab, onTabChange }) {
-  const [openMaterialExpirado, setOpenMaterialExpirado] = useState(true);
-  const [openMateriaPrima, setOpenMateriaPrima] = useState(true);
-  const [openHilos, setOpenHilos] = useState(true);
+  const [openMaterialExpirado, setOpenMaterialExpirado] = useState(false);
+  const [openMateriaPrima, setOpenMateriaPrima] = useState(false);
+  const [openHilos, setOpenHilos] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(true);
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
