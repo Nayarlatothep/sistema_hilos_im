@@ -73,13 +73,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
               >
                 KPI Producción
               </a>
-              <a 
-                href="#"
-                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'dashboard-vencimiento' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-                onClick={(e) => { e.preventDefault(); onTabChange('dashboard-vencimiento'); }}
-              >
-                Ind. Vencimiento
-              </a>
+
               <a 
                 href="#"
                 className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'traslados' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
@@ -117,6 +111,39 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
           >
             <span className="material-symbols-outlined text-[22px]">local_shipping</span>
             <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Transferencias</span>
+          </a>
+
+          {/* Materia Prima */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'materia-prima' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('materia-prima'); }}
+            title="Materia Prima"
+          >
+            <span className="material-symbols-outlined text-[22px]">inventory_2</span>
+            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Materia Prima</span>
+          </a>
+
+          {/* Tejido de Punto */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'tejido-punto' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('tejido-punto'); }}
+            title="Tejido de Punto"
+          >
+            <span className="material-symbols-outlined text-[22px]">texture</span>
+            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Tejido de Punto</span>
+          </a>
+
+          {/* Material Expirado */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'dashboard-vencimiento' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('dashboard-vencimiento'); }}
+            title="Material Expirado"
+          >
+            <span className="material-symbols-outlined text-[22px]">warning</span>
+            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Material Expirado</span>
           </a>
 
           {/* Lotes Accordion */}
