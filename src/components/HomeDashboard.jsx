@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 
-export default function HomeDashboard() {
+export default function HomeDashboard({ onTabChange }) {
   const { 
     planificacion, 
     transferencias, 
@@ -165,10 +165,14 @@ export default function HomeDashboard() {
       </header>
 
       {/* --- SECCIÓN HILOS --- */}
-      <section className="flex flex-col gap-6">
+      <section 
+        className="flex flex-col gap-6 cursor-pointer group/section p-4 -m-4 rounded-3xl hover:bg-slate-50/50 transition-colors"
+        onClick={() => onTabChange && onTabChange('dashboard-monitor')}
+      >
         <div className="flex items-center gap-3 border-b border-slate-200 pb-2">
-          <span className="material-symbols-outlined text-primary text-2xl">line_weight</span>
+          <span className="material-symbols-outlined text-primary text-2xl group-hover/section:scale-110 transition-transform">line_weight</span>
           <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase font-headline">Indicador Semanal Hilos</h2>
+          <span className="material-symbols-outlined text-slate-300 ml-auto group-hover/section:text-primary transition-colors">arrow_forward_ios</span>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -203,10 +207,14 @@ export default function HomeDashboard() {
       </section>
 
       {/* --- SECCIÓN VENCIMIENTOS --- */}
-      <section className="flex flex-col gap-6 mt-4">
+      <section 
+        className="flex flex-col gap-6 mt-4 cursor-pointer group/section p-4 -m-4 rounded-3xl hover:bg-rose-50/30 transition-colors"
+        onClick={() => onTabChange && onTabChange('dashboard-vencimiento')}
+      >
         <div className="flex items-center gap-3 border-b border-slate-200 pb-2">
-          <span className="material-symbols-outlined text-rose-500 text-2xl">warning</span>
+          <span className="material-symbols-outlined text-rose-500 text-2xl group-hover/section:scale-110 transition-transform">warning</span>
           <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase font-headline">Indicador de Vencimiento</h2>
+          <span className="material-symbols-outlined text-slate-300 ml-auto group-hover/section:text-rose-500 transition-colors">arrow_forward_ios</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

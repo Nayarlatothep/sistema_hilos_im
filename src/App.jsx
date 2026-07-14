@@ -26,7 +26,7 @@ function App() {
   const renderContent = () => {
     switch (currentTab) {
       case 'home':
-        return <HomeDashboard />;
+        return <HomeDashboard onTabChange={setCurrentTab} />;
       case 'dashboard-monitor':
         return <Dashboard />;
       case 'dashboard-transfer':
@@ -44,7 +44,7 @@ function App() {
       case 'upload':
         return <DataIngestion />;
       default:
-        return <HomeDashboard />;
+        return <HomeDashboard onTabChange={setCurrentTab} />;
     }
   };
 
