@@ -112,7 +112,14 @@ export default function DataIngestion() {
         </div>
       )}
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-10">
+        
+        {/* Categoría: HILOS */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-3 border-b border-slate-200 pb-2 mb-2">
+            <span className="material-symbols-outlined text-primary text-2xl">line_weight</span>
+            <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">Categoría: HILOS</h2>
+          </div>
         
         {/* Fila Planificación */}
         <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-3 flex flex-col md:flex-row items-stretch gap-3">
@@ -207,7 +214,7 @@ export default function DataIngestion() {
             <p className="text-[10px] text-slate-400 mt-3 text-center uppercase tracking-widest">Mostrando vista previa de los primeros 10 registros</p>
           </div>
         )}
-
+        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
