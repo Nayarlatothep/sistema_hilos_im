@@ -1228,19 +1228,6 @@ export default function IndicadorVencimiento() {
                         <span className="mr-6 bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px]">Total SKUs: {filteredDetailedItems.length}</span>
                         Totales:
                       </td>
-                          {item.status}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-                {filteredDetailedItems.length > 0 && (
-                  <tfoot className="bg-surface-container-low font-bold text-on-surface border-t-2 border-outline-variant">
-                    <tr>
-                      <td colSpan="4" className="py-3 px-4 text-right">
-                        <span className="mr-6 bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px]">Total SKUs: {filteredDetailedItems.length}</span>
-                        Totales:
-                      </td>
                       <td className="py-3 px-4 text-right">{filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
                       <td className="py-3 px-4 text-right text-error">{formatCurrency(filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
                       <td className="py-3 px-4"></td>
