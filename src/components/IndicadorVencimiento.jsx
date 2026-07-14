@@ -293,6 +293,14 @@ export default function IndicadorVencimiento() {
 
     const statusOrder = { 'Obsoleto': 1, 'En Riesgo': 2, 'Disponible': 3 };
     items.sort((a, b) => {
+      const pcA = String(a.pc || '');
+      const pcB = String(b.pc || '');
+      if (pcA !== pcB) return pcA.localeCompare(pcB);
+      
+      const colA = String(a.color || '');
+      const colB = String(b.color || '');
+      if (colA !== colB) return colA.localeCompare(colB);
+
       const sA = statusOrder[a.status] || 99;
       const sB = statusOrder[b.status] || 99;
       if (sA !== sB) return sA - sB;
@@ -759,6 +767,7 @@ export default function IndicadorVencimiento() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant">
+                <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Lote (PC)</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Articulo</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Categoria</th>
                 <th className="py-3 px-4 font-label-sm text-on-surface-variant uppercase tracking-wider">Nombre Articulo</th>
@@ -790,6 +799,7 @@ export default function IndicadorVencimiento() {
 
                   return (
                     <tr key={idx} className={`border-b border-outline-variant hover:bg-surface-container-lowest transition-colors ${rowBg}`}>
+                      <td className="py-3 px-4 text-on-surface font-mono">{item.pc || '-'}</td>
                       <td className="py-3 px-4 text-on-surface font-bold">{item.articulo}</td>
                       <td className="py-3 px-4 text-on-surface-variant">{item.categoria}</td>
                       <td className="py-3 px-4 text-on-surface-variant font-body-md">{item.nombre || '-'}</td>
