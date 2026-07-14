@@ -401,6 +401,22 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  addLoteMaterialColorRecord: async (record) => {
+    set({ loading: true, error: null });
+    const { data, error } = await supabase
+      .from('lote_material_color')
+      .insert([record])
+      .select();
+      
+    if (error) {
+      set({ error: error.message, loading: false });
+      return null;
+    } else {
+      set({ lotes_material_color: [...get().lotes_material_color, ...data], loading: false });
+      return data;
+    }
+  },
+
   uploadLoteMaterialColor: async (records) => {
     set({ loading: true, error: null });
     

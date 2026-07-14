@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function ReporteLotes() {
-  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, updateLoteMaterialColorCantidad, deleteMultipleLoteMaterialColor, loading, error } = useStore();
+  const { lotes_material_color, fetchLoteMaterialColor, materiales_color, fetchMaterialesColor, addLoteMaterialColorRecord, deleteMultipleLoteMaterialColor, loading, error } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLotes, setSelectedLotes] = useState(new Set());
   const [filterStatus, setFilterStatus] = useState('All');
@@ -224,11 +224,20 @@ export default function ReporteLotes() {
                           {editingId === (row.key || idx) ? (
                             <button 
                               onClick={async () => {
-                                if (row.ids && row.ids.length > 0) {
-                                  await updateLoteMaterialColorCantidad(row.ids[0], parseFloat(editCantidad));
-                                  if (row.ids.length > 1) {
-                                    await deleteMultipleLoteMaterialColor(row.ids.slice(1));
-                                  }
+                                const diferencia = parseFloat(editCantidad) - row.cantidad;
+                                if (diferencia !== 0) {
+                                  const nuevoRegistro = {
+                                    pc: row.pc,
+                                    categoria: row.categoria,
+                                    articulo: row.articulo,
+                                    nombre: row.nombre,
+                                    color: row.color,
+                                    idcolor: row.idcolor,
+                                    cantidad: diferencia,
+                                    fecha_manufactura: row.fecha_manufactura,
+                                    transaccion: diferencia > 0 ? 'AJUSTE (+)' : 'AJUSTE (-)'
+                                  };
+                                  await addLoteMaterialColorRecord(nuevoRegistro);
                                 }
                                 setEditingId(null);
                                 fetchLoteMaterialColor();
@@ -286,11 +295,20 @@ export default function ReporteLotes() {
                             autoFocus
                             onKeyDown={async (e) => {
                               if (e.key === 'Enter') {
-                                if (row.ids && row.ids.length > 0) {
-                                  await updateLoteMaterialColorCantidad(row.ids[0], parseFloat(editCantidad));
-                                  if (row.ids.length > 1) {
-                                    await deleteMultipleLoteMaterialColor(row.ids.slice(1));
-                                  }
+                                const diferencia = parseFloat(editCantidad) - row.cantidad;
+                                if (diferencia !== 0) {
+                                  const nuevoRegistro = {
+                                    pc: row.pc,
+                                    categoria: row.categoria,
+                                    articulo: row.articulo,
+                                    nombre: row.nombre,
+                                    color: row.color,
+                                    idcolor: row.idcolor,
+                                    cantidad: diferencia,
+                                    fecha_manufactura: row.fecha_manufactura,
+                                    transaccion: diferencia > 0 ? 'AJUSTE (+)' : 'AJUSTE (-)'
+                                  };
+                                  await addLoteMaterialColorRecord(nuevoRegistro);
                                 }
                                 setEditingId(null);
                                 fetchLoteMaterialColor();
