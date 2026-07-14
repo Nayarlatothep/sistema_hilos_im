@@ -155,7 +155,7 @@ export default function IndicadorVencimiento() {
   const diasVencTableData = useMemo(() => {
     if (!items) return { rows: [], totalQty: 0, totalCost: 0, totalCount: 0 };
     
-    let filteredItems = items;
+    let filteredItems = items.filter(item => item.status === 'En Riesgo');
     if (vencimientoCategory !== 'All') {
       filteredItems = filteredItems.filter(item => item.categoria === vencimientoCategory);
     }
