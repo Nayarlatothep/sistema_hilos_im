@@ -18,10 +18,8 @@ export default function DataIngestion() {
   } = useStore();
 
   const processPlanFile = (json) => {
-    // User confirms CSV headers match Supabase table columns exactly
     const processed = json.map(row => {
       const entry = { ...row };
-      // Fix quantity type just in case
       const qtyKey = Object.keys(entry).find(k => k.toLowerCase() === 'cantidad');
       if (qtyKey) entry[qtyKey] = parseInt(entry[qtyKey], 10);
       return entry;
@@ -36,7 +34,6 @@ export default function DataIngestion() {
   };
 
   const processMaestroFile = (json) => {
-    // User confirms CSV headers match Supabase table columns exactly
     const processed = json.filter(row => Object.values(row).some(v => v !== null && v !== ''));
     setMaestroData(processed);
     if (processed.length > 0) {
@@ -93,10 +90,10 @@ export default function DataIngestion() {
   };
 
   return (
-    <div className="flex flex-col gap-12 max-w-[1600px] mx-auto p-4">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-5xl font-black text-primary font-headline tracking-tighter uppercase leading-none">Carga de Datos Directa</h1>
-        <p className="text-secondary font-bold text-xs uppercase tracking-[0.3em]">Sincronización Campo por Campo con la Base de Datos</p>
+    <div className="flex flex-col gap-8 max-w-5xl mx-auto p-4">
+      <header className="flex flex-col gap-2 mb-4">
+        <h1 className="text-4xl font-black text-primary font-headline tracking-tighter uppercase leading-none">Carga de Datos</h1>
+        <p className="text-secondary font-bold text-xs uppercase tracking-[0.3em]">Gestor de Archivos - Estilo Lista</p>
       </header>
 
       {(successMsg || errorMsg) && (
@@ -115,100 +112,106 @@ export default function DataIngestion() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Section Planificación */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-xl font-black text-primary font-headline uppercase tracking-tight">Plan Costura</h2>
-              <button onClick={handleClearPlan} title="Borrar Tabla" className="text-rose-400 hover:text-rose-600 transition-colors">
-                <span className="material-symbols-outlined">delete_forever</span>
-              </button>
-            </div>
-            <div className="p-8">
-              <DropzoneSection onDataParsed={processPlanFile} icon="table_chart" color="bg-primary" label="Plan de Costura" />
-            </div>
-          </div>
-          {planData.length > 0 && (
-            <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 animate-in slide-in-from-bottom-4 duration-500">
-              <div className="flex justify-between items-center mb-4">
-                <p className="text-sm font-black text-primary uppercase">{planData.length} Registros listos</p>
-                <button onClick={handleUploadPlan} disabled={loading} className="px-6 py-2 bg-primary text-white text-xs font-black uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                  {loading ? 'Subiendo...' : 'Confirmar Carga'}
-                </button>
-              </div>
-              <div className="max-h-60 overflow-auto custom-scrollbar">
-                <table className="w-full text-[10px] text-left">
-                  <thead className="sticky top-0 bg-white shadow-sm">
-                    <tr>
-                      {Object.keys(planData[0] || {}).slice(0, 5).map(k => (
-                        <th key={k} className="p-2 border-b uppercase text-slate-400">{k}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {planData.slice(0, 10).map((row, i) => (
-                      <tr key={i} className="border-b border-primary/5 hover:bg-white">
-                        {Object.values(row).slice(0, 5).map((v, j) => (
-                          <td key={j} className="p-2 whitespace-nowrap">{String(v)}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+      <div className="flex flex-col gap-6">
+        
+        {/* Fila Planificación */}
+        <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-3 flex flex-col md:flex-row items-stretch gap-3">
+          <DropzoneSection onDataParsed={processPlanFile} icon="table_chart" color="bg-primary" label="Plan de Costura" />
+          <button 
+            onClick={handleClearPlan} 
+            title="Borrar Toda la Planificación" 
+            className="flex-shrink-0 flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-100"
+          >
+            <span className="material-symbols-outlined text-2xl">delete_forever</span>
+            <span className="text-xs font-black uppercase tracking-widest hidden md:inline">Borrar Datos</span>
+          </button>
         </div>
 
-        {/* Section Maestro Hilos */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-xl font-black text-secondary font-headline uppercase tracking-tight">Maestro de Hilos</h2>
-              <button onClick={handleClearMaestro} title="Borrar Maestro" className="text-rose-400 hover:text-rose-600 transition-colors">
-                <span className="material-symbols-outlined">delete_forever</span>
+        {/* Tabla Preview Planificación */}
+        {planData.length > 0 && (
+          <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 animate-in slide-in-from-top-4 duration-500 ml-4">
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm font-black text-primary uppercase">{planData.length} Registros listos para subir</p>
+              <button onClick={handleUploadPlan} disabled={loading} className="px-6 py-2 bg-primary text-white text-xs font-black uppercase rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-2">
+                {loading ? 'Subiendo...' : 'Confirmar Carga'}
+                <span className="material-symbols-outlined text-[16px]">{loading ? 'sync' : 'cloud_upload'}</span>
               </button>
             </div>
-            <div className="p-8">
-              <DropzoneSection onDataParsed={processMaestroFile} icon="inventory_2" color="bg-secondary" label="Maestro de Hilos" />
-            </div>
-          </div>
-          {maestroData.length > 0 && (
-            <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 animate-in slide-in-from-bottom-4 duration-500">
-              <div className="flex justify-between items-center mb-4">
-                <p className="text-sm font-black text-amber-900 uppercase">{maestroData.length} SKUs detectados</p>
-                <button onClick={handleUploadMaestro} disabled={loading} className="px-6 py-2 bg-secondary text-white text-xs font-black uppercase rounded-lg shadow-lg active:scale-95 transition-all">
-                  {loading ? 'Actualizando...' : 'Procesar Maestro'}
-                </button>
-              </div>
-              <div className="max-h-60 overflow-auto custom-scrollbar">
-                <table className="w-full text-[10px] text-left">
-                  <thead className="sticky top-0 bg-amber-100 shadow-sm">
-                    <tr>
-                      {Object.keys(maestroData[0] || {}).slice(0, 5).map(k => (
-                        <th key={k} className="p-2 border-b uppercase text-amber-700">{k}</th>
+            <div className="max-h-60 overflow-auto custom-scrollbar bg-white rounded-xl shadow-sm border border-slate-100">
+              <table className="w-full text-[10px] text-left">
+                <thead className="sticky top-0 bg-slate-50 shadow-sm">
+                  <tr>
+                    {Object.keys(planData[0] || {}).slice(0, 5).map(k => (
+                      <th key={k} className="p-3 border-b border-slate-200 uppercase text-slate-500 font-bold tracking-wider">{k}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {planData.slice(0, 10).map((row, i) => (
+                    <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      {Object.values(row).slice(0, 5).map((v, j) => (
+                        <td key={j} className="p-3 whitespace-nowrap text-slate-700 font-medium">{String(v)}</td>
                       ))}
                     </tr>
-                  </thead>
-                  <tbody>
-                    {maestroData.slice(0, 10).map((row, i) => (
-                      <tr key={i} className="border-b border-amber-200/30 hover:bg-white">
-                        {Object.values(row).slice(0, 5).map((v, j) => (
-                          <td key={j} className="p-2 whitespace-nowrap">{String(v)}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
+            <p className="text-[10px] text-slate-400 mt-3 text-center uppercase tracking-widest">Mostrando vista previa de los primeros 10 registros</p>
+          </div>
+        )}
+
+        {/* Fila Maestro Hilos */}
+        <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-3 flex flex-col md:flex-row items-stretch gap-3">
+          <DropzoneSection onDataParsed={processMaestroFile} icon="inventory_2" color="bg-secondary" label="Maestro de Hilos" />
+          <button 
+            onClick={handleClearMaestro} 
+            title="Borrar Todo el Maestro" 
+            className="flex-shrink-0 flex items-center justify-center gap-2 px-6 py-4 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 hover:text-rose-700 transition-colors border border-rose-100"
+          >
+            <span className="material-symbols-outlined text-2xl">delete_forever</span>
+            <span className="text-xs font-black uppercase tracking-widest hidden md:inline">Borrar Datos</span>
+          </button>
         </div>
+
+        {/* Tabla Preview Maestro */}
+        {maestroData.length > 0 && (
+          <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 animate-in slide-in-from-top-4 duration-500 ml-4">
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm font-black text-amber-900 uppercase">{maestroData.length} SKUs listos para actualizar</p>
+              <button onClick={handleUploadMaestro} disabled={loading} className="px-6 py-2 bg-secondary text-white text-xs font-black uppercase rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-2">
+                {loading ? 'Actualizando...' : 'Procesar Maestro'}
+                <span className="material-symbols-outlined text-[16px]">{loading ? 'sync' : 'cloud_upload'}</span>
+              </button>
+            </div>
+            <div className="max-h-60 overflow-auto custom-scrollbar bg-white rounded-xl shadow-sm border border-slate-100">
+              <table className="w-full text-[10px] text-left">
+                <thead className="sticky top-0 bg-slate-50 shadow-sm">
+                  <tr>
+                    {Object.keys(maestroData[0] || {}).slice(0, 5).map(k => (
+                      <th key={k} className="p-3 border-b border-slate-200 uppercase text-slate-500 font-bold tracking-wider">{k}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {maestroData.slice(0, 10).map((row, i) => (
+                    <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      {Object.values(row).slice(0, 5).map((v, j) => (
+                        <td key={j} className="p-3 whitespace-nowrap text-slate-700 font-medium">{String(v)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-3 text-center uppercase tracking-widest">Mostrando vista previa de los primeros 10 registros</p>
+          </div>
+        )}
+
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
       `}} />
@@ -238,13 +241,20 @@ function DropzoneSection({ onDataParsed, icon, color, label }) {
   });
 
   return (
-    <div {...getRootProps()} className={`h-56 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer ${isDragActive ? 'border-primary bg-primary/5 shadow-inner' : 'border-slate-200 hover:border-primary/30 hover:bg-slate-50'}`}>
+    <div {...getRootProps()} className={`flex-1 min-h-[90px] px-6 py-4 border-2 border-dashed rounded-xl flex items-center gap-6 transition-all cursor-pointer ${isDragActive ? 'border-primary bg-primary/5 shadow-inner' : 'border-slate-200 hover:border-primary/50 hover:bg-slate-50'}`}>
       <input {...getInputProps()} />
-      <div className={`mb-4 p-4 rounded-full ${color} text-white shadow-xl`}>
-        <span className="material-symbols-outlined text-4xl">{icon}</span>
+      <div className={`p-3 rounded-full ${color} text-white shadow-md flex-shrink-0`}>
+        <span className="material-symbols-outlined text-2xl">{icon}</span>
       </div>
-      <p className="text-sm font-black text-slate-800 uppercase">Cargar archivo de {label}</p>
-      <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest text-center px-4">Asegúrese que los nombres de las columnas coincidan con la base de datos</p>
+      <div className="flex flex-col flex-1">
+        <p className="text-sm font-black text-slate-800 uppercase">Cargar archivo de {label}</p>
+        <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-widest leading-relaxed">
+          Toca o arrastra aquí tu archivo Excel o CSV. <br className="hidden md:block"/>Asegúrate que los nombres de las columnas coincidan.
+        </p>
+      </div>
+      <div className="flex-shrink-0 text-slate-300 hidden sm:block">
+        <span className="material-symbols-outlined text-3xl">upload_file</span>
+      </div>
     </div>
   );
 }
