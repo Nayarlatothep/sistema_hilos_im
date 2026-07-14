@@ -379,27 +379,37 @@ export default function IndicadorVencimiento() {
     }, 250);
   };
 
-  const handleExportCSV = () => {
-    const headers = ['SKU', 'Categoria', 'Descripcion', 'Color', 'Cantidad', 'Costo Total', 'Estatus'];
-    const csvData = filteredDetailedItems.map(item => [
-      item.articulo,
-      item.categoria,
-      '"' + (item.nombre || '').replace(/"/g, '""') + '"',
-      '"' + item.color + ' (' + item.idcolor + ')"',
-      item.cantidad,
-      item.costo_total || 0,
-      item.status
-    ]);
-    const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'inventario_export.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportExcel = () => {
+    const excelData = filteredDetailedItems.map(item => ({
+      'Lote (PC)': item.pc || '-',
+      'SKU': item.articulo,
+      'Categoría': item.categoria,
+      'Descripción': item.nombre || '-',
+      'Color': `${item.color} (${item.idcolor})`,
+      'Cantidad': item.cantidad,
+      'Costo Total': item.costo_total || 0,
+      'Estatus': item.status,
+      'Fecha Venc.': item.expirationDate ? item.expirationDate.toISOString().split('T')[0] : '-'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario');
+
+    const columnWidths = [
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 }
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    XLSX.writeFile(workbook, 'Inventario_Detallado.xlsx');
   };
 
   return (
@@ -1023,10 +1033,10 @@ export default function IndicadorVencimiento() {
                 <span className="material-symbols-outlined text-[18px]">print</span> Imprimir
               </button>
               <button 
-                onClick={handleExportCSV}
+                onClick={handleExportExcel}
                 className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
               >
-                <span className="material-symbols-outlined text-[18px]">download</span> Exportar a CSV
+                <span className="material-symbols-outlined text-[18px]">download</span> Exportar a Excel
               </button>
             </div>
           </div>
