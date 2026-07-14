@@ -1,172 +1,217 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function AppLayout({ children, currentTab, onTabChange }) {
+  const [openDashboards, setOpenDashboards] = useState(true);
+  const [openLotes, setOpenLotes] = useState(true);
+
   return (
-    <div className="bg-background font-body text-on-background antialiased min-h-screen flex flex-col">
-      {/* TopAppBar */}
-      <header className="fixed top-0 w-full z-50 bg-[#2C3E50] shadow-2xl h-16 flex justify-between items-center px-8 border-b border-white/5">
-        <div className="flex items-center gap-4">
+    <div className="bg-background font-body text-on-background antialiased min-h-screen flex h-screen overflow-hidden">
+      
+      {/* Sidebar (Desktop Only) */}
+      <aside className="w-64 bg-[#2C3E50] shadow-2xl flex-col hidden md:flex h-full z-50 overflow-y-auto flex-shrink-0">
+        {/* Logo Area */}
+        <div className="p-6 flex flex-col items-center border-b border-white/10 gap-3 mt-4">
           <img 
             alt="Intermoda Logo" 
-            className="h-10 w-auto" 
+            className="h-12 w-auto drop-shadow-md" 
             src="/intermoda_logo.png"
           />
-          <h1 className="text-xl font-bold tracking-tighter text-white font-headline">Control de Hilos en Módulos de Producción</h1>
+          <h1 className="text-[13px] font-bold tracking-tighter text-white font-headline text-center leading-tight">
+            Control de Hilos en<br/>Módulos de Producción
+          </h1>
         </div>
-        
-        <div className="flex items-center gap-6">
-          <div className="hidden md:flex items-center gap-6">
-            <nav className="flex items-center gap-8">
-              <div className="relative group">
-                <button 
-                  className={`${(currentTab === 'dashboard-monitor' || currentTab === 'dashboard-vencimiento' || currentTab === 'traslados' || currentTab === 'devolucion') ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest flex items-center gap-2`}
-                >
-                  DASHBOARDS
-                  <span className="material-symbols-outlined text-[14px]">expand_more</span>
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-64 bg-[#001731] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] py-2">
-                  <a 
-                    href="#"
-                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'dashboard-monitor' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('dashboard-monitor'); }}
-                  >
-                    KPI Producción
-                  </a>
-                  <a 
-                    href="#"
-                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'dashboard-vencimiento' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('dashboard-vencimiento'); }}
-                  >
-                    Indicador Vencimiento
-                  </a>
-                  <a 
-                    href="#"
-                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'traslados' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
-                  >
-                    Traslados
-                  </a>
-                  <a 
-                    href="#"
-                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'devolucion' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('devolucion'); }}
-                  >
-                    Devolución
-                  </a>
-                </div>
-              </div>
-              <a 
-                className={`${currentTab === 'upload' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
-                href="#"
-                onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
-              >
-                INGRESO ARCHIVOS
-              </a>
-              <a 
-                className={`${currentTab === 'dashboard-transfer' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`} 
-                href="#"
-                onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
-              >
-                Transferencias
-              </a>
-              <div className="relative group">
-                <button className={`${currentTab === 'lotes' ? 'text-white font-bold bg-white/10 px-4 py-2 rounded-lg' : 'text-white/60 font-medium px-4 py-2 hover:text-white'} text-xs font-headline transition-all uppercase tracking-widest`}
-                  type="button"
-                >
-                  LOTES
-                  <span className="material-symbols-outlined text-[14px] ml-1">expand_more</span>
-                </button>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-[#001731] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[60] py-2">
-                  <a href="#"
-                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'lotes' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('lotes'); }}
-                  >
-                    Lotes Ingresados
-                  </a>
-                  <a href="#"
-                    className={`block px-6 py-3 text-[10px] font-black uppercase tracking-widest ${currentTab === 'reporte-lotes' ? 'text-secondary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'} transition-colors`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('reporte-lotes'); }}
-                  >
-                    Reporte de lotes
-                  </a>
-                </div>
-              </div>
-            </nav>
-          </div>
+
+        {/* Navigation Menu */}
+        <nav className="flex-1 py-6 flex flex-col gap-2 px-3">
           
-          <div className="flex items-center gap-4 ml-4">
-            <button className="text-slate-500 hover:text-[#a53c00] transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
+          {/* Dashboards Accordion */}
+          <div className="flex flex-col mb-2">
+            <button 
+              onClick={() => setOpenDashboards(!openDashboards)}
+              className="flex items-center justify-between px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors font-headline text-xs uppercase tracking-widest font-bold"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-[18px]">dashboard</span>
+                Dashboards
+              </div>
+              <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${openDashboards ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
-            <button className="text-slate-500 hover:text-[#a53c00] transition-colors">
-              <span className="material-symbols-outlined">settings</span>
+            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openDashboards ? 'max-h-64 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors ${currentTab === 'dashboard-monitor' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('dashboard-monitor'); }}
+              >
+                KPI Producción
+              </a>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors ${currentTab === 'dashboard-vencimiento' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('dashboard-vencimiento'); }}
+              >
+                Ind. Vencimiento
+              </a>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors ${currentTab === 'traslados' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
+              >
+                Traslados
+              </a>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors ${currentTab === 'devolucion' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('devolucion'); }}
+              >
+                Devolución
+              </a>
+            </div>
+          </div>
+
+          {/* Ingreso Archivos */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'upload' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
+          >
+            <span className="material-symbols-outlined text-[18px]">upload_file</span>
+            Ingreso Archivos
+          </a>
+
+          {/* Transferencias */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'dashboard-transfer' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
+          >
+            <span className="material-symbols-outlined text-[18px]">local_shipping</span>
+            Transferencias
+          </a>
+
+          {/* Lotes Accordion */}
+          <div className="flex flex-col mb-2">
+            <button 
+              onClick={() => setOpenLotes(!openLotes)}
+              className="flex items-center justify-between px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors font-headline text-xs uppercase tracking-widest font-bold"
+            >
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-[18px]">layers</span>
+                Lotes
+              </div>
+              <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${openLotes ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
-            <div className="h-8 w-8 rounded-full bg-primary-container overflow-hidden">
+            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openLotes ? 'max-h-32 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors ${currentTab === 'lotes' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('lotes'); }}
+              >
+                Ingresados
+              </a>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors ${currentTab === 'reporte-lotes' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('reporte-lotes'); }}
+              >
+                Reporte Detallado
+              </a>
+            </div>
+          </div>
+
+        </nav>
+
+        {/* User Profile & Footer Area in Sidebar */}
+        <div className="p-4 border-t border-white/10 bg-black/20 flex flex-col gap-4">
+          <div className="flex items-center justify-between text-white/60">
+            <button className="hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+            </button>
+            <button className="hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
+              <span className="material-symbols-outlined text-[20px]">settings</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-primary-container overflow-hidden flex-shrink-0 ring-2 ring-white/10">
               <img 
                 alt="User profile avatar" 
                 className="h-full w-full object-cover" 
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7sQibDyUj4dXe069m68Dx7x_CjcvWzq1MZurjQJP637ApxrL2LdPkwrfY6IS1jz6zNpEiGtwquxyumqnwr65DOC62jAbvytzcdBl4vGTvjAy-_wxOAm1zMbruRRon_Jy8fg7gH_5SDn82o1pjzrVREDbw2Hn5OikI9z679xg_dFoZjNgf1_seun0x3xAGZVfD_fFOfFGHJVxDWHNBd--bg7FB8dkFlFm2oDp4uwVZj4ay3MxtXjl0LykvGfrA-x0ljeQAJ3qVZD0"
               />
             </div>
+            <div className="flex flex-col truncate">
+              <span className="text-white text-xs font-bold truncate">Victor Rojas</span>
+              <span className="text-white/50 text-[10px] uppercase font-bold tracking-wider">Administrador</span>
+            </div>
           </div>
         </div>
-      </header>
+      </aside>
 
-      {/* Main Content Area */}
-      <main className={`pt-24 min-h-screen mx-auto px-4 md:px-8 pb-12 flex-grow ${currentTab === 'reporte-lotes' || currentTab === 'lotes' || currentTab === 'dashboard-vencimiento' ? 'w-full' : 'max-w-7xl w-full'}`}>
-        {children}
-      </main>
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col h-full overflow-y-auto relative w-full">
+        
+        {/* Mobile Header */}
+        <header className="md:hidden fixed top-0 w-full z-40 bg-[#2C3E50] h-14 flex justify-between items-center px-4 border-b border-white/10">
+          <img alt="Intermoda Logo" className="h-7 w-auto drop-shadow-md" src="/intermoda_logo.png" />
+          <h1 className="text-sm font-bold tracking-tighter text-white font-headline">Control Hilos</h1>
+          <div className="h-7 w-7 rounded-full bg-primary-container overflow-hidden">
+             <img alt="User profile" className="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7sQibDyUj4dXe069m68Dx7x_CjcvWzq1MZurjQJP637ApxrL2LdPkwrfY6IS1jz6zNpEiGtwquxyumqnwr65DOC62jAbvytzcdBl4vGTvjAy-_wxOAm1zMbruRRon_Jy8fg7gH_5SDn82o1pjzrVREDbw2Hn5OikI9z679xg_dFoZjNgf1_seun0x3xAGZVfD_fFOfFGHJVxDWHNBd--bg7FB8dkFlFm2oDp4uwVZj4ay3MxtXjl0LykvGfrA-x0ljeQAJ3qVZD0" />
+          </div>
+        </header>
+
+        {/* Main Area */}
+        <main className={`flex-grow w-full mx-auto px-4 md:px-8 pb-24 md:pb-12 pt-20 md:pt-8 ${currentTab === 'reporte-lotes' || currentTab === 'lotes' || currentTab === 'dashboard-vencimiento' ? 'w-full' : 'max-w-7xl'}`}>
+          {children}
+        </main>
+
+        <footer className="bg-surface-container-low text-on-surface-variant py-6 px-8 mt-auto hidden md:flex flex-col md:flex-row justify-between items-center text-xs border-t border-outline-variant">
+          <p>&copy; 2024 Intermoda S.A. Sistema de Control de Producción v4.2</p>
+          <div className="flex gap-6 mt-4 md:mt-0 font-bold">
+            <a href="#" className="hover:text-primary transition-colors">Estado del Sistema</a>
+            <a href="#" className="hover:text-primary transition-colors">Soporte Técnico</a>
+          </div>
+        </footer>
+      </div>
 
       {/* BottomNavBar (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#001731] md:hidden flex justify-around items-center border-t border-white/5 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#2C3E50] md:hidden flex justify-around items-center border-t border-white/10 z-50 shadow-2xl">
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard-monitor' ? 'text-secondary' : 'text-white/40'}`}
+          className={`flex flex-col items-center gap-1 w-1/5 ${currentTab === 'dashboard-monitor' || currentTab === 'dashboard-vencimiento' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('dashboard-monitor')}
         >
-          <span className="material-symbols-outlined text-2xl">monitoring</span>
-          <span className="text-[10px] font-bold uppercase text-center">KPI</span>
+          <span className="material-symbols-outlined text-2xl">dashboard</span>
+          <span className="text-[9px] font-bold uppercase text-center tracking-wider">Dash</span>
         </div>
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'dashboard-transfer' ? 'text-secondary' : 'text-white/40'}`}
+          className={`flex flex-col items-center gap-1 w-1/5 ${currentTab === 'dashboard-transfer' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('dashboard-transfer')}
         >
           <span className="material-symbols-outlined text-2xl">local_shipping</span>
-          <span className="text-[10px] font-bold uppercase text-center">Transferencias</span>
+          <span className="text-[9px] font-bold uppercase text-center tracking-wider">Transf</span>
         </div>
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'upload' ? 'text-secondary' : 'text-white/40'}`}
+          className={`flex flex-col items-center gap-1 w-1/5 relative -top-3`}
           onClick={() => onTabChange('upload')}
         >
-          <span className="material-symbols-outlined text-2xl">factory</span>
-          <span className="text-[10px] font-bold uppercase text-center">ARCHIVOS</span>
+          <div className={`h-12 w-12 rounded-full shadow-xl flex items-center justify-center border-4 border-background ${currentTab === 'upload' ? 'bg-secondary text-white' : 'bg-[#001731] text-white/80'}`}>
+            <span className="material-symbols-outlined text-2xl">add</span>
+          </div>
         </div>
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'devolucion' ? 'text-secondary' : 'text-white/40'}`}
+          className={`flex flex-col items-center gap-1 w-1/5 ${currentTab === 'devolucion' || currentTab === 'traslados' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('devolucion')}
         >
           <span className="material-symbols-outlined text-2xl">keyboard_return</span>
-          <span className="text-[10px] font-bold uppercase text-center">Devolución</span>
+          <span className="text-[9px] font-bold uppercase text-center tracking-wider">Devol</span>
         </div>
         <div 
-          className={`flex flex-col items-center gap-1 ${currentTab === 'lotes' ? 'text-secondary' : 'text-white/40'}`}
+          className={`flex flex-col items-center gap-1 w-1/5 ${currentTab === 'lotes' || currentTab === 'reporte-lotes' ? 'text-secondary' : 'text-white/40'}`}
           onClick={() => onTabChange('lotes')}
         >
           <span className="material-symbols-outlined text-2xl">layers</span>
-          <span className="text-[10px] font-bold uppercase text-center">Lotes</span>
+          <span className="text-[9px] font-bold uppercase text-center tracking-wider">Lotes</span>
         </div>
       </nav>
 
-      <footer className="bg-primary text-white py-8 px-8 mt-auto hidden md:block">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center opacity-80">
-          <p className="text-xs">&copy; 2024 Intermoda S.A. Sistema de Control de Producción v4.2</p>
-          <div className="flex gap-6 text-xs mt-4 md:mt-0">
-            <a href="#" className="hover:text-secondary-container">System Status</a>
-            <a href="#" className="hover:text-secondary-container">Technical Support</a>
-            <a href="#" className="hover:text-secondary-container">Privacy Policy</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
-
