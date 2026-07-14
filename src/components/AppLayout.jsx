@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function AppLayout({ children, currentTab, onTabChange }) {
   const [openMaterialExpirado, setOpenMaterialExpirado] = useState(false);
@@ -6,6 +6,15 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
   const [openHilos, setOpenHilos] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(true);
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+
+  useEffect(() => {
+    if (currentTab === 'dashboard-monitor') {
+      setOpenMateriaPrima(true);
+      setOpenHilos(true);
+    } else if (currentTab === 'dashboard-vencimiento') {
+      setOpenMaterialExpirado(true);
+    }
+  }, [currentTab]);
 
   const isExpanded = isSidebarPinned || isSidebarHovered;
 
