@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
 export default function AppLayout({ children, currentTab, onTabChange }) {
-  const [openDashboards, setOpenDashboards] = useState(true);
-  const [openLotes, setOpenLotes] = useState(true);
+  const [openMaterialExpirado, setOpenMaterialExpirado] = useState(true);
   const [openMateriaPrima, setOpenMateriaPrima] = useState(true);
   const [openHilos, setOpenHilos] = useState(true);
   const [isSidebarPinned, setIsSidebarPinned] = useState(true);
@@ -140,44 +139,40 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
             <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Tejido de Punto</span>
           </a>
 
-          {/* Material Expirado */}
-          <a 
-            href="#"
-            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'dashboard-vencimiento' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            onClick={(e) => { e.preventDefault(); onTabChange('dashboard-vencimiento'); }}
-            title="Material Expirado"
-          >
-            <span className="material-symbols-outlined text-[22px]">warning</span>
-            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Material Expirado</span>
-          </a>
-
-          {/* Lotes Accordion */}
+          {/* Material Expirado Accordion */}
           <div className="flex flex-col mb-2">
             <button 
-              onClick={() => { if (isExpanded) setOpenLotes(!openLotes); }}
+              onClick={() => { if (isExpanded) setOpenMaterialExpirado(!openMaterialExpirado); }}
               className={`flex items-center ${isExpanded ? 'justify-between px-4' : 'justify-center px-0'} py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors font-headline text-xs uppercase tracking-widest font-bold`}
-              title="Lotes"
+              title="Material Expirado"
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[22px]">layers</span>
-                <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Lotes</span>
+                <span className="material-symbols-outlined text-[22px]">warning</span>
+                <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Material Expirado</span>
               </div>
-              {isExpanded && <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${openLotes ? 'rotate-180' : ''}`}>expand_more</span>}
+              {isExpanded && <span className={`material-symbols-outlined text-[18px] transition-transform duration-300 ${openMaterialExpirado ? 'rotate-180' : ''}`}>expand_more</span>}
             </button>
-            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openLotes && isExpanded ? 'max-h-32 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className={`flex flex-col gap-1 overflow-hidden transition-all duration-300 ${openMaterialExpirado && isExpanded ? 'max-h-64 mt-1 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <a 
+                href="#"
+                className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'dashboard-vencimiento' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                onClick={(e) => { e.preventDefault(); onTabChange('dashboard-vencimiento'); }}
+              >
+                Indicador de Vencimiento
+              </a>
               <a 
                 href="#"
                 className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'lotes' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
                 onClick={(e) => { e.preventDefault(); onTabChange('lotes'); }}
               >
-                Ingresados
+                Ingreso Lotes
               </a>
               <a 
                 href="#"
                 className={`flex items-center pl-11 pr-4 py-2.5 text-[11px] font-bold uppercase tracking-widest rounded-lg transition-colors whitespace-nowrap ${currentTab === 'reporte-lotes' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
                 onClick={(e) => { e.preventDefault(); onTabChange('reporte-lotes'); }}
               >
-                Reporte Detallado
+                Ajuste de Lotes
               </a>
             </div>
           </div>
