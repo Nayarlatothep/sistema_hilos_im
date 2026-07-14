@@ -319,21 +319,36 @@ export default function IndicadorVencimiento() {
 
   const exportAndPrintItems = useMemo(() => {
     return [...filteredDetailedItems].sort((a, b) => {
+      // 1. Días Vencimiento (daysRemaining) - ascending
+      const isANum = typeof a.daysRemaining === 'number';
+      const isBNum = typeof b.daysRemaining === 'number';
+      if (isANum && isBNum && a.daysRemaining !== b.daysRemaining) {
+        return a.daysRemaining - b.daysRemaining;
+      }
+      if (isANum && !isBNum) return -1;
+      if (!isANum && isBNum) return 1;
+
+      // 2. Cantidad - descending
+      const qtyA = Number(a.cantidad || 0);
+      const qtyB = Number(b.cantidad || 0);
+      if (qtyA !== qtyB) return qtyB - qtyA;
+
+      // 3. Lote (PC)
       const pcA = String(a.pc || '');
       const pcB = String(b.pc || '');
       if (pcA !== pcB) return pcA.localeCompare(pcB);
 
+      // 4. Artículo
       const artA = String(a.articulo || '');
       const artB = String(b.articulo || '');
       if (artA !== artB) return artA.localeCompare(artB);
 
+      // 5. Color
       const colA = String(a.color || '');
       const colB = String(b.color || '');
       if (colA !== colB) return colA.localeCompare(colB);
 
-      const qtyA = Number(a.cantidad || 0);
-      const qtyB = Number(b.cantidad || 0);
-      return qtyB - qtyA;
+      return 0;
     });
   }, [filteredDetailedItems]);
 
@@ -365,6 +380,7 @@ export default function IndicadorVencimiento() {
                 <th>Descripción</th>
                 <th>Color</th>
                 <th class="text-right">Cantidad</th>
+                <th class="text-right">Días Venc.</th>
                 <th class="text-right">Costo Total</th>
                 <th>Estatus</th>
               </tr>
@@ -378,6 +394,7 @@ export default function IndicadorVencimiento() {
                   <td>${item.nombre || '-'}</td>
                   <td>${item.color} (${item.idcolor})</td>
                   <td class="text-right">${item.cantidad.toLocaleString()}</td>
+                  <td class="text-right">${item.daysRemaining !== null && item.daysRemaining !== undefined ? item.daysRemaining : '—'}</td>
                   <td class="text-right">${formatCurrency(item.costo_total || 0)}</td>
                   <td>${item.status}</td>
                 </tr>
@@ -387,6 +404,7 @@ export default function IndicadorVencimiento() {
               <tr class="font-bold">
                 <td colspan="5" class="text-right">Totales:</td>
                 <td class="text-right">${exportAndPrintItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
+                <td></td>
                 <td class="text-right">${formatCurrency(exportAndPrintItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
                 <td></td>
               </tr>
@@ -424,7 +442,7 @@ export default function IndicadorVencimiento() {
     worksheet.addRow([]);
 
     // Headers
-    const headerRow = worksheet.addRow(['Lote (PC)', 'SKU', 'Categoría', 'Descripción', 'Color', 'Cantidad', 'Costo Total', 'Estatus']);
+    const headerRow = worksheet.addRow(['Lote (PC)', 'SKU', 'Categoría', 'Descripción', 'Color', 'Cantidad', 'Días Venc.', 'Costo Total', 'Estatus']);
     
     // Format Header Row
     headerRow.eachCell((cell) => {
@@ -445,6 +463,7 @@ export default function IndicadorVencimiento() {
     // Align Cantidad and Costo Total to the right in the header
     worksheet.getCell(`F${headerRow.number}`).alignment = { horizontal: 'right' };
     worksheet.getCell(`G${headerRow.number}`).alignment = { horizontal: 'right' };
+    worksheet.getCell(`H${headerRow.number}`).alignment = { horizontal: 'right' };
 
     // Set Column Widths
     worksheet.columns = [
@@ -454,6 +473,7 @@ export default function IndicadorVencimiento() {
       { key: 'desc', width: 45 },
       { key: 'color', width: 25 },
       { key: 'qty', width: 12 },
+      { key: 'dias', width: 12 },
       { key: 'cost', width: 15 },
       { key: 'status', width: 15 }
     ];
@@ -467,6 +487,7 @@ export default function IndicadorVencimiento() {
         item.nombre || '-',
         `${item.color} (${item.idcolor})`,
         item.cantidad,
+        item.daysRemaining !== null && item.daysRemaining !== undefined ? item.daysRemaining : '—',
         item.costo_total || 0,
         item.status
       ]);
@@ -480,11 +501,13 @@ export default function IndicadorVencimiento() {
           right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
         };
         
-        // Cantidad (F) and Cost (G)
+        // Cantidad (F), Dias (G) and Cost (H)
         if (colNumber === 6) {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.numFmt = '#,##0';
         } else if (colNumber === 7) {
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
+        } else if (colNumber === 8) {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.numFmt = '"L. "#,##0.00';
         } else {
@@ -498,12 +521,12 @@ export default function IndicadorVencimiento() {
     const totalCost = exportAndPrintItems.reduce((acc, item) => acc + (item.costo_total || 0), 0);
     
     const totalsRow = worksheet.addRow([
-      '', '', '', '', 'Totales:', totalQty, totalCost, ''
+      '', '', '', '', 'Totales:', totalQty, '', totalCost, ''
     ]);
 
     totalsRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
       cell.font = { name: 'Arial', size: 11, bold: true };
-      if (colNumber >= 5 && colNumber <= 7) {
+      if (colNumber >= 5 && colNumber <= 8) {
         cell.border = {
           top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
           left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
@@ -511,11 +534,11 @@ export default function IndicadorVencimiento() {
           right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
         };
       }
-      if (colNumber === 5 || colNumber === 6 || colNumber === 7) {
+      if (colNumber >= 5 && colNumber <= 8) {
         cell.alignment = { horizontal: 'right', vertical: 'middle' };
       }
       if (colNumber === 6) cell.numFmt = '#,##0';
-      if (colNumber === 7) cell.numFmt = '"L. "#,##0.00';
+      if (colNumber === 8) cell.numFmt = '"L. "#,##0.00';
     });
 
     // Export file
