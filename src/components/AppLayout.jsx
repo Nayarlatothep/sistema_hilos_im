@@ -113,7 +113,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
       </header>
 
       {/* Main Content Area */}
-      <main className={`pt-24 min-h-screen mx-auto px-4 md:px-8 pb-12 flex-grow ${currentTab === 'reporte-lotes' || currentTab === 'lotes' ? 'w-full' : 'max-w-7xl w-full'}`}>
+      <main className={`pt-24 min-h-screen mx-auto px-4 md:px-8 pb-12 flex-grow ${currentTab === 'reporte-lotes' || currentTab === 'lotes' || currentTab === 'dashboard-vencimiento' ? 'w-full' : 'max-w-7xl w-full'}`}>
         {children}
       </main>
 

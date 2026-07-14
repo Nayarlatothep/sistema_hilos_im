@@ -548,8 +548,9 @@ export default function IndicadorVencimiento() {
   };
 
   return (
-    <div>
-      <div className="mb-lg flex justify-between items-start">
+    <div className="w-full flex flex-col items-center">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="mb-lg flex justify-between items-start">
         <div>
           <h2 className="font-headline-lg text-headline-lg font-black text-on-surface mb-2">CONTROL MATERIALES EXPIRADOS - MATERIA PRIMA</h2>
           <p className="font-body-md text-body-md text-on-surface-variant">Análisis en tiempo real de la obsolescencia de materiales y exposición financiera.</p>
@@ -854,9 +855,10 @@ export default function IndicadorVencimiento() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Detailed Data Table */}
-      <div className="card-base overflow-hidden">
+      <div className="card-base overflow-hidden w-full mt-8">
         <div className="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
           <h3 className="font-headline-md text-headline-md text-on-surface">Análisis Detallado de Inventario</h3>
           <div className="flex flex-wrap gap-2 items-center">
