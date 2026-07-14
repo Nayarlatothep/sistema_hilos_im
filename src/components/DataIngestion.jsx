@@ -215,6 +215,31 @@ export default function DataIngestion() {
           </div>
         )}
         </div>
+
+        {/* Categoría: TEJIDO DE PUNTO */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-3 border-b border-slate-200 pb-2 mb-2">
+            <span className="material-symbols-outlined text-secondary text-2xl">texture</span>
+            <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">Categoría: Tejido de Punto</h2>
+          </div>
+
+          {/* Fila Tejido de Punto (Placeholder) */}
+          <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-3 flex flex-col md:flex-row items-stretch gap-3 opacity-60 relative overflow-hidden">
+            <div className="absolute inset-0 bg-slate-50/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+              <span className="bg-white px-4 py-2 rounded-full shadow-sm text-xs font-bold text-slate-500 uppercase tracking-widest border border-slate-200">Próximamente</span>
+            </div>
+            <DropzoneSection onDataParsed={() => {}} icon="texture" color="bg-slate-400" label="Archivo Tejido" />
+            <button 
+              disabled
+              title="No disponible aún" 
+              className="flex-shrink-0 flex items-center justify-center gap-2 px-6 py-4 bg-slate-50 text-slate-400 rounded-xl border border-slate-100"
+            >
+              <span className="material-symbols-outlined text-2xl">lock</span>
+              <span className="text-xs font-black uppercase tracking-widest hidden md:inline">Borrar Datos</span>
+            </button>
+          </div>
+        </div>
+
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
