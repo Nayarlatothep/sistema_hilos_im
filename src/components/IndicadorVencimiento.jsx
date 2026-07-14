@@ -386,6 +386,180 @@ export default function IndicadorVencimiento() {
     });
   }, [filteredDetailedItems]);
 
+  const handleVencimientoPrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Resumen por Días de Vencimiento</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+            th { background-color: #f4f4f4; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            .bg-red { background-color: #f87171 !important; color: white !important; }
+            .bg-yellow { background-color: #fef08a !important; color: black !important; }
+            .bg-green { background-color: #bbf7d0 !important; color: black !important; }
+          </style>
+        </head>
+        <body>
+          <h2>Resumen por Días de Vencimiento</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Días Venc.</th>
+                <th class="text-right">Sum of Cantidad</th>
+                <th class="text-right">Sum of Costo Total</th>
+                <th class="text-right">Acumulado</th>
+                <th class="text-right">Count of Estatus</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${diasVencTableData.rows.map(row => {
+                let bgClass = '';
+                if (row.days >= 0 && row.days <= 14) bgClass = 'bg-red';
+                else if (row.days >= 35 && row.days <= 70) bgClass = 'bg-yellow';
+                else if (row.days >= 71) bgClass = 'bg-green';
+                
+                return `
+                  <tr class="${bgClass}">
+                    <td>+${row.days}</td>
+                    <td class="text-right">${new Intl.NumberFormat('en-US').format(row.cantidad)}</td>
+                    <td class="text-right font-bold">${formatCurrency(row.costo_total)}</td>
+                    <td class="text-right font-bold">${formatCurrency(row.acumulado)}</td>
+                    <td class="text-right">${row.count}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="font-bold">Grand Total</td>
+                <td class="text-right font-bold">${new Intl.NumberFormat('en-US').format(diasVencTableData.totalQty)}</td>
+                <td class="text-right font-bold">${formatCurrency(diasVencTableData.totalCost)}</td>
+                <td></td>
+                <td class="text-right font-bold">${diasVencTableData.totalCount}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleVencimientoExportExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Vencimientos');
+
+    // Title Row
+    worksheet.mergeCells('A1:E1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = 'Resumen por Días de Vencimiento';
+    titleCell.font = { name: 'Arial', size: 14, bold: true };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+    // Headers
+    const headerRow = worksheet.addRow(['Días Venc.', 'Sum of Cantidad', 'Sum of Costo Total', 'Acumulado', 'Count of Estatus']);
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF4F4F4' }
+      };
+      cell.font = { name: 'Arial', size: 11, bold: true };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+        left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+        bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+        right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'left' };
+    });
+
+    // Set Column Widths
+    worksheet.columns = [
+      { key: 'days', width: 15 },
+      { key: 'qty', width: 20 },
+      { key: 'cost', width: 20 },
+      { key: 'acumulado', width: 20 },
+      { key: 'count', width: 20 }
+    ];
+
+    // Align numeric columns
+    worksheet.getColumn('qty').alignment = { horizontal: 'right' };
+    worksheet.getColumn('cost').alignment = { horizontal: 'right' };
+    worksheet.getColumn('acumulado').alignment = { horizontal: 'right' };
+    worksheet.getColumn('count').alignment = { horizontal: 'right' };
+
+    // Add Data
+    diasVencTableData.rows.forEach(row => {
+      const dataRow = worksheet.addRow([
+        `+${row.days}`,
+        row.cantidad,
+        row.costo_total,
+        row.acumulado,
+        row.count
+      ]);
+      
+      let fillColor = null;
+      let fontColor = 'FF000000';
+      if (row.days >= 0 && row.days <= 14) {
+        fillColor = 'FFF87171'; // bg-red-400
+        fontColor = 'FFFFFFFF';
+      } else if (row.days >= 35 && row.days <= 70) {
+        fillColor = 'FFFEF08A'; // bg-yellow-200
+      } else if (row.days >= 71) {
+        fillColor = 'FFBBF7D0'; // bg-green-200
+      }
+
+      dataRow.eachCell((cell) => {
+        if (fillColor) {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+          cell.font = { color: { argb: fontColor } };
+        }
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFEEEEEE' } },
+          bottom: { style: 'thin', color: { argb: 'FFEEEEEE' } }
+        };
+      });
+      
+      // Formatting numbers
+      dataRow.getCell(2).numFmt = '#,##0';
+      dataRow.getCell(3).numFmt = '"L. "#,##0';
+      dataRow.getCell(4).numFmt = '"L. "#,##0';
+      dataRow.getCell(5).numFmt = '#,##0';
+    });
+
+    // Add Grand Total
+    const footerRow = worksheet.addRow([
+      'Grand Total',
+      diasVencTableData.totalQty,
+      diasVencTableData.totalCost,
+      '',
+      diasVencTableData.totalCount
+    ]);
+    
+    footerRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = { top: { style: 'medium', color: { argb: 'FFCCCCCC' } } };
+      
+      if (colNumber === 2 || colNumber === 5) cell.numFmt = '#,##0';
+      if (colNumber === 3) cell.numFmt = '"L. "#,##0';
+    });
+
+    // Save File
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Resumen_Vencimientos_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return; // In case popup blocker is enabled
@@ -1323,13 +1497,27 @@ export default function IndicadorVencimiento() {
               </table>
             </div>
             
-            <div className="p-4 border-t border-outline-variant bg-surface-container-lowest rounded-b-xl flex justify-end">
+            <div className="p-4 border-t border-outline-variant bg-surface-container-lowest rounded-b-xl flex justify-between">
               <button 
                 onClick={() => setShowVencimientoModal(false)}
                 className="bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
               >
-                Cerrar
+                <span className="material-symbols-outlined text-[18px]">close</span> Cerrar
               </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleVencimientoPrint}
+                  className="bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[18px]">print</span> Imprimir
+                </button>
+                <button 
+                  onClick={handleVencimientoExportExcel}
+                  className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[18px]">download</span> Exportar a Excel
+                </button>
+              </div>
             </div>
           </div>
         </div>
