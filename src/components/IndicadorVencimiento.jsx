@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
+import * as XLSX from 'xlsx';
 
 export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, loading } = useStore();
