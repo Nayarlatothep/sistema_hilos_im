@@ -152,22 +152,6 @@ export default function IndicadorVencimiento() {
 
   const { alerts: actionRequiredAlerts, stats, items } = inventoryData;
 
-  const riskByCategory = useMemo(() => {
-    if (!items) return [];
-    const riskItems = items.filter(item => item.status === 'En Riesgo');
-    const categories = {
-      'Heat Transfers': 0,
-      'Quimicos': 0,
-      'Stickers': 0
-    };
-    riskItems.forEach(item => {
-      categories[item.categoria] = (categories[item.categoria] || 0) + (item.costo_total || 0);
-    });
-    return Object.entries(categories)
-      .map(([categoria, total]) => ({ categoria, total }))
-      .sort((a, b) => b.total - a.total);
-  }, [items]);
-
   const diasVencTableData = useMemo(() => {
     if (!items) return { rows: [], totalQty: 0, totalCost: 0, totalCount: 0 };
     
