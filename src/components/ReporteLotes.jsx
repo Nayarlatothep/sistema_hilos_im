@@ -85,8 +85,17 @@ export default function ReporteLotes() {
       val !== null && typeof val !== 'object' && String(val).toLowerCase().includes(searchQuery.toLowerCase())
     );
     const matchesStatus = filterStatus === 'All' || row.status === filterStatus;
-    
     return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    const isANum = typeof a.diasRestantes === 'number';
+    const isBNum = typeof b.diasRestantes === 'number';
+
+    if (isANum && isBNum) {
+      return a.diasRestantes - b.diasRestantes;
+    }
+    if (isANum) return -1;
+    if (isBNum) return 1;
+    return 0;
   });
 
   return (
