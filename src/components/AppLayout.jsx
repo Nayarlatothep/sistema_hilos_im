@@ -53,19 +53,6 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         {/* Navigation Menu */}
         <nav className="flex-1 py-6 flex flex-col gap-2 px-3 overflow-x-hidden">
           
-
-
-          {/* Ingreso Archivos */}
-          <a 
-            href="#"
-            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'upload' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
-            title="Ingreso Archivos"
-          >
-            <span className="material-symbols-outlined text-[22px]">upload_file</span>
-            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Ingreso Archivos</span>
-          </a>
-
           {/* Materia Prima Accordion */}
           <div className="flex flex-col mb-2">
             <button 
@@ -128,17 +115,6 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
             </div>
           </div>
 
-          {/* Tejido de Punto */}
-          <a 
-            href="#"
-            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'tejido-punto' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-            onClick={(e) => { e.preventDefault(); onTabChange('tejido-punto'); }}
-            title="Tejido de Punto"
-          >
-            <span className="material-symbols-outlined text-[22px]">texture</span>
-            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Tejido de Punto</span>
-          </a>
-
           {/* Material Expirado Accordion */}
           <div className="flex flex-col mb-2">
             <button 
@@ -176,6 +152,28 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
               </a>
             </div>
           </div>
+
+          {/* Tejido de Punto */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'tejido-punto' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('tejido-punto'); }}
+            title="Tejido de Punto"
+          >
+            <span className="material-symbols-outlined text-[22px]">texture</span>
+            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Tejido de Punto</span>
+          </a>
+
+          {/* Ingreso Archivos */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'upload' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('upload'); }}
+            title="Ingreso Archivos"
+          >
+            <span className="material-symbols-outlined text-[22px]">upload_file</span>
+            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Ingreso Archivos</span>
+          </a>
 
         </nav>
 
