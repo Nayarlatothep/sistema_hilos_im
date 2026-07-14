@@ -18,6 +18,7 @@ export default function ReporteLotes() {
     const key = `${row.pc}-${row.articulo}-${row.idcolor}`;
     if (!acc[key]) {
       acc[key] = {
+        key,
         ids: [],
         pc: row.pc,
         categoria: row.categoria,
@@ -188,7 +189,7 @@ export default function ReporteLotes() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap text-center">Borrar</th>
+                  <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap text-center">Editar</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Código PC</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Categoría</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Artículo</th>
@@ -220,20 +221,39 @@ export default function ReporteLotes() {
                     <tr key={idx} className={`border-b border-slate-50 transition-colors ${rowBg}`}>
                       <td className="p-4 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-3">
-                          <input 
-                            type="checkbox" 
-                            className="w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer accent-primary shrink-0"
-                            checked={row.ids.every(id => selectedLotes.has(id))}
-                            onChange={(e) => {
-                              const newSet = new Set(selectedLotes);
-                              if (e.target.checked) {
-                                row.ids.forEach(id => newSet.add(id));
-                              } else {
-                                row.ids.forEach(id => newSet.delete(id));
-                              }
-                              setSelectedLotes(newSet);
-                            }}
-                          />
+                          {editingId === (row.key || idx) ? (
+                            <button 
+                              onClick={async () => {
+                                if (row.ids && row.ids.length > 0) {
+                                  await updateLoteMaterialColorCantidad(row.ids[0], parseFloat(editCantidad));
+                                  if (row.ids.length > 1) {
+                                    await deleteMultipleLoteMaterialColor(row.ids.slice(1));
+                                  }
+                                }
+                                setEditingId(null);
+                                fetchLoteMaterialColor();
+                              }}
+                              className="text-success hover:text-green-600 transition-colors p-1.5 rounded-lg hover:bg-success/10 flex items-center justify-center shrink-0"
+                              title="Guardar cambios"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                check
+                              </span>
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => {
+                                setEditingId(row.key || idx);
+                                setEditCantidad(row.cantidad);
+                              }}
+                              className="text-slate-400 hover:text-primary transition-colors p-1.5 rounded-lg hover:bg-primary/10 flex items-center justify-center shrink-0"
+                              title="Editar cantidad"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                edit
+                              </span>
+                            </button>
+                          )}
                         </div>
                       </td>
                       <td className="p-4 whitespace-nowrap">
@@ -257,7 +277,31 @@ export default function ReporteLotes() {
                         ) : '—'}
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold font-mono text-slate-800 text-base">
-                        {row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'}
+                        {editingId === (row.key || idx) ? (
+                          <input 
+                            type="number"
+                            className="w-24 px-2 py-1 border border-slate-300 rounded text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            value={editCantidad}
+                            onChange={(e) => setEditCantidad(e.target.value)}
+                            autoFocus
+                            onKeyDown={async (e) => {
+                              if (e.key === 'Enter') {
+                                if (row.ids && row.ids.length > 0) {
+                                  await updateLoteMaterialColorCantidad(row.ids[0], parseFloat(editCantidad));
+                                  if (row.ids.length > 1) {
+                                    await deleteMultipleLoteMaterialColor(row.ids.slice(1));
+                                  }
+                                }
+                                setEditingId(null);
+                                fetchLoteMaterialColor();
+                              } else if (e.key === 'Escape') {
+                                setEditingId(null);
+                              }
+                            }}
+                          />
+                        ) : (
+                          row.cantidad != null ? parseFloat(row.cantidad).toLocaleString() : '—'
+                        )}
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
                         {row.fecha_manufactura ? new Date(row.fecha_manufactura).toLocaleDateString() : '—'}
