@@ -317,6 +317,26 @@ export default function IndicadorVencimiento() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredDetailedItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  const exportAndPrintItems = useMemo(() => {
+    return [...filteredDetailedItems].sort((a, b) => {
+      const pcA = String(a.pc || '');
+      const pcB = String(b.pc || '');
+      if (pcA !== pcB) return pcA.localeCompare(pcB);
+
+      const artA = String(a.articulo || '');
+      const artB = String(b.articulo || '');
+      if (artA !== artB) return artA.localeCompare(artB);
+
+      const colA = String(a.color || '');
+      const colB = String(b.color || '');
+      if (colA !== colB) return colA.localeCompare(colB);
+
+      const qtyA = Number(a.cantidad || 0);
+      const qtyB = Number(b.cantidad || 0);
+      return qtyB - qtyA;
+    });
+  }, [filteredDetailedItems]);
+
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return; // In case popup blocker is enabled
@@ -335,10 +355,11 @@ export default function IndicadorVencimiento() {
         </head>
         <body>
           <h2>Reporte de Inventario Detallado</h2>
-          <p>Total Registros (SKUs): <strong>${filteredDetailedItems.length}</strong></p>
+          <p>Total Registros (SKUs): <strong>${exportAndPrintItems.length}</strong></p>
           <table>
             <thead>
               <tr>
+                <th>Lote (PC)</th>
                 <th>SKU</th>
                 <th>Categoría</th>
                 <th>Descripción</th>
@@ -349,8 +370,9 @@ export default function IndicadorVencimiento() {
               </tr>
             </thead>
             <tbody>
-              ${filteredDetailedItems.map(item => `
+              ${exportAndPrintItems.map(item => `
                 <tr>
+                  <td>${item.pc || '-'}</td>
                   <td>${item.articulo}</td>
                   <td>${item.categoria}</td>
                   <td>${item.nombre || '-'}</td>
@@ -363,9 +385,9 @@ export default function IndicadorVencimiento() {
             </tbody>
             <tfoot>
               <tr class="font-bold">
-                <td colspan="4" class="text-right">Totales:</td>
-                <td class="text-right">${filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
-                <td class="text-right">${formatCurrency(filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
+                <td colspan="5" class="text-right">Totales:</td>
+                <td class="text-right">${exportAndPrintItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
+                <td class="text-right">${formatCurrency(exportAndPrintItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -395,7 +417,7 @@ export default function IndicadorVencimiento() {
     // Subtitle Row
     worksheet.mergeCells('A2:H2');
     const subtitleCell = worksheet.getCell('A2');
-    subtitleCell.value = `Total Registros (SKUs): ${filteredDetailedItems.length}`;
+    subtitleCell.value = `Total Registros (SKUs): ${exportAndPrintItems.length}`;
     subtitleCell.font = { name: 'Arial', size: 10, bold: false };
     
     // Empty row
@@ -437,7 +459,7 @@ export default function IndicadorVencimiento() {
     ];
 
     // Add Data Rows
-    filteredDetailedItems.forEach((item) => {
+    exportAndPrintItems.forEach((item) => {
       const row = worksheet.addRow([
         item.pc || '-',
         item.articulo,
@@ -472,8 +494,8 @@ export default function IndicadorVencimiento() {
     });
 
     // Totals Row
-    const totalQty = filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0);
-    const totalCost = filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0);
+    const totalQty = exportAndPrintItems.reduce((acc, item) => acc + item.cantidad, 0);
+    const totalCost = exportAndPrintItems.reduce((acc, item) => acc + (item.costo_total || 0), 0);
     
     const totalsRow = worksheet.addRow([
       '', '', '', '', 'Totales:', totalQty, totalCost, ''
