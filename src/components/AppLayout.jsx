@@ -53,6 +53,17 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         {/* Navigation Menu */}
         <nav className="flex-1 py-6 flex flex-col gap-2 px-3 overflow-x-hidden">
           
+          {/* Menú Principal */}
+          <a 
+            href="#"
+            className={`flex items-center gap-3 ${isExpanded ? 'px-4' : 'justify-center px-0'} py-3 rounded-lg text-xs font-headline transition-all uppercase tracking-widest font-bold mb-2 ${currentTab === 'home' ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+            onClick={(e) => { e.preventDefault(); onTabChange('home'); }}
+            title="Menú Principal"
+          >
+            <span className="material-symbols-outlined text-[22px]">home</span>
+            <span className={`whitespace-nowrap transition-opacity duration-200 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>Menú Principal</span>
+          </a>
+
           {/* Materia Prima Accordion */}
           <div className="flex flex-col mb-2">
             <button 

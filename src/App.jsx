@@ -9,10 +9,11 @@ import ReporteLotes from './components/ReporteLotes';
 import IngresoLotes from './components/IngresoLotes';
 import Traslados from './components/Traslados';
 import IndicadorVencimiento from './components/IndicadorVencimiento';
+import HomeDashboard from './components/HomeDashboard';
 
 function App() {
   const { fetchPlanificacion, fetchTransferencias, fetchMetaDiaria, fetchMaterialesColor, loadLotesProcesados, loading, error } = useStore();
-  const [currentTab, setCurrentTab] = useState('dashboard-monitor');
+  const [currentTab, setCurrentTab] = useState('home');
 
   useEffect(() => {
     fetchPlanificacion();
@@ -24,6 +25,8 @@ function App() {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'home':
+        return <HomeDashboard />;
       case 'dashboard-monitor':
         return <Dashboard />;
       case 'dashboard-transfer':
@@ -41,7 +44,7 @@ function App() {
       case 'upload':
         return <DataIngestion />;
       default:
-        return <Dashboard />;
+        return <HomeDashboard />;
     }
   };
 
