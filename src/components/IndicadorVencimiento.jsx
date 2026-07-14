@@ -393,9 +393,38 @@ export default function IndicadorVencimiento() {
       'Fecha Venc.': item.expirationDate ? item.expirationDate.toISOString().split('T')[0] : '-'
     }));
 
+    // Agregar fila de totales
+    const totalQty = filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0);
+    const totalCost = filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0);
+    
+    excelData.push({
+      'Lote (PC)': 'TOTALES',
+      'SKU': '',
+      'Categoría': '',
+      'Descripción': '',
+      'Color': '',
+      'Cantidad': totalQty,
+      'Costo Total': totalCost,
+      'Estatus': '',
+      'Fecha Venc.': ''
+    });
+
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario');
+
+    // Dar formato a los números (Columnas F y G)
+    for (let R = 1; R <= excelData.length; ++R) {
+      const cellCantidad = worksheet[XLSX.utils.encode_cell({c: 5, r: R})];
+      if (cellCantidad && typeof cellCantidad.v === 'number') {
+        cellCantidad.z = '#,##0'; // Número con separador de miles
+      }
+      
+      const cellCosto = worksheet[XLSX.utils.encode_cell({c: 6, r: R})];
+      if (cellCosto && typeof cellCosto.v === 'number') {
+        cellCosto.z = '"L. "#,##0.00'; // Formato de moneda Lempira
+      }
+    }
 
     const columnWidths = [
       { wch: 15 },
