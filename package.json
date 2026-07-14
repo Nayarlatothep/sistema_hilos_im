@@ -17,6 +17,8 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "xlsx": "^0.18.5",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

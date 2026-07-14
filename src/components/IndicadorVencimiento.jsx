@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 export default function IndicadorVencimiento() {
   const { fetchLotesConCosto, lotes_con_costo, fetchMaterialesColor, materiales_color, fetchLoteMaterialColor, lotes_material_color, loading } = useStore();
@@ -380,66 +381,125 @@ export default function IndicadorVencimiento() {
     }, 250);
   };
 
-  const handleExportExcel = () => {
-    const excelData = filteredDetailedItems.map(item => ({
-      'Lote (PC)': item.pc || '-',
-      'SKU': item.articulo,
-      'Categoría': item.categoria,
-      'Descripción': item.nombre || '-',
-      'Color': `${item.color} (${item.idcolor})`,
-      'Cantidad': item.cantidad,
-      'Costo Total': item.costo_total || 0,
-      'Estatus': item.status,
-      'Fecha Venc.': item.expirationDate ? item.expirationDate.toISOString().split('T')[0] : '-'
-    }));
+  const handleExportExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Inventario');
 
-    // Agregar fila de totales
+    // Title Row
+    worksheet.mergeCells('A1:H1');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = 'Reporte de Inventario Detallado';
+    titleCell.font = { name: 'Arial', size: 14, bold: true };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+    // Subtitle Row
+    worksheet.mergeCells('A2:H2');
+    const subtitleCell = worksheet.getCell('A2');
+    subtitleCell.value = `Total Registros (SKUs): ${filteredDetailedItems.length}`;
+    subtitleCell.font = { name: 'Arial', size: 10, bold: false };
+    
+    // Empty row
+    worksheet.addRow([]);
+
+    // Headers
+    const headerRow = worksheet.addRow(['Lote (PC)', 'SKU', 'Categoría', 'Descripción', 'Color', 'Cantidad', 'Costo Total', 'Estatus']);
+    
+    // Format Header Row
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF4F4F4' }
+      };
+      cell.font = { name: 'Arial', size: 11, bold: true };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+        left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+        bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+        right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'left' };
+    });
+    // Align Cantidad and Costo Total to the right in the header
+    worksheet.getCell(`F${headerRow.number}`).alignment = { horizontal: 'right' };
+    worksheet.getCell(`G${headerRow.number}`).alignment = { horizontal: 'right' };
+
+    // Set Column Widths
+    worksheet.columns = [
+      { key: 'pc', width: 15 },
+      { key: 'sku', width: 15 },
+      { key: 'cat', width: 15 },
+      { key: 'desc', width: 45 },
+      { key: 'color', width: 25 },
+      { key: 'qty', width: 12 },
+      { key: 'cost', width: 15 },
+      { key: 'status', width: 15 }
+    ];
+
+    // Add Data Rows
+    filteredDetailedItems.forEach((item) => {
+      const row = worksheet.addRow([
+        item.pc || '-',
+        item.articulo,
+        item.categoria,
+        item.nombre || '-',
+        `${item.color} (${item.idcolor})`,
+        item.cantidad,
+        item.costo_total || 0,
+        item.status
+      ]);
+
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        cell.font = { name: 'Arial', size: 10 };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+          left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+          bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+          right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
+        };
+        
+        // Cantidad (F) and Cost (G)
+        if (colNumber === 6) {
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          cell.numFmt = '#,##0';
+        } else if (colNumber === 7) {
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          cell.numFmt = '"L. "#,##0.00';
+        } else {
+          cell.alignment = { vertical: 'middle' };
+        }
+      });
+    });
+
+    // Totals Row
     const totalQty = filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0);
     const totalCost = filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0);
     
-    excelData.push({
-      'Lote (PC)': 'TOTALES',
-      'SKU': '',
-      'Categoría': '',
-      'Descripción': '',
-      'Color': '',
-      'Cantidad': totalQty,
-      'Costo Total': totalCost,
-      'Estatus': '',
-      'Fecha Venc.': ''
+    const totalsRow = worksheet.addRow([
+      '', '', '', '', 'Totales:', totalQty, totalCost, ''
+    ]);
+
+    totalsRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      cell.font = { name: 'Arial', size: 11, bold: true };
+      if (colNumber >= 5 && colNumber <= 7) {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+          left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+          bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+          right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
+        };
+      }
+      if (colNumber === 5 || colNumber === 6 || colNumber === 7) {
+        cell.alignment = { horizontal: 'right', vertical: 'middle' };
+      }
+      if (colNumber === 6) cell.numFmt = '#,##0';
+      if (colNumber === 7) cell.numFmt = '"L. "#,##0.00';
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Inventario');
-
-    // Dar formato a los números (Columnas F y G)
-    for (let R = 1; R <= excelData.length; ++R) {
-      const cellCantidad = worksheet[XLSX.utils.encode_cell({c: 5, r: R})];
-      if (cellCantidad && typeof cellCantidad.v === 'number') {
-        cellCantidad.z = '#,##0'; // Número con separador de miles
-      }
-      
-      const cellCosto = worksheet[XLSX.utils.encode_cell({c: 6, r: R})];
-      if (cellCosto && typeof cellCosto.v === 'number') {
-        cellCosto.z = '"L. "#,##0.00'; // Formato de moneda Lempira
-      }
-    }
-
-    const columnWidths = [
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 30 },
-      { wch: 20 },
-      { wch: 10 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 15 }
-    ];
-    worksheet['!cols'] = columnWidths;
-
-    XLSX.writeFile(workbook, 'Inventario_Detallado.xlsx');
+    // Export file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, 'Inventario_Detallado.xlsx');
   };
 
   return (
