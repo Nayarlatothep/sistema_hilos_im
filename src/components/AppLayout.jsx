@@ -36,7 +36,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
             src="/intermoda_logo.png"
           />
           <h1 className="text-[13px] font-bold tracking-tighter text-white font-headline text-center leading-tight whitespace-nowrap">
-            Control de Hilos en<br/>Módulos de Producción
+            Módulos Externos<br/>Materia Prima
           </h1>
         </div>
         
@@ -184,7 +184,7 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
         {/* Mobile Header */}
         <header className="md:hidden fixed top-0 w-full z-40 bg-[#2C3E50] h-14 flex justify-between items-center px-4 border-b border-white/10">
           <img alt="Intermoda Logo" className="h-7 w-auto drop-shadow-md" src="/intermoda_logo.png" />
-          <h1 className="text-sm font-bold tracking-tighter text-white font-headline">Control Hilos</h1>
+          <h1 className="text-sm font-bold tracking-tighter text-white font-headline">Módulos Externos</h1>
           <div className="h-7 w-7 rounded-full bg-primary-container overflow-hidden">
              <img alt="User profile" className="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7sQibDyUj4dXe069m68Dx7x_CjcvWzq1MZurjQJP637ApxrL2LdPkwrfY6IS1jz6zNpEiGtwquxyumqnwr65DOC62jAbvytzcdBl4vGTvjAy-_wxOAm1zMbruRRon_Jy8fg7gH_5SDn82o1pjzrVREDbw2Hn5OikI9z679xg_dFoZjNgf1_seun0x3xAGZVfD_fFOfFGHJVxDWHNBd--bg7FB8dkFlFm2oDp4uwVZj4ay3MxtXjl0LykvGfrA-x0ljeQAJ3qVZD0" />
           </div>
