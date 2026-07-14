@@ -103,17 +103,17 @@ export default function AppLayout({ children, currentTab, onTabChange }) {
                   </a>
                   <a 
                     href="#"
-                    className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'traslados' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-                    onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
-                  >
-                    TRASLADO HILOS
-                  </a>
-                  <a 
-                    href="#"
                     className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'dashboard-transfer' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
                     onClick={(e) => { e.preventDefault(); onTabChange('dashboard-transfer'); }}
                   >
                     TRANSFERENCIA
+                  </a>
+                  <a 
+                    href="#"
+                    className={`flex items-center pl-10 pr-4 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-r-lg transition-colors whitespace-nowrap ${currentTab === 'traslados' ? 'text-secondary bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('traslados'); }}
+                  >
+                    TRASLADO HILOS
                   </a>
                   <a 
                     href="#"
