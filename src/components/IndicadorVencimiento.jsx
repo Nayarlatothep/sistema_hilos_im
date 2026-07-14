@@ -13,6 +13,8 @@ export default function IndicadorVencimiento() {
   const [filterCategory, setFilterCategory] = useState('All');
   const [urgencyCategory, setUrgencyCategory] = useState('All');
   const [obsoleteCategory, setObsoleteCategory] = useState('All');
+  const [vencimientoCategory, setVencimientoCategory] = useState('All');
+  const [showVencimientoModal, setShowVencimientoModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -169,8 +171,13 @@ export default function IndicadorVencimiento() {
   const diasVencTableData = useMemo(() => {
     if (!items) return { rows: [], totalQty: 0, totalCost: 0, totalCount: 0 };
     
+    let filteredItems = items;
+    if (vencimientoCategory !== 'All') {
+      filteredItems = filteredItems.filter(item => item.categoria === vencimientoCategory);
+    }
+
     const grouped = {};
-    items.forEach(item => {
+    filteredItems.forEach(item => {
       if (item.daysRemaining === null || item.daysRemaining === undefined) return;
       if (item.daysRemaining < 0) return;
       
@@ -207,7 +214,7 @@ export default function IndicadorVencimiento() {
     });
 
     return { rows, totalQty, totalCost, totalCount };
-  }, [items]);
+  }, [items, vencimientoCategory]);
 
   const urgencyHistogram = useMemo(() => {
     if (!items) return [];
@@ -668,10 +675,25 @@ export default function IndicadorVencimiento() {
             <div className="card-base flex flex-col h-80 overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento</h3>
+                <div className="flex gap-2">
+                  <select 
+                    className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
+                    value={vencimientoCategory}
+                    onChange={(e) => setVencimientoCategory(e.target.value)}
+                  >
+                    <option value="All">Todas</option>
+                    {uniqueCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <button onClick={() => setShowVencimientoModal(true)} className="text-on-surface-variant hover:text-primary">
+                    <span className="material-symbols-outlined" data-icon="open_in_full">open_in_full</span>
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-auto p-4 pt-0">
                 <table className="w-full text-xs text-right border-collapse">
-                  <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant">
+                  <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant shadow-sm">
                     <tr>
                       <th className="py-2 px-2 text-left">Días Venc.</th>
                       <th className="py-2 px-2">Sum of Cantidad</th>
@@ -707,7 +729,7 @@ export default function IndicadorVencimiento() {
                       );
                     })}
                   </tbody>
-                  <tfoot className="sticky bottom-0 bg-surface z-10 font-bold border-t border-outline-variant">
+                  <tfoot className="font-bold border-t-2 border-outline-variant">
                     <tr>
                       <td className="py-2 px-2 text-left">Grand Total</td>
                       <td className="py-2 px-2">{new Intl.NumberFormat('en-US').format(diasVencTableData.totalQty)}</td>
@@ -1222,6 +1244,19 @@ export default function IndicadorVencimiento() {
                         <span className="mr-6 bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px]">Total SKUs: {filteredDetailedItems.length}</span>
                         Totales:
                       </td>
+                          {item.status}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+                {filteredDetailedItems.length > 0 && (
+                  <tfoot className="bg-surface-container-low font-bold text-on-surface border-t-2 border-outline-variant">
+                    <tr>
+                      <td colSpan="4" className="py-3 px-4 text-right">
+                        <span className="mr-6 bg-primary/10 text-primary px-3 py-1 rounded-full text-[12px]">Total SKUs: {filteredDetailedItems.length}</span>
+                        Totales:
+                      </td>
                       <td className="py-3 px-4 text-right">{filteredDetailedItems.reduce((acc, item) => acc + item.cantidad, 0).toLocaleString()}</td>
                       <td className="py-3 px-4 text-right text-error">{formatCurrency(filteredDetailedItems.reduce((acc, item) => acc + (item.costo_total || 0), 0))}</td>
                       <td className="py-3 px-4"></td>
@@ -1249,10 +1284,85 @@ export default function IndicadorVencimiento() {
           </div>
         </div>
       )}
+
+      {/* Modal para ver tabla de Resumen por Días de Vencimiento expandida */}
+      {showVencimientoModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-xl shadow-lg flex flex-col max-w-4xl w-full h-[85vh] overflow-hidden">
+            <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest rounded-t-xl">
+              <div>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface font-black">Resumen por Días de Vencimiento</h3>
+                <p className="text-sm text-on-surface-variant">Detalle completo</p>
+              </div>
+              <button 
+                onClick={() => setShowVencimientoModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-surface hover:bg-surface-variant text-on-surface transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-auto p-6 bg-surface">
+              <table className="w-full text-sm text-right border-collapse">
+                <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant shadow-sm">
+                  <tr>
+                    <th className="py-3 px-4 text-left">Días Venc.</th>
+                    <th className="py-3 px-4">Sum of Cantidad</th>
+                    <th className="py-3 px-4">Sum of Costo Total</th>
+                    <th className="py-3 px-4">Acumulado</th>
+                    <th className="py-3 px-4">Count of Estatus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diasVencTableData.rows.map((row, idx) => {
+                    let bgColor = '';
+                    let textColor = 'text-on-surface';
+                    
+                    if (row.days >= 0 && row.days <= 14) {
+                      bgColor = 'bg-red-400';
+                      textColor = 'text-white';
+                    } else if (row.days >= 35 && row.days <= 70) {
+                      bgColor = 'bg-yellow-200';
+                      textColor = 'text-black';
+                    } else if (row.days >= 71) {
+                      bgColor = 'bg-green-200';
+                      textColor = 'text-black';
+                    }
+
+                    return (
+                      <tr key={idx} className={`${bgColor} border-b border-outline-variant/50 last:border-0`}>
+                        <td className={`py-2 px-4 text-left ${textColor}`}>+{row.days}</td>
+                        <td className={`py-2 px-4 ${textColor}`}>{new Intl.NumberFormat('en-US').format(row.cantidad)}</td>
+                        <td className={`py-2 px-4 font-data-mono ${textColor}`}>{formatCurrency(row.costo_total)}</td>
+                        <td className={`py-2 px-4 font-data-mono ${textColor}`}>{formatCurrency(row.acumulado)}</td>
+                        <td className={`py-2 px-4 ${textColor}`}>{row.count}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot className="font-bold border-t-2 border-outline-variant">
+                  <tr>
+                    <td className="py-3 px-4 text-left">Grand Total</td>
+                    <td className="py-3 px-4">{new Intl.NumberFormat('en-US').format(diasVencTableData.totalQty)}</td>
+                    <td className="py-3 px-4 font-data-mono">{formatCurrency(diasVencTableData.totalCost)}</td>
+                    <td className="py-3 px-4"></td>
+                    <td className="py-3 px-4">{diasVencTableData.totalCount}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            
+            <div className="p-4 border-t border-outline-variant bg-surface-container-lowest rounded-b-xl flex justify-end">
+              <button 
+                onClick={() => setShowVencimientoModal(false)}
+                className="bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors flex items-center gap-2 font-label-sm font-bold shadow-sm"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
