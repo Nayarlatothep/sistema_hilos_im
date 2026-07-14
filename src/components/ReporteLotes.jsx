@@ -19,6 +19,7 @@ export default function ReporteLotes() {
     const shelflife = material ? Number(material.shelflife) || 0 : 0;
     let status = 'Desconocido';
     let fechaVencimientoStr = '—';
+    let diasRestantes = '—';
     
     if (row.fecha_manufactura && shelflife > 0) {
       let expirationDate;
@@ -36,6 +37,7 @@ export default function ReporteLotes() {
         const today = new Date();
         const diffTime = expirationDate - today;
         const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        diasRestantes = daysRemaining;
         
         if (daysRemaining < 0) {
           status = 'Obsoleto';
@@ -46,7 +48,7 @@ export default function ReporteLotes() {
         }
       }
     }
-    return { ...row, status, fechaVencimientoStr };
+    return { ...row, status, fechaVencimientoStr, diasRestantes };
   }).sort((a, b) => (b.id || 0) - (a.id || 0));
 
   const filteredLotes = lotesWithStatus.filter(row => {
@@ -168,6 +170,7 @@ export default function ReporteLotes() {
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Cantidad</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Manu.</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha Vencimiento</th>
+                  <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Días Venc.</th>
                   <th className="p-4 text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap text-center">Estatus</th>
                 </tr>
               </thead>
@@ -286,6 +289,13 @@ export default function ReporteLotes() {
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
                         {row.fechaVencimientoStr}
+                      </td>
+                      <td className="p-4 whitespace-nowrap font-bold text-slate-500 text-sm">
+                        {row.diasRestantes !== '—' ? (
+                          <span className={row.diasRestantes < 0 ? 'text-danger' : (row.diasRestantes <= 30 ? 'text-warning' : '')}>
+                            {row.diasRestantes}
+                          </span>
+                        ) : '—'}
                       </td>
                       <td className="p-4 whitespace-nowrap text-center">
                         <span className={`${badgeClass} px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider`}>
