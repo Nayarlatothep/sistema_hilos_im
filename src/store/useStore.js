@@ -417,7 +417,8 @@ export const useStore = create((set, get) => ({
         pc: formattedPc,
         cantidad: parseFloat(record.cantidad) || parseFloat(record.CANTIDAD) || parseFloat(record.Cantidad) || 0,
         fecha_manufactura: record.fecha_manufactura || record.Fecha_manufactura || record.Fecha_manu || record.fecha_manu || record['FECHA MANU'] || null,
-        categoria: record.categoria || record.Categoria || record.CATEGORIA || null
+        categoria: record.categoria || record.Categoria || record.CATEGORIA || null,
+        transaccion: 'INGRESO'
       };
     });
 
