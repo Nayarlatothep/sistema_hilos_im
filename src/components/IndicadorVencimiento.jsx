@@ -440,7 +440,7 @@ export default function IndicadorVencimiento() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Resumen por Días de Vencimiento</title>
+          <title>Resumen por Días de Vencimiento (En Riesgo)</title>
           <style>
             body { font-family: sans-serif; padding: 20px; font-size: 12px; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -454,7 +454,7 @@ export default function IndicadorVencimiento() {
           </style>
         </head>
         <body>
-          <h2>Resumen por Días de Vencimiento</h2>
+          <h2>Resumen por Días de Vencimiento (En Riesgo)</h2>
           <table>
             <thead>
               <tr>
@@ -509,7 +509,7 @@ export default function IndicadorVencimiento() {
     // Title Row
     worksheet.mergeCells('A1:E1');
     const titleCell = worksheet.getCell('A1');
-    titleCell.value = 'Resumen por Días de Vencimiento';
+    titleCell.value = 'Resumen por Días de Vencimiento (En Riesgo)';
     titleCell.font = { name: 'Arial', size: 14, bold: true };
     titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
 
@@ -880,7 +880,7 @@ export default function IndicadorVencimiento() {
             {/* Tabla Colorización por Días de Vencimiento */}
             <div className="card-base flex flex-col h-80 overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento</h3>
+                <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento (En Riesgo)</h3>
                 <div className="flex gap-2">
                   <select 
                     className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
@@ -1525,13 +1525,13 @@ export default function IndicadorVencimiento() {
         </div>
       )}
 
-      {/* Modal para ver tabla de Resumen por Días de Vencimiento expandida */}
+      {/* Modal para ver tabla de Resumen por Días de Vencimiento (En Riesgo) expandida */}
       {showVencimientoModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-surface rounded-xl shadow-lg flex flex-col max-w-4xl w-full h-[85vh] overflow-hidden">
             <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest rounded-t-xl">
               <div>
-                <h3 className="font-headline-sm text-headline-sm text-on-surface font-black">Resumen por Días de Vencimiento</h3>
+                <h3 className="font-headline-sm text-headline-sm text-on-surface font-black">Resumen por Días de Vencimiento (En Riesgo)</h3>
                 <p className="text-sm text-on-surface-variant">Detalle completo</p>
               </div>
               <button 
