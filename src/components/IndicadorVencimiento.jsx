@@ -878,7 +878,7 @@ export default function IndicadorVencimiento() {
         <div className="lg:col-span-2 space-y-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
             {/* Tabla Colorización por Días de Vencimiento */}
-            <div className="card-base flex flex-col h-80 overflow-hidden">
+            <div className="card-base flex flex-col h-[450px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento (En Riesgo)</h3>
                 <div className="flex gap-2">
@@ -949,7 +949,7 @@ export default function IndicadorVencimiento() {
             </div>
 
             {/* Detalle Material en Riesgo */}
-            <div className="card-base flex flex-col h-80 overflow-hidden">
+            <div className="card-base flex flex-col h-[450px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Detalle Material en Riesgo</h3>
                 <div className="flex gap-2">
@@ -994,7 +994,7 @@ export default function IndicadorVencimiento() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mt-lg">
             {/* Resumen por Días de Obsoleto (Table) */}
-            <div className="card-base flex flex-col h-80 overflow-hidden">
+            <div className="card-base flex flex-col h-[450px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento (Obsoleto)</h3>
                 <div className="flex gap-2">
@@ -1056,7 +1056,7 @@ export default function IndicadorVencimiento() {
             </div>
 
             {/* Detalle Material Obsoleto */}
-            <div className="card-base flex flex-col h-80 overflow-hidden">
+            <div className="card-base flex flex-col h-[450px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Detalle Material Obsoleto</h3>
                 <div className="flex gap-2">
@@ -1103,41 +1103,7 @@ export default function IndicadorVencimiento() {
             </div>
           </div>
 
-          {/* Inventory Aging Timeline */}
-          <div className="card-base p-lg flex flex-col h-72">
-            <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-              <h3 className="font-headline-md text-headline-md text-on-surface">Historico de Diarios de Material Expirados</h3>
-            </div>
-            <div className="flex-1 relative mt-4">
-              {/* Grid lines */}
-              <div className="absolute inset-0 flex flex-col justify-between z-0">
-                <div className="border-t border-surface-container-highest w-full h-0"></div>
-                <div className="border-t border-surface-container-highest w-full h-0"></div>
-                <div className="border-t border-surface-container-highest w-full h-0"></div>
-                <div className="border-t border-surface-container-highest w-full h-0"></div>
-              </div>
-              {/* SVG Line Chart Mockup */}
-              <svg className="w-full h-full relative z-10" preserveAspectRatio="none" viewBox="0 0 400 100">
-                <path d="M0,90 Q50,85 100,70 T200,40 T300,60 T400,20" fill="none" stroke="currentColor" className="text-warning" strokeWidth="3"></path>
-                <path d="M0,90 Q50,85 100,70 T200,40 T300,60 T400,20 L400,100 L0,100 Z" fill="url(#grad1)" opacity="0.2"></path>
-                <defs>
-                  <linearGradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: 'currentColor', stopOpacity: 1 }} className="text-warning"></stop>
-                    <stop offset="100%" style={{ stopColor: 'transparent', stopOpacity: 0 }}></stop>
-                  </linearGradient>
-                </defs>
-                {/* Data points */}
-                <circle cx="100" cy="70" fill="white" r="4" stroke="currentColor" className="text-warning" strokeWidth="2"></circle>
-                <circle cx="200" cy="40" fill="white" r="4" stroke="currentColor" className="text-warning" strokeWidth="2"></circle>
-                <circle cx="300" cy="60" fill="white" r="4" stroke="currentColor" className="text-warning" strokeWidth="2"></circle>
-                <circle cx="400" cy="20" fill="white" r="4" stroke="currentColor" className="text-warning" strokeWidth="2"></circle>
-              </svg>
-              {/* X Axis */}
-              <div className="absolute -bottom-6 w-full flex justify-between text-[10px] font-data-mono text-on-surface-variant px-2">
-                <span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         {/* Right Column (Alerts & Actions) */}
