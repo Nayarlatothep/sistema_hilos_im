@@ -948,41 +948,46 @@ export default function IndicadorVencimiento() {
               </div>
             </div>
 
-            {/* Urgency Histogram (Aging / Time-to-Expiry) */}
-            <div className="card-base p-lg flex flex-col h-80">
-              <div className="mb-2 border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Histograma Material en Riesgo</h3>
-              </div>
-              <div className="flex justify-end mb-2">
-                <select 
-                  className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
-                  value={urgencyCategory}
-                  onChange={(e) => setUrgencyCategory(e.target.value)}
-                >
-                  <option value="All">Todas las Categorías</option>
-                  {uniqueCategories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
-                {/* Y Axis markers */}
-                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
-                  <span>Max</span><span>Med</span><span>Min</span>
+            {/* Detalle Material en Riesgo */}
+            <div className="card-base flex flex-col h-80 overflow-hidden">
+              <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md text-on-surface">Detalle Material en Riesgo</h3>
+                <div className="flex gap-2">
+                  <select 
+                    className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
+                    value={urgencyCategory}
+                    onChange={(e) => setUrgencyCategory(e.target.value)}
+                  >
+                    <option value="All">Todas</option>
+                    {uniqueCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
-                {/* Bars */}
-                {urgencyHistogram.map((bucket, idx) => {
-                  const maxVal = Math.max(...urgencyHistogram.map(b => b.total), 1);
-                  const height = Math.max(10, (bucket.total / maxVal) * 120); // max height ~ 120px
-                  return (
-                    <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
-                      <div className={`w-10 ${bucket.color} rounded-t-sm transition-all group-hover:opacity-80 relative flex items-end justify-center`} style={{ height: `${height}px` }}>
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-0 bg-surface-container shadow-sm px-1 rounded z-10 whitespace-nowrap">{formatCurrency(bucket.total)}</span>
-                      </div>
-                      <span className="font-label-sm text-[9px] text-on-surface-variant w-14 text-center leading-tight">{bucket.label}</span>
-                    </div>
-                  );
-                })}
+              </div>
+              <div className="flex-1 overflow-auto p-4 pt-0">
+                <table className="w-full text-xs text-right border-collapse">
+                  <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant shadow-sm">
+                    <tr>
+                      <th className="py-2 px-2 text-left">Lote (PC)</th>
+                      <th className="py-2 px-2">Cantidad</th>
+                      <th className="py-2 px-2">Costo Total</th>
+                      <th className="py-2 px-2">Días Venc.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.filter(item => item.status === 'En Riesgo' && (urgencyCategory === 'All' || item.categoria === urgencyCategory))
+                      .sort((a, b) => (a.daysRemaining || 0) - (b.daysRemaining || 0))
+                      .map((item, idx) => (
+                      <tr key={idx} className="border-b border-outline-variant/50 last:border-0 hover:bg-surface-container-lowest">
+                        <td className="py-1.5 px-2 text-left text-on-surface truncate max-w-[100px]" title={item.pc}>{item.pc || '-'}</td>
+                        <td className="py-1.5 px-2 text-on-surface">{new Intl.NumberFormat('en-US').format(item.cantidad)}</td>
+                        <td className="py-1.5 px-2 font-data-mono text-on-surface">{formatCurrency(item.costo_total)}</td>
+                        <td className="py-1.5 px-2 text-on-surface font-bold text-orange-600">{item.daysRemaining !== null ? `+${item.daysRemaining}` : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1050,41 +1055,50 @@ export default function IndicadorVencimiento() {
               </div>
             </div>
 
-            {/* Obsolete Histogram */}
-            <div className="card-base p-lg flex flex-col h-80">
-              <div className="mb-2 border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Histograma Material Obsoleto</h3>
-              </div>
-              <div className="flex justify-end mb-2">
-                <select 
-                  className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
-                  value={obsoleteCategory}
-                  onChange={(e) => setObsoleteCategory(e.target.value)}
-                >
-                  <option value="All">Todas las Categorías</option>
-                  {uniqueCategories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex-1 flex items-end justify-around pb-4 relative pt-6">
-                {/* Y Axis markers */}
-                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-on-surface-variant font-data-mono border-r border-outline-variant pr-2 w-10">
-                  <span>Max</span><span>Med</span><span>Min</span>
+            {/* Detalle Material Obsoleto */}
+            <div className="card-base flex flex-col h-80 overflow-hidden">
+              <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md text-on-surface">Detalle Material Obsoleto</h3>
+                <div className="flex gap-2">
+                  <select 
+                    className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
+                    value={obsoleteCategory}
+                    onChange={(e) => setObsoleteCategory(e.target.value)}
+                  >
+                    <option value="All">Todas</option>
+                    {uniqueCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
-                {/* Bars */}
-                {obsoleteHistogram.map((bucket, idx) => {
-                  const maxVal = Math.max(...obsoleteHistogram.map(b => b.total), 1);
-                  const height = Math.max(10, (bucket.total / maxVal) * 120); // max height ~ 120px
-                  return (
-                    <div key={idx} className={`flex flex-col items-center gap-1 group ${idx === 0 ? 'ml-10' : ''}`}>
-                      <div className={`w-10 ${bucket.color} rounded-t-sm transition-all group-hover:opacity-80 relative flex items-end justify-center`} style={{ height: `${height}px` }}>
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 font-data-mono text-[10px] group-hover:opacity-100 opacity-0 bg-surface-container shadow-sm px-1 rounded z-10 whitespace-nowrap">{formatCurrency(bucket.total)}</span>
-                      </div>
-                      <span className="font-label-sm text-[9px] text-on-surface-variant w-14 text-center leading-tight">{bucket.label}</span>
-                    </div>
-                  );
-                })}
+              </div>
+              <div className="flex-1 overflow-auto p-4 pt-0">
+                <table className="w-full text-xs text-right border-collapse">
+                  <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant shadow-sm">
+                    <tr>
+                      <th className="py-2 px-2 text-left">Lote (PC)</th>
+                      <th className="py-2 px-2">Cantidad</th>
+                      <th className="py-2 px-2">Costo Total</th>
+                      <th className="py-2 px-2">Días Venc.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.filter(item => item.status === 'Obsoleto' && (obsoleteCategory === 'All' || item.categoria === obsoleteCategory))
+                      .sort((a, b) => (a.daysRemaining || 0) - (b.daysRemaining || 0))
+                      .map((item, idx) => {
+                        const isMoreThanYear = item.daysRemaining <= -365;
+                        const rowBg = isMoreThanYear ? 'bg-red-50' : 'bg-yellow-50';
+                        return (
+                          <tr key={idx} className={`border-b border-outline-variant/50 last:border-0 hover:bg-surface-container-lowest ${rowBg}`}>
+                            <td className="py-1.5 px-2 text-left text-on-surface truncate max-w-[100px]" title={item.pc}>{item.pc || '-'}</td>
+                            <td className="py-1.5 px-2 text-on-surface">{new Intl.NumberFormat('en-US').format(item.cantidad)}</td>
+                            <td className="py-1.5 px-2 font-data-mono text-on-surface">{formatCurrency(item.costo_total)}</td>
+                            <td className={`py-1.5 px-2 font-bold ${isMoreThanYear ? 'text-red-600' : 'text-yellow-600'}`}>{item.daysRemaining !== null ? `${item.daysRemaining}` : '-'}</td>
+                          </tr>
+                        );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
