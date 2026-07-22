@@ -878,7 +878,7 @@ export default function IndicadorVencimiento() {
         <div className="lg:col-span-2 space-y-lg">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
             {/* Tabla Colorización por Días de Vencimiento */}
-            <div className="card-base flex flex-col h-[450px] overflow-hidden">
+            <div className="card-base flex flex-col h-[600px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento (En Riesgo)</h3>
                 <div className="flex gap-2">
@@ -949,7 +949,7 @@ export default function IndicadorVencimiento() {
             </div>
 
             {/* Detalle Material en Riesgo */}
-            <div className="card-base flex flex-col h-[450px] overflow-hidden">
+            <div className="card-base flex flex-col h-[600px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Detalle Material en Riesgo</h3>
                 <div className="flex gap-2">
@@ -994,7 +994,7 @@ export default function IndicadorVencimiento() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mt-lg">
             {/* Resumen por Días de Obsoleto (Table) */}
-            <div className="card-base flex flex-col h-[450px] overflow-hidden">
+            <div className="card-base flex flex-col h-[600px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento (Obsoleto)</h3>
                 <div className="flex gap-2">
@@ -1056,7 +1056,7 @@ export default function IndicadorVencimiento() {
             </div>
 
             {/* Detalle Material Obsoleto */}
-            <div className="card-base flex flex-col h-[450px] overflow-hidden">
+            <div className="card-base flex flex-col h-[600px] overflow-hidden">
               <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Detalle Material Obsoleto</h3>
                 <div className="flex gap-2">
