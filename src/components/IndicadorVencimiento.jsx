@@ -871,6 +871,8 @@ export default function IndicadorVencimiento() {
           </div>
         </div>
       </div>
+      </div>
+      <div className="w-full max-w-[98%] mx-auto px-4 mt-2">
 
       {/* Bento Grid Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg mb-lg">
