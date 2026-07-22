@@ -916,13 +916,13 @@ export default function IndicadorVencimiento() {
                       let bgColor = '';
                       let textColor = 'text-on-surface';
                       
-                      if (row.days >= 0 && row.days <= 14) {
+                      if (row.days >= 0 && row.days <= 30) {
                         bgColor = 'bg-red-400';
                         textColor = 'text-white';
-                      } else if (row.days >= 35 && row.days <= 70) {
+                      } else if (row.days >= 31 && row.days <= 70) {
                         bgColor = 'bg-yellow-200';
                         textColor = 'text-black';
-                      } else if (row.days >= 71) {
+                      } else if (row.days > 70) {
                         bgColor = 'bg-green-200';
                         textColor = 'text-black';
                       }
@@ -1542,13 +1542,13 @@ export default function IndicadorVencimiento() {
                     let bgColor = '';
                     let textColor = 'text-on-surface';
                     
-                    if (row.days >= 0 && row.days <= 14) {
+                    if (row.days >= 0 && row.days <= 30) {
                       bgColor = 'bg-red-400';
                       textColor = 'text-white';
-                    } else if (row.days >= 35 && row.days <= 70) {
+                    } else if (row.days >= 31 && row.days <= 70) {
                       bgColor = 'bg-yellow-200';
                       textColor = 'text-black';
-                    } else if (row.days >= 71) {
+                    } else if (row.days > 70) {
                       bgColor = 'bg-green-200';
                       textColor = 'text-black';
                     }
