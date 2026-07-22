@@ -241,6 +241,54 @@ export default function IndicadorVencimiento() {
     ];
   }, [items, urgencyCategory]);
 
+  const diasObsoletosTableData = useMemo(() => {
+    if (!items) return { rows: [], totalQty: 0, totalCost: 0, totalCount: 0 };
+    
+    let filteredItems = items.filter(item => item.status === 'Obsoleto');
+    if (obsoleteCategory !== 'All') {
+      filteredItems = filteredItems.filter(item => item.categoria === obsoleteCategory);
+    }
+
+    const grouped = {};
+    filteredItems.forEach(item => {
+      if (item.daysRemaining === null || item.daysRemaining === undefined) return;
+      if (item.daysRemaining >= 0) return;
+      
+      const days = Math.abs(item.daysRemaining);
+      if (!grouped[days]) {
+        grouped[days] = {
+          days,
+          cantidad: 0,
+          costo_total: 0,
+          count: 0
+        };
+      }
+      grouped[days].cantidad += Number(item.cantidad || 0);
+      grouped[days].costo_total += Number(item.costo_total || 0);
+      grouped[days].count += 1;
+    });
+
+    const sortedRows = Object.values(grouped).sort((a, b) => b.days - a.days);
+    
+    let acumulado = 0;
+    let totalQty = 0;
+    let totalCost = 0;
+    let totalCount = 0;
+    
+    const rows = sortedRows.map(row => {
+      acumulado += row.costo_total;
+      totalQty += row.cantidad;
+      totalCost += row.costo_total;
+      totalCount += row.count;
+      return {
+        ...row,
+        acumulado
+      };
+    });
+
+    return { rows, totalQty, totalCost, totalCount };
+  }, [items, obsoleteCategory]);
+
   const obsoleteByCategory = useMemo(() => {
     if (!items) return [];
     const obsoleteItems = items.filter(item => item.status === 'Obsoleto');
@@ -940,32 +988,60 @@ export default function IndicadorVencimiento() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mt-lg">
-            {/* Inventario Obsoleto por Category (Horizontal Bar Chart) */}
-            <div className="card-base p-lg flex flex-col h-80">
-              <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Inventario Obsoleto por Categoría</h3>
-                <button className="text-on-surface-variant hover:text-primary">
-                  <span className="material-symbols-outlined" data-icon="more_vert">more_vert</span>
-                </button>
+            {/* Resumen por Días de Obsoleto (Table) */}
+            <div className="card-base flex flex-col h-80 overflow-hidden">
+              <div className="p-lg pb-2 flex justify-between items-center mb-0 border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md text-on-surface">Resumen por Días de Vencimiento (Obsoleto)</h3>
+                <div className="flex gap-2">
+                  <select 
+                    className="pl-2 pr-6 py-1 border border-outline-variant rounded bg-surface-container-lowest font-body-md text-xs focus:border-primary outline-none max-w-[150px]"
+                    value={obsoleteCategory}
+                    onChange={(e) => setObsoleteCategory(e.target.value)}
+                  >
+                    <option value="All">Todas</option>
+                    {uniqueCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="flex-1 flex flex-col justify-center gap-4 mt-2">
-                {obsoleteByCategory.length === 0 ? (
-                  <div className="text-center text-on-surface-variant text-sm py-4">Sin datos</div>
-                ) : (
-                  obsoleteByCategory.slice(0, 5).map((cat, idx) => {
-                    const maxObs = obsoleteByCategory[0].total || 1;
-                    const percentage = Math.max(1, (cat.total / maxObs) * 100);
-                    return (
-                      <div key={idx} className="flex items-center gap-3">
-                        <span className="w-20 text-[11px] text-on-surface-variant font-label-sm truncate text-right" title={cat.categoria}>{cat.categoria}</span>
-                        <div className="flex-1 h-5 bg-danger/20 rounded-r-sm overflow-hidden flex items-center">
-                          <div className="h-full bg-danger" style={{ width: `${percentage}%` }}></div>
-                        </div>
-                        <span className="w-20 text-[12px] font-data-mono text-on-surface text-right font-bold">{formatCurrency(cat.total)}</span>
-                      </div>
-                    );
-                  })
-                )}
+              <div className="flex-1 overflow-auto p-4 pt-0">
+                <table className="w-full text-xs text-right border-collapse">
+                  <thead className="sticky top-0 bg-surface z-10 text-on-surface-variant font-bold border-b border-outline-variant shadow-sm">
+                    <tr>
+                      <th className="py-2 px-2 text-left">Días Venc.</th>
+                      <th className="py-2 px-2">Sum of Cantidad</th>
+                      <th className="py-2 px-2">Sum of Costo Total</th>
+                      <th className="py-2 px-2">Acumulado</th>
+                      <th className="py-2 px-2">Count of Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {diasObsoletosTableData.rows.map((row, idx) => {
+                      let bgColor = 'bg-red-400';
+                      let textColor = 'text-white';
+
+                      return (
+                        <tr key={idx} className={`${bgColor} border-b border-outline-variant/50 last:border-0`}>
+                          <td className={`py-1.5 px-2 text-left ${textColor}`}>-{row.days}</td>
+                          <td className={`py-1.5 px-2 ${textColor}`}>{new Intl.NumberFormat('en-US').format(row.cantidad)}</td>
+                          <td className={`py-1.5 px-2 font-data-mono ${textColor}`}>{formatCurrency(row.costo_total)}</td>
+                          <td className={`py-1.5 px-2 font-data-mono ${textColor}`}>{formatCurrency(row.acumulado)}</td>
+                          <td className={`py-1.5 px-2 ${textColor}`}>{row.count}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot className="font-bold border-t-2 border-outline-variant">
+                    <tr>
+                      <td className="py-2 px-2 text-left">Grand Total</td>
+                      <td className="py-2 px-2">{new Intl.NumberFormat('en-US').format(diasObsoletosTableData.totalQty)}</td>
+                      <td className="py-2 px-2 font-data-mono">{formatCurrency(diasObsoletosTableData.totalCost)}</td>
+                      <td className="py-2 px-2"></td>
+                      <td className="py-2 px-2">{diasObsoletosTableData.totalCount}</td>
+                    </tr>
+                  </tfoot>
+                </table>
               </div>
             </div>
 
