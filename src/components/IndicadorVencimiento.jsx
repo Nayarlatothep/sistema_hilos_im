@@ -979,7 +979,17 @@ export default function IndicadorVencimiento() {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.filter(item => item.status === 'En Riesgo' && (urgencyCategory === 'All' || item.categoria === urgencyCategory))
+                    {Object.values(items.filter(item => item.status === 'En Riesgo' && (urgencyCategory === 'All' || item.categoria === urgencyCategory))
+                      .reduce((acc, item) => {
+                        const key = item.pc || 'NO_PC';
+                        if (!acc[key]) {
+                          acc[key] = { ...item };
+                        } else {
+                          acc[key].cantidad += item.cantidad;
+                          acc[key].costo_total += item.costo_total;
+                        }
+                        return acc;
+                      }, {}))
                       .sort((a, b) => (a.daysRemaining || 0) - (b.daysRemaining || 0))
                       .map((item, idx) => (
                       <tr key={idx} className="border-b border-outline-variant/50 last:border-0 hover:bg-surface-container-lowest">
@@ -1086,7 +1096,17 @@ export default function IndicadorVencimiento() {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.filter(item => item.status === 'Obsoleto' && (obsoleteCategory === 'All' || item.categoria === obsoleteCategory))
+                    {Object.values(items.filter(item => item.status === 'Obsoleto' && (obsoleteCategory === 'All' || item.categoria === obsoleteCategory))
+                      .reduce((acc, item) => {
+                        const key = item.pc || 'NO_PC';
+                        if (!acc[key]) {
+                          acc[key] = { ...item };
+                        } else {
+                          acc[key].cantidad += item.cantidad;
+                          acc[key].costo_total += item.costo_total;
+                        }
+                        return acc;
+                      }, {}))
                       .sort((a, b) => (a.daysRemaining || 0) - (b.daysRemaining || 0))
                       .map((item, idx) => {
                         const isMoreThanYear = item.daysRemaining <= -365;
