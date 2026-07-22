@@ -1020,6 +1020,11 @@ export default function IndicadorVencimiento() {
                     {diasObsoletosTableData.rows.map((row, idx) => {
                       let bgColor = 'bg-red-400';
                       let textColor = 'text-white';
+                      
+                      if (row.days >= 0 && row.days <= 365) {
+                        bgColor = 'bg-yellow-200';
+                        textColor = 'text-black';
+                      }
 
                       return (
                         <tr key={idx} className={`${bgColor} border-b border-outline-variant/50 last:border-0`}>
