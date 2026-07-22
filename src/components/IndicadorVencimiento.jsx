@@ -14,6 +14,7 @@ export default function IndicadorVencimiento() {
   const [urgencyCategory, setUrgencyCategory] = useState('All');
   const [obsoleteCategory, setObsoleteCategory] = useState('All');
   const [vencimientoCategory, setVencimientoCategory] = useState('All');
+  const [actionAlertFilter, setActionAlertFilter] = useState('All');
   const [showVencimientoModal, setShowVencimientoModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -1112,19 +1113,34 @@ export default function IndicadorVencimiento() {
         <div className="lg:col-span-1 space-y-lg flex flex-col">
           {/* Action Required Panel */}
           <div className="card-base flex flex-col h-auto overflow-hidden flex-1">
-            <div className="bg-error-container p-4 border-b border-error/20 flex items-center justify-between">
-              <h3 className="font-headline-md text-headline-md text-on-error-container flex items-center gap-2">
-                <span className="material-symbols-outlined">warning</span> Acción Requerida
-              </h3>
-              <span className="bg-error text-on-error text-[10px] font-bold px-2 py-1 rounded-full">{actionRequiredAlerts.length} Alertas</span>
+            <div className="bg-error-container p-4 border-b border-error/20 flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <h3 className="font-headline-md text-headline-md text-on-error-container flex items-center gap-2">
+                  <span className="material-symbols-outlined">warning</span> Acción Requerida
+                </h3>
+                <span className="bg-error text-on-error text-[10px] font-bold px-2 py-1 rounded-full">
+                  {actionAlertFilter === 'All' ? actionRequiredAlerts.length : actionRequiredAlerts.filter(a => a.status === actionAlertFilter).length} Alertas
+                </span>
+              </div>
+              <div className="flex justify-end">
+                <select 
+                  className="pl-2 pr-6 py-1 border border-error/30 rounded bg-white text-on-error-container font-body-md text-xs focus:border-error outline-none"
+                  value={actionAlertFilter}
+                  onChange={(e) => setActionAlertFilter(e.target.value)}
+                >
+                  <option value="All">Todas</option>
+                  <option value="Obsoleto">Obsoleto</option>
+                  <option value="En Riesgo">En Riesgo</option>
+                </select>
+              </div>
             </div>
             <div className="p-0 flex-1 overflow-y-auto">
-              {actionRequiredAlerts.length === 0 && (
+              {(actionAlertFilter === 'All' ? actionRequiredAlerts : actionRequiredAlerts.filter(a => a.status === actionAlertFilter)).length === 0 && (
                 <div className="p-8 text-center text-on-surface-variant font-body-md">
-                  No hay alertas de vencimiento en este momento.
+                  No hay alertas para este filtro.
                 </div>
               )}
-              {actionRequiredAlerts.slice(0, 5).map((alert, idx) => (
+              {(actionAlertFilter === 'All' ? actionRequiredAlerts : actionRequiredAlerts.filter(a => a.status === actionAlertFilter)).slice(0, 5).map((alert, idx) => (
                 <div key={idx} className={`p-4 border-b border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer flex flex-col justify-between items-start ${alert.status === 'Obsoleto' ? 'bg-danger/5' : ''}`}>
                   <div className="w-full">
                     <div className="flex items-center gap-2 mb-1 w-full">
