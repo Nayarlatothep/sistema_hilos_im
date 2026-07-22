@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 
 export default function HomeDashboard({ onTabChange }) {
@@ -8,8 +8,21 @@ export default function HomeDashboard({ onTabChange }) {
     getAvailableModules,
     lotes_con_costo, 
     materiales_color, 
-    lotes_material_color 
+    lotes_material_color,
+    fetchPlanificacion,
+    fetchTransferencias,
+    fetchLotesConCosto,
+    fetchMaterialesColor,
+    fetchLoteMaterialColor
   } = useStore();
+
+  useEffect(() => {
+    fetchPlanificacion();
+    fetchTransferencias();
+    fetchLotesConCosto();
+    fetchMaterialesColor();
+    fetchLoteMaterialColor();
+  }, [fetchPlanificacion, fetchTransferencias, fetchLotesConCosto, fetchMaterialesColor, fetchLoteMaterialColor]);
 
   // --- LOGIC FOR HILOS ---
   const availableModules = useMemo(() => getAvailableModules(), [planificacion, transferencias, getAvailableModules]);
